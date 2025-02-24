@@ -1,9 +1,3 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Devices') }}
-        </h2>
-    </x-slot>
-
+<x-layouts.app>
     <livewire:device-manager />
-</x-app-layout>
+</x-layouts.app>

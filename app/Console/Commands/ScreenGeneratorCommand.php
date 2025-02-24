@@ -34,8 +34,8 @@ class ScreenGeneratorCommand extends Command
         $view = $this->argument('view');
 
         $uuid = Uuid::uuid4()->toString();
-        $pngPath = public_path('storage/images/generated/').$uuid.'.png';
-        $bmpPath = public_path('storage/images/generated/').$uuid.'.bmp';
+        $pngPath = Storage::disk('public')->path('/images/generated/'.$uuid.'.png');
+        $bmpPath = Storage::disk('public')->path('/images/generated/'.$uuid.'.bmp');
 
         // Generate PNG
         try {

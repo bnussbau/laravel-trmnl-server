@@ -1,94 +1,124 @@
 <div class="py-12">
+    {{--@dump($devices)--}}
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold dark:text-gray-100">Devices</h2>
-                <x-primary-button
-                    wire:click="toggleDeviceForm">{{ $showDeviceForm ? 'Cancel' : 'New Device' }}</x-primary-button>
-            </div>
-
-            @if (session()->has('message'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                    {{ session('message') }}
-                </div>
-            @endif
-
-            @if ($showDeviceForm)
-                <div class="bg-gray-50 dark:bg-gray-800 p-6 mb-6 rounded-lg">
-                    <form wire:submit="createDevice">
-                        <div class="mb-4">
-                            <x-input-label for="name" :value="__('Name')"/>
-                            <x-text-input wire:model="name" id="name" class="block mt-1 w-full" type="text" name="name"
-                                          autofocus/>
-                            @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <x-input-label for="mac_address" :value="__('Mac Adress')"/>
-                            <x-text-input wire:model="mac_address" id="mac_address" class="block mt-1 w-full"
-                                          type="text" name="mac_address" autofocus/>
-                            @error('mac_address') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <x-input-label for="api_key" :value="__('API Key')"/>
-                            <x-text-input wire:model="api_key" id="api_key" class="block mt-1 w-full" type="text"
-                                          name="api_key" autofocus/>
-                            @error('api_key') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <x-input-label for="friendly_id" :value="__('Friendly Id')"/>
-                            <x-text-input wire:model="friendly_id" id="friendly_id" class="block mt-1 w-full"
-                                          type="text" name="friendly_id" autofocus/>
-                            @error('friendly_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <x-input-label for="default_refresh_interval" :value="__('Refresh Rate (seconds)')"/>
-                            <x-text-input wire:model="default_refresh_interval" id="default_refresh_interval"
-                                          class="block mt-1 w-full" type="text" name="default_refresh_interval"
-                                          autofocus/>
-                            @error('default_refresh_interval') <span
-                                class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
-                        <x-primary-button type="submit">Create Device</x-primary-button>
-                    </form>
-                </div>
-            @endif
-
-            <div class="overflow-x-auto">
-                <table class="min-w-full table-auto">
-                    <thead>
-                    <tr class="bg-gray-100 dark:bg-gray-800 ">
-                        <th class="px-6 py-3 text-left dark:text-gray-100">Name</th>
-                        <th class="px-6 py-3 text-left dark:text-gray-100">Friendly ID</th>
-                        <th class="px-6 py-3 text-left dark:text-gray-100">Mac Address</th>
-                        <th class="px-6 py-3 text-left dark:text-gray-100">Refresh</th>
-                        <th class="px-6 py-3 text-left dark:text-gray-100">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach ($devices as $device)
-                        <tr class="border-b">
-                            <td class="px-6 py-4 dark:text-gray-100">{{ $device->name }}</td>
-                            <td class="px-6 py-4 dark:text-gray-100">{{ $device->friendly_id }}</td>
-                            <td class="px-6 py-4 dark:text-gray-100">{{ $device->mac_address }}</td>
-                            <td class="px-6 py-4 dark:text-gray-100">{{ $device->default_refresh_interval }}</td>
-                            <td class="px-6 py-4 dark:text-gray-100">
-                                <x-secondary-button href="{{ route('devices.configure', $device) }}" wire:navigate>
-                                    View
-                                </x-secondary-button>
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-                <div class="mt-4">
-                    {{ $devices->links() }}
-                </div>
-            </div>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold dark:text-gray-100">Devices</h2>
+            <flux:modal.trigger name="create-device">
+                <flux:button icon="plus" variant="primary">Add Device</flux:button>
+            </flux:modal.trigger>
         </div>
+        @if (session()->has('message'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                {{ session('message') }}
+            </div>
+        @endif
+
+        <flux:modal name="create-device" class="md:w-96">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Add Device</flux:heading>
+                </div>
+
+                <form wire:submit="createDevice">
+                    <div class="mb-4">
+                        <flux:input label="Name" wire:model="name" id="name" class="block mt-1 w-full" type="text"
+                                    name="name"
+                                    autofocus/>
+                    </div>
+
+                    <div class="mb-4">
+                        <flux:input label="Mac Address" wire:model="mac_address" id="mac_address"
+                                    class="block mt-1 w-full"
+                                    type="text" name="mac_address" autofocus/>
+                    </div>
+
+                    <div class="mb-4">
+                        <flux:input label="API Key" wire:model="api_key" id="api_key" class="block mt-1 w-full"
+                                    type="text"
+                                    name="api_key" autofocus/>
+                    </div>
+
+                    <div class="mb-4">
+                        <flux:input label="Friendly Id" wire:model="friendly_id" id="friendly_id"
+                                    class="block mt-1 w-full"
+                                    type="text" name="friendly_id" autofocus/>
+                    </div>
+
+                    <div class="mb-4">
+                        <flux:input label="Refresh Rate (seconds)" wire:model="default_refresh_interval"
+                                    id="default_refresh_interval"
+                                    class="block mt-1 w-full" type="text" name="default_refresh_interval"
+                                    autofocus/>
+                    </div>
+                    <div class="flex">
+                        <flux:spacer/>
+                        <flux:button type="submit" variant="primary">Create Device</flux:button>
+                    </div>
+
+                </form>
+            </div>
+        </flux:modal>
+
+        <table
+            class="min-w-full table-fixed text-zinc-800 divide-y divide-zinc-800/10 dark:divide-white/20 text-zinc-800"
+            data-flux-table="">
+            <thead data-flux-columns="">
+            <tr>
+                <th class="py-3 px-3 first:pl-0 last:pr-0 text-left text-sm font-medium text-zinc-800 dark:text-white"
+                    data-flux-column="">
+                    <div class="whitespace-nowrap flex group-[]/right-align:justify-end">Name</div>
+                </th>
+                <th class="py-3 px-3 first:pl-0 last:pr-0 text-left text-sm font-medium text-zinc-800 dark:text-white"
+                    data-flux-column="">
+                    <div class="whitespace-nowrap flex group-[]/right-align:justify-end">Friendly ID</div>
+                </th>
+                <th class="py-3 px-3 first:pl-0 last:pr-0 text-left text-sm font-medium text-zinc-800 dark:text-white"
+                    data-flux-column="">
+                    <div class="whitespace-nowrap flex group-[]/right-align:justify-end">Mac Address</div>
+                </th>
+                <th class="py-3 px-3 first:pl-0 last:pr-0 text-left text-sm font-medium text-zinc-800 dark:text-white"
+                    data-flux-column="">
+                    <div class="whitespace-nowrap flex group-[]/right-align:justify-end">Refresh</div>
+                </th>
+                <th class="py-3 px-3 first:pl-0 last:pr-0 text-left text-sm font-medium text-zinc-800 dark:text-white"
+                    data-flux-column="">
+                    <div class="whitespace-nowrap flex group-[]/right-align:justify-end">Actions</div>
+                </th>
+            </tr>
+            </thead>
+
+            <tbody class="divide-y divide-zinc-800/10 dark:divide-white/20" data-flux-rows="">
+            @foreach ($devices as $device)
+                <tr data-flux-row="">
+                    <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap  text-zinc-500 dark:text-zinc-300"
+                        >
+                        {{ $device->name }}
+                    </td>
+                    <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap  text-zinc-500 dark:text-zinc-300"
+                        >
+                        {{ $device->friendly_id }}
+                    </td>
+                    <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap  text-zinc-500 dark:text-zinc-300"
+                        >
+                        <div type="button" data-flux-badge="data-flux-badge"
+                             class="inline-flex items-center font-medium whitespace-nowrap -mt-1 -mb-1 text-xs py-1 [&_[data-flux-badge-icon]]:size-3 [&_[data-flux-badge-icon]]:mr-1 rounded-md px-2 text-zinc-700 [&_button]:!text-zinc-700 dark:text-zinc-200 [&_button]:dark:!text-zinc-200 bg-zinc-400/15 dark:bg-zinc-400/40 [&:is(button)]:hover:bg-zinc-400/25 [&:is(button)]:hover:dark:bg-zinc-400/50">
+                            {{ $device->mac_address }}
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap  text-zinc-500 dark:text-zinc-300"
+                        >
+                        {{ $device->default_refresh_interval }}
+                    </td>
+                    <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap  font-medium text-zinc-800 dark:text-white"
+                        >
+                        <flux:button href="{{ route('devices.configure', $device) }}" wire:navigate icon="eye">
+                        </flux:button>
+                    </td>
+                </tr>
+            @endforeach
+
+            <!--[if ENDBLOCK]><![endif]-->
+            </tbody>
+        </table>
     </div>
 </div>

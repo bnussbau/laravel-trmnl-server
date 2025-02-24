@@ -2,7 +2,7 @@
 
 This is a PoC of a TRMNL server, written in Laravel. Inspired by https://github.com/usetrmnl/byos_sinatra
 
-⚠️ Not meant for production use.️️ ⚠️
+![Screenshot](README_byos-screenshot.png)
 
 ### Requirements
 * PHP >= 8.2
@@ -68,6 +68,7 @@ See this YouTube guide: [https://www.youtube.com/watch?v=3xehPW-PCOM](https://ww
 ```bash
 php artisan trmnl:screen:generate
 ```
+
 
 
 ### License

@@ -49,11 +49,7 @@ class DeviceManager extends Component
         ])->create();
 
         $this->reset();
+        \Flux::modal('create-device')->close();
         session()->flash('message', 'Device created successfully.');
-    }
-
-    public function toggleDeviceForm()
-    {
-        $this->showDeviceForm = ! $this->showDeviceForm;
     }
 }
