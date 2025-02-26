@@ -24,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/devices/{device}/configure', function (App\Models\Device $device) {
         $current_image_uuid = auth()->user()->devices()->find($device->id)->current_screen_image;
-        $current_image_path = 'images/generated/' . $current_image_uuid . '.png';
+        $current_image_path = 'images/generated/'.$current_image_uuid.'.png';
 
         return view('devices.configure', compact('device'), [
             'image' => ($current_image_uuid) ? url($current_image_path) : null,
@@ -33,4 +33,4 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

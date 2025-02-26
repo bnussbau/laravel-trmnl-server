@@ -7,8 +7,8 @@ use Livewire\Component;
 class DeviceAutoJoin extends Component
 {
     public bool $deviceAutojoin = false;
-    public bool $isFirstUser = false;
 
+    public bool $isFirstUser = false;
 
     public function mount()
     {
@@ -20,12 +20,12 @@ class DeviceAutoJoin extends Component
     public function updating($name, $value)
     {
         $this->validate([
-            'deviceAutojoin' => 'boolean'
+            'deviceAutojoin' => 'boolean',
         ]);
 
         if ($name === 'deviceAutojoin') {
             auth()->user()->update([
-                'assign_new_devices' => $value
+                'assign_new_devices' => $value,
             ]);
         }
     }

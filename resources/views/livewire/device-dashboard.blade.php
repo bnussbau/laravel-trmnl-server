@@ -21,7 +21,8 @@
                     <div class="px-10 py-8">
                         @php
                             $current_image_uuid =$device->current_screen_image;
-                            $current_image_path = 'images/generated/' . $current_image_uuid . '.png';
+                            file_exists('images/generated/' . $current_image_uuid . '.png') ? $file_extension = 'png' : $file_extension = 'bmp';
+                            $current_image_path = 'images/generated/' . $current_image_uuid . '.' . $file_extension;
                         @endphp
 
                         <h1 class="text-xl font-medium dark:text-zinc-200">{{ $device->name }}</h1>

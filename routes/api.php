@@ -27,7 +27,7 @@ Route::get('/display', function (Request $request) {
                 'user_id' => $auto_assign_user->id,
                 'name' => "{$auto_assign_user->name}'s TRMNL",
                 'friendly_id' => Str::random(6),
-                'default_refresh_interval' => 900
+                'default_refresh_interval' => 900,
             ]);
         } else {
             return response()->json([
@@ -43,9 +43,13 @@ Route::get('/display', function (Request $request) {
     ]);
 
     $image_uuid = $device->current_screen_image;
-
-    $image_path = 'images/generated/'.$image_uuid.'.bmp';
-    $filename = basename($image_path);
+    if (! $image_uuid) {
+        $image_path = 'images/setup-logo.bmp';
+        $filename = 'setup-logo.bmp';
+    } else {
+        $image_path = 'images/generated/'.$image_uuid.'.bmp';
+        $filename = basename($image_path);
+    }
 
     return response()->json([
         'status' => '0',

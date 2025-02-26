@@ -6,7 +6,8 @@
                 <div class="px-10 py-8">
                     @php
                         $current_image_uuid =$device->current_screen_image;
-                        $current_image_path = 'images/generated/' . $current_image_uuid . '.png';
+                        file_exists('images/generated/' . $current_image_uuid . '.png') ? $file_extension = 'png' : $file_extension = 'bmp';
+                        $current_image_path = 'images/generated/' . $current_image_uuid . '.' . $file_extension;
                     @endphp
 
                     <h1 class="text-xl font-medium dark:text-zinc-200">{{ $device->name }}</h1>
@@ -18,10 +19,11 @@
                     <p class="text-sm dark:text-zinc-400">Firmware Version: {{$device->last_firmware_version}}</p>
                     <flux:input.group class="mt-4 mb-2">
                         <flux:input.group.prefix>API Key</flux:input.group.prefix>
-                        <flux:input icon="key" value="{{ $device->api_key }}" type="password" viewable  class="max-w-xs"/>
+                        <flux:input icon="key" value="{{ $device->api_key }}" type="password" viewable
+                                    class="max-w-xs"/>
                     </flux:input.group>
                     @if($current_image_uuid)
-                        <flux:separator class="mt-6 mb-6"  text="Next Screen" />
+                        <flux:separator class="mt-6 mb-6" text="Next Screen"/>
                         <img src="{{ asset($current_image_path) }}" alt="Next Image"/>
                     @endif
                 </div>
