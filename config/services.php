@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'trmnl' => [
+        'base_url' => env('TRMNL_BASE_URL'),
+    ],
+
 ];
