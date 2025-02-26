@@ -11,7 +11,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class FetchProxyCloudResponses implements ShouldQueue
 {
@@ -34,16 +33,20 @@ class FetchProxyCloudResponses implements ShouldQueue
                     'proxy_cloud_response' => $response->json(),
                 ]);
 
-                $responseData = $response->json('image_url');
-                \Log::info('Response data: '.$responseData);
-                if (isset($responseData)) {
+                $imageUrl = $response->json('image_url');
+                $filename = $response->json('filename');
+
+                \Log::info('Response data: '.$imageUrl);
+                if (isset($imageUrl)) {
                     try {
-                        $imageUuid = Str::uuid();
-                        $imageContents = Http::get($responseData)->body();
-                        Storage::disk('public')->put(
-                            "images/generated/{$imageUuid}.bmp",
-                            $imageContents
-                        );
+                        $imageUuid = $filename;
+                        $imageContents = Http::get($imageUrl)->body();
+                        if (! Storage::disk('public')->exists("images/generated/{$imageUuid}.bmp")) {
+                            Storage::disk('public')->put(
+                                "images/generated/{$imageUuid}.bmp",
+                                $imageContents
+                            );
+                        }
 
                         $device->update([
                             'current_screen_image' => $imageUuid,
