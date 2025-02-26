@@ -21,8 +21,8 @@
                         <flux:input icon="key" value="{{ $device->api_key }}" type="password" viewable  class="max-w-xs"/>
                     </flux:input.group>
                     @if($current_image_uuid)
-                        <flux:separator class="mt-6 mb-6"  text="Current Screen" />
-                        <img src="{{ asset($current_image_path) }}" alt="Current Image"/>
+                        <flux:separator class="mt-6 mb-6"  text="Next Screen" />
+                        <img src="{{ asset($current_image_path) }}" alt="Next Image"/>
                     @endif
                 </div>
             </div>
