@@ -52,4 +52,15 @@ class DeviceManager extends Component
         \Flux::modal('create-device')->close();
         session()->flash('message', 'Device created successfully.');
     }
+
+    public function toggleProxyCloud(Device $device): void
+    {
+        $device->update([
+            'proxy_cloud' => !$device->proxy_cloud,
+        ]);
+
+        // if ($device->proxy_cloud) {
+        //     \App\Jobs\FetchProxyCloudResponses::dispatch();
+        // }
+    }
 }

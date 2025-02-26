@@ -111,8 +111,13 @@
                     </td>
                     <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap  font-medium text-zinc-800 dark:text-white"
                         >
-                        <flux:button href="{{ route('devices.configure', $device) }}" wire:navigate icon="eye">
-                        </flux:button>
+                        <div class="flex items-center gap-4">
+                            <flux:button href="{{ route('devices.configure', $device) }}" wire:navigate icon="eye">
+                            </flux:button>
+                            <flux:tooltip content="Proxy Images from cloud if currently no image is set (TRMNL DEV Edition only)" position="bottom">
+                                <flux:switch wire:model.live="proxy_cloud" wire:click="toggleProxyCloud({{ $device->id }})" :checked="$device->proxy_cloud" label="Proxy Cloud"/>
+                            </flux:tooltip>
+                        </div>
                     </td>
                 </tr>
             @endforeach
