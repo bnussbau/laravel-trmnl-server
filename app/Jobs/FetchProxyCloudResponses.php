@@ -8,9 +8,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FetchProxyCloudResponses implements ShouldQueue
 {
@@ -21,14 +22,13 @@ class FetchProxyCloudResponses implements ShouldQueue
      */
     public function handle(): void
     {
-        $baseUrl = Config::get('services.trmnl.base_url');
 
-        Device::where('proxy_cloud', true)->each(function ($device) use ($baseUrl) {
+        Device::where('proxy_cloud', true)->each(function ($device) {
             try {
                 $response = Http::withHeaders([
                     'id' => $device->mac_address,
                     'access-token' => $device->api_key,
-                ])->get($baseUrl.'/api/display');
+                ])->get(config('services.trmnl.proxy_base_url').'/api/display');
 
                 $device->update([
                     'proxy_cloud_response' => $response->json(),
@@ -38,9 +38,9 @@ class FetchProxyCloudResponses implements ShouldQueue
                 \Log::info('Response data: '.$responseData);
                 if (isset($responseData)) {
                     try {
-                        $imageUuid = \Illuminate\Support\Str::uuid();
+                        $imageUuid = Str::uuid();
                         $imageContents = Http::get($responseData)->body();
-                        \Illuminate\Support\Facades\Storage::disk('public')->put(
+                        Storage::disk('public')->put(
                             "images/generated/{$imageUuid}.bmp",
                             $imageContents
                         );
