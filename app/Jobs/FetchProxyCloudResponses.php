@@ -39,17 +39,16 @@ class FetchProxyCloudResponses implements ShouldQueue
                 \Log::info('Response data: '.$imageUrl);
                 if (isset($imageUrl)) {
                     try {
-                        $imageUuid = $filename;
                         $imageContents = Http::get($imageUrl)->body();
-                        if (! Storage::disk('public')->exists("images/generated/{$imageUuid}.bmp")) {
+                        if (! Storage::disk('public')->exists("images/generated/{$filename}.bmp")) {
                             Storage::disk('public')->put(
-                                "images/generated/{$imageUuid}.bmp",
+                                "images/generated/{$filename}.bmp",
                                 $imageContents
                             );
                         }
 
                         $device->update([
-                            'current_screen_image' => $imageUuid,
+                            'current_screen_image' => $filename,
                         ]);
                     } catch (\Exception $e) {
                         Log::error("Failed to download and save image for device: {$device->mac_address}", [
