@@ -24,11 +24,9 @@
 
     <flux:spacer/>
 
-    {{--            <flux:navbar class="mr-1.5 space-x-0.5 py-0!">--}}
-    {{--                <flux:tooltip content="Add devices automatically that try to connect to this server" position="bottom">--}}
-    {{--                <flux:switch --}}{{-- wire:model.live="device-autojoin" --}}{{-- label="Permit Auto-Join"/>--}}
-    {{--                </flux:tooltip>--}}
-    {{--            </flux:navbar>--}}
+    <flux:navbar class="mr-1.5 space-x-0.5 py-0!">
+        <livewire:actions.device-auto-join />
+    </flux:navbar>
 
     <!-- Desktop User Menu -->
     <flux:dropdown position="top" align="end">
