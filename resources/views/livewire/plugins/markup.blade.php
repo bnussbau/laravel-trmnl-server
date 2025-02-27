@@ -22,7 +22,6 @@ new class extends Component {
             GenerateScreenJob::dispatchSync(auth()->user()->devices()->first()->id, $rendered);
 
         } catch (\Exception $e) {
-            ray($e);
             $this->dispatch('notify', [
                 'type' => 'error',
                 'message' => 'An error occurred while submitting the code.'
