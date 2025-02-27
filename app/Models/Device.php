@@ -13,5 +13,6 @@ class Device extends Model
 
     protected $casts = [
         'proxy_cloud' => 'boolean',
+        'last_log_request' => 'json',
     ];
 }

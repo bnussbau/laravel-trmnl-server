@@ -21,7 +21,6 @@ class FetchProxyCloudResponses implements ShouldQueue
      */
     public function handle(): void
     {
-//dd(config('services.trmnl.proxy_base_url') . '/api/display');
         Device::where('proxy_cloud', true)->each(function ($device) {
             try {
                 $response = Http::withHeaders([
@@ -35,7 +34,7 @@ class FetchProxyCloudResponses implements ShouldQueue
                     'fw-version' => $device->last_firmware_version,
                     'accept-encoding' => 'identity;q=1,chunked;q=0.1,*;q=0',
                     'user-agent' => 'ESP32HTTPClient',
-                ])->get(config('services.trmnl.proxy_base_url') . '/api/display');
+                ])->get(config('services.trmnl.proxy_base_url').'/api/display');
 
                 $device->update([
                     'proxy_cloud_response' => $response->json(),
@@ -44,11 +43,11 @@ class FetchProxyCloudResponses implements ShouldQueue
                 $imageUrl = $response->json('image_url');
                 $filename = $response->json('filename');
 
-                \Log::info('Response data: ' . $imageUrl);
+                \Log::info('Response data: '.$imageUrl);
                 if (isset($imageUrl)) {
                     try {
                         $imageContents = Http::get($imageUrl)->body();
-                        if (!Storage::disk('public')->exists("images/generated/{$filename}.bmp")) {
+                        if (! Storage::disk('public')->exists("images/generated/{$filename}.bmp")) {
                             Storage::disk('public')->put(
                                 "images/generated/{$filename}.bmp",
                                 $imageContents
@@ -66,6 +65,26 @@ class FetchProxyCloudResponses implements ShouldQueue
                 }
 
                 Log::info("Successfully updated proxy cloud response for device: {$device->mac_address}");
+
+                if ($device->last_log_request) {
+                    Http::withHeaders([
+                        'id' => $device->mac_address,
+                        'access-token' => $device->api_key,
+                        'width' => 800,
+                        'height' => 480,
+                        'rssi' => $device->last_rssi_level,
+                        'battery_voltage' => $device->last_battery_voltage,
+                        'refresh-rate' => $device->default_refresh_interval,
+                        'fw-version' => $device->last_firmware_version,
+                        'accept-encoding' => 'identity;q=1,chunked;q=0.1,*;q=0',
+                        'user-agent' => 'ESP32HTTPClient',
+                    ])->post(config('services.trmnl.proxy_base_url').'/api/log', $device->last_log_request);
+
+                    $device->update([
+                        'last_log_request' => null,
+                    ]);
+                }
+
             } catch (\Exception $e) {
                 Log::error("Failed to fetch proxy cloud response for device: {$device->mac_address}", [
                     'error' => $e->getMessage(),

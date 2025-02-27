@@ -56,7 +56,7 @@ class DeviceManager extends Component
     public function toggleProxyCloud(Device $device): void
     {
         $device->update([
-            'proxy_cloud' => !$device->proxy_cloud,
+            'proxy_cloud' => ! $device->proxy_cloud,
         ]);
 
         // if ($device->proxy_cloud) {

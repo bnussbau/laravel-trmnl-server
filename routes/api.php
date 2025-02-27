@@ -14,7 +14,6 @@ Route::get('/display', function (Request $request) {
         ->where('api_key', $access_token)
         ->first();
 
-
     if (! $device) {
         // Check if there's a user with assign_new_devices enabled
         $auto_assign_user = User::where('assign_new_devices', true)->first();
@@ -89,8 +88,24 @@ Route::get('/setup', function (Request $request) {
 });
 
 Route::post('/log', function (Request $request) {
-    $logs = $request->json('log.logs_array', []);
+    $mac_address = $request->header('id');
+    $access_token = $request->header('access-token');
 
+    $device = Device::where('mac_address', $mac_address)
+        ->where('api_key', $access_token)
+        ->first();
+
+    if (! $device) {
+        return response()->json([
+            'message' => 'Device not found or invalid access token',
+        ], 404);
+    }
+
+    $device->update([
+        'last_log_request' => $request->json()->all(),
+    ]);
+
+    $logs = $request->json('log.logs_array', []);
     foreach ($logs as $log) {
         \Log::info('Device Log', $log);
     }

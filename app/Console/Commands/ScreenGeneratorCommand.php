@@ -32,13 +32,15 @@ class ScreenGeneratorCommand extends Command
         try {
             $markup = view($view)->render();
         } catch (\Throwable $e) {
-            $this->error('Failed to render view: ' . $e->getMessage());
+            $this->error('Failed to render view: '.$e->getMessage());
+
             return 1;
         }
 
         GenerateScreenJob::dispatchSync($deviceId, $markup);
 
         $this->info('Screen generation job finished.');
+
         return 0;
     }
 }
