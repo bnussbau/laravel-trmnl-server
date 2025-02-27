@@ -114,8 +114,8 @@
                         <div class="flex items-center gap-4">
                             <flux:button href="{{ route('devices.configure', $device) }}" wire:navigate icon="eye">
                             </flux:button>
-                            <flux:tooltip content="Proxy Images from cloud if currently no image is set (TRMNL DEV Edition only)" position="bottom">
-                                <flux:switch wire:model.live="proxy_cloud" wire:click="toggleProxyCloud({{ $device->id }})" :checked="$device->proxy_cloud" label="Proxy Cloud"/>
+                            <flux:tooltip content="Proxies images from the TRMNL Cloud service when no image is set (available in TRMNL DEV Edition only)." position="bottom">
+                                <flux:switch wire:model.live="proxy_cloud" wire:click="toggleProxyCloud({{ $device->id }})" :checked="$device->proxy_cloud" label="☁️ Proxy"/>
                             </flux:tooltip>
                         </div>
                     </td>
