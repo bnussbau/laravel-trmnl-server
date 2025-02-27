@@ -31,6 +31,9 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('devices.configure');
 
+    //    Volt::route('plugins', 'plugins.index')->name('plugins.index');
+    Route::redirect('plugins', 'plugins/markup')->name('plugins.index');
+    Volt::route('plugins/markup', 'plugins.markup')->name('plugins.markup');
 });
 
 require __DIR__.'/auth.php';

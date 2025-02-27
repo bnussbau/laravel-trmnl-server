@@ -20,12 +20,16 @@
                           :current="request()->routeIs('devices')">
             Devices
         </flux:navbar.item>
+        <flux:navbar.item icon="puzzle-piece" href="{{ route('plugins.index') }}" wire:navigate
+                          :current="request()->routeIs(['plugins.index', 'plugins.markup'])">
+            Plugins
+        </flux:navbar.item>
     </flux:navbar>
 
     <flux:spacer/>
 
-    <flux:navbar class="mr-1.5 space-x-0.5 py-0!">
-        <livewire:actions.device-auto-join />
+    <flux:navbar class="mr-1.5 space-x-0.5 py-0! max-lg:hidden">
+        <livewire:actions.device-auto-join/>
     </flux:navbar>
 
     <!-- Desktop User Menu -->
@@ -85,12 +89,16 @@
     <flux:navlist variant="outline">
         <flux:navlist.group heading="Platform">
             <flux:navlist.item icon="layout-grid" href="{{ route('dashboard') }}" wire:navigate
-                               :current="request()->routeIs('dashboard')">
+                               :current="request()->routeIs('dashboard')" class="m-2">
                 Dashboard
             </flux:navlist.item>
             <flux:navbar.item icon="square-chart-gantt" href="{{ route('devices') }}" wire:navigate
-                              :current="request()->routeIs('devices')">
+                              :current="request()->routeIs('devices')" class="m-2">
                 Devices
+            </flux:navbar.item>
+            <flux:navbar.item icon="puzzle-piece" href="{{ route('plugins.index') }}" wire:navigate
+                              :current="request()->routeIs('plugins.index')" class="m-2">
+                Plugins
             </flux:navbar.item>
         </flux:navlist.group>
     </flux:navlist>
@@ -98,9 +106,7 @@
     <flux:spacer/>
 
     <flux:navlist variant="outline">
-        {{--                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">--}}
-        {{--                    Repository--}}
-        {{--                </flux:navlist.item>--}}
+        <livewire:actions.device-auto-join/>
     </flux:navlist>
 </flux:sidebar>
 
