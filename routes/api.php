@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 Route::get('/display', function (Request $request) {
-    \Log::info('Request Headers', $request->headers->all());
 
     $mac_address = $request->header('id');
     $access_token = $request->header('access-token');

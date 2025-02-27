@@ -21,13 +21,21 @@ class FetchProxyCloudResponses implements ShouldQueue
      */
     public function handle(): void
     {
-
+//dd(config('services.trmnl.proxy_base_url') . '/api/display');
         Device::where('proxy_cloud', true)->each(function ($device) {
             try {
                 $response = Http::withHeaders([
                     'id' => $device->mac_address,
                     'access-token' => $device->api_key,
-                ])->get(config('services.trmnl.proxy_base_url').'/api/display');
+                    'width' => 800,
+                    'height' => 480,
+                    'rssi' => $device->last_rssi_level,
+                    'battery_voltage' => $device->last_battery_voltage,
+                    'refresh-rate' => $device->default_refresh_interval,
+                    'fw-version' => $device->last_firmware_version,
+                    'accept-encoding' => 'identity;q=1,chunked;q=0.1,*;q=0',
+                    'user-agent' => 'ESP32HTTPClient',
+                ])->get(config('services.trmnl.proxy_base_url') . '/api/display');
 
                 $device->update([
                     'proxy_cloud_response' => $response->json(),
@@ -36,11 +44,11 @@ class FetchProxyCloudResponses implements ShouldQueue
                 $imageUrl = $response->json('image_url');
                 $filename = $response->json('filename');
 
-                \Log::info('Response data: '.$imageUrl);
+                \Log::info('Response data: ' . $imageUrl);
                 if (isset($imageUrl)) {
                     try {
                         $imageContents = Http::get($imageUrl)->body();
-                        if (! Storage::disk('public')->exists("images/generated/{$filename}.bmp")) {
+                        if (!Storage::disk('public')->exists("images/generated/{$filename}.bmp")) {
                             Storage::disk('public')->put(
                                 "images/generated/{$filename}.bmp",
                                 $imageContents
