@@ -7,13 +7,14 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 Route::get('/display', function (Request $request) {
+    \Log::info('Request Headers', $request->headers->all());
 
     $mac_address = $request->header('id');
     $access_token = $request->header('access-token');
-
     $device = Device::where('mac_address', $mac_address)
         ->where('api_key', $access_token)
         ->first();
+
 
     if (! $device) {
         // Check if there's a user with assign_new_devices enabled
