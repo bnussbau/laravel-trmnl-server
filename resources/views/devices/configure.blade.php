@@ -10,15 +10,26 @@
                         $current_image_path = 'storage/images/generated/' . $current_image_uuid . '.' . $file_extension;
                     @endphp
 
-                    <h1 class="text-xl font-medium dark:text-zinc-200">{{ $device->name }}</h1>
-                    <p class="text-sm dark:text-zinc-400">{{$device->mac_address}}</p>
-                    <p class="text-sm dark:text-zinc-400">Friendly Id: {{$device->friendly_id}}</p>
-                    <p class="text-sm dark:text-zinc-400">Refresh Interval: {{$device->default_refresh_interval}}</p>
-                    <p class="text-sm dark:text-zinc-400">Battery Voltage: {{$device->last_battery_voltage}}</p>
-                    <p class="text-sm dark:text-zinc-400">Wifi RSSI Level: {{$device->last_rssi_level}}</p>
-                    <p class="text-sm dark:text-zinc-400">Firmware Version: {{$device->last_firmware_version}}</p>
+                    <div class="flex items-center justify-between">
+                        <flux:tooltip content="Friendly ID: {{$device->friendly_id}}" position="bottom">
+                            <h1 class="text-xl font-medium dark:text-zinc-200">{{ $device->name }}</h1>
+                        </flux:tooltip>
+                        <div class="flex gap-2">
+                            <flux:tooltip content="Last update" position="bottom">
+                                <span>{{$device->updated_at->diffForHumans()}}</span>
+                            </flux:tooltip>
+                            <flux:tooltip content="MAC Address" position="bottom">
+                                <span>{{$device->mac_address}}</span>
+                            </flux:tooltip>
+                            <flux:tooltip content="Firmware Version" position="bottom">
+                                <span>{{$device->last_firmware_version}}</span>
+                            </flux:tooltip>
+                            <x-wifi-icon :strength="$device->wifiStrengh" :rssi="$device->last_rssi_level"/>
+                            <x-battery-icon :percent="$device->batteryPercent"/>
+                        </div>
+                    </div>
                     <flux:input.group class="mt-4 mb-2">
-                        <flux:input.group.prefix>API Key</flux:input.group.prefix>
+                        <flux:input.group.prefix>API</flux:input.group.prefix>
                         <flux:input icon="key" value="{{ $device->api_key }}" type="password" viewable
                                     class="max-w-xs"/>
                     </flux:input.group>
@@ -31,35 +42,3 @@
         </div>
     </div>
 </x-layouts.app>
-
-
-{{--<x-layouts.app>--}}
-{{--    <x-slot name="header">--}}
-{{--        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">--}}
-{{--            {{ __('Device Details: ') }} {{ $device->name }}--}}
-{{--        </h2>--}}
-{{--    </x-slot>--}}
-
-{{--    <div class="py-12">--}}
-{{--        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">--}}
-{{--            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">--}}
-{{--                <div class="mb-4">--}}
-{{--                    <p class="dark:text-gray-100"><strong>Name</strong> {{ $device->name }}</p>--}}
-{{--                    <p class="dark:text-gray-100"><strong>Friendly ID</strong> {{ $device->friendly_id }}</p>--}}
-{{--                    <p class="dark:text-gray-100"><strong>Mac Address</strong> {{ $device->mac_address }}</p>--}}
-{{--                     <p><strong>API Key</strong> <flux:input value="{{ $device->api_key }}" type="password" viewable></flux:input></p>--}}
-{{--                    <p class="dark:text-gray-100"><strong>Refresh--}}
-{{--                            Interval</strong> {{ $device->default_refresh_interval }}</p>--}}
-{{--                    <p class="dark:text-gray-100"><strong>Battery Voltage</strong> {{ $device->last_battery_voltage }}--}}
-{{--                    </p>--}}
-{{--                    <p class="dark:text-gray-100"><strong>Wifi RSSI Level</strong> {{ $device->last_rssi_level }}</p>--}}
-{{--                    <p class="dark:text-gray-100"><strong>Firmware Version</strong> {{ $device->last_firmware_version }}--}}
-{{--                    </p>--}}
-{{--                </div>--}}
-{{--                @if($image)--}}
-{{--                    <img src="{{$image}}"/>--}}
-{{--                @endif--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    </div>--}}
-{{--</x-layouts.app>--}}
