@@ -31,9 +31,28 @@ new class extends Component {
         $this->isLoading = false;
     }
 
-    public function renderExample()
+    public function renderExample(string $example)
     {
-        $this->blade_code = <<<HTML
+        switch ($example) {
+            case 'quote':
+                $markup = $this->renderQuote();
+                break;
+            case 'trainMonitor':
+                $markup = $this->renderTrainMonitor();
+                break;
+            case 'homeAssistant':
+                $markup = $this->renderHomeAssistant();
+                break;
+            default:
+                $markup = '<h1>Hello World!</h1>';
+                break;
+        }
+        $this->blade_code = $markup;
+    }
+
+    public function renderQuote(): string
+    {
+        return <<<HTML
 <x-trmnl::view>
     <x-trmnl::layout>
         <x-trmnl::markdown gapSize="large">
@@ -45,8 +64,67 @@ new class extends Component {
     <x-trmnl::title-bar/>
 </x-trmnl::view>
 HTML;
+    }
+
+    public function renderTrainMonitor()
+    {
+        return <<<HTML
+<x-trmnl::view>
+    <x-trmnl::layout>
+        <x-trmnl::table>
+            <thead>
+            <tr>
+                <th><x-trmnl::title>Abfahrt</x-trmnl::title></th>
+                <th><x-trmnl::title>Aktuell</x-trmnl::title></th>
+                <th><x-trmnl::title>Zug</x-trmnl::title></th>
+                <th><x-trmnl::title>Ziel</x-trmnl::title></th>
+                <th><x-trmnl::title>Steig</x-trmnl::title></th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  <td><x-trmnl::label>08:51</x-trmnl::label></td>
+                  <td><x-trmnl::label>08:52</x-trmnl::label></td>
+                  <td><x-trmnl::label>REX 1</x-trmnl::label></td>
+                  <td><x-trmnl::label>Vienna Main Station</x-trmnl::label></td>
+                  <td><x-trmnl::label>3</x-trmnl::label></td>
+                </tr>
+            </tbody>
+        </x-trmnl::table>
+    </x-trmnl::layout>
+    <x-trmnl::title-bar title="Train Monitor"/>
+</x-trmnl::view>
+HTML;
 
     }
+
+    public function renderHomeAssistant()
+    {
+        return <<<HTML
+<x-trmnl::view>
+    <x-trmnl::layout class="layout--col gap--space-between">
+        <x-trmnl::grid cols="4">
+            <x-trmnl::col position="center">
+                <x-trmnl::item>
+                    <x-trmnl::meta/>
+                    <x-trmnl::content>
+                        <x-trmnl::value size="large">23.3°</x-trmnl::value>
+                        <x-trmnl::label class="w--full flex">
+                            <flux:icon icon="droplet"/>
+                            47.52 %
+                        </x-trmnl::label>
+                        <x-trmnl::label class="w--full flex">Sensor 1</x-trmnl::label>
+                    </x-trmnl::content>
+                </x-trmnl::item>
+            </x-trmnl::col>
+        </x-trmnl::grid>
+    </x-trmnl::layout>
+    <x-trmnl::title-bar title="Home Assistant"/>
+</x-trmnl::view>
+HTML;
+
+    }
+
 
 };
 ?>
@@ -56,8 +134,14 @@ HTML;
         <h2 class="text-2xl font-semibold dark:text-gray-100">Markup</h2>
 
         {{--        <div class="flex justify-between items-center mb-6">--}}
-        <div class="mt-5 mb-5 text-accent">
-            <a href="#" wire:click="renderExample" class="text-xl">Quote Example</a>
+
+        <div class="mt-5 mb-5 ">
+            <span>Examples</span>
+            <div class="text-accent">
+                <a href="#" wire:click="renderExample('quote')" class="text-xl">Quote</a> |
+                <a href="#" wire:click="renderExample('trainMonitor')" class="text-xl">Train Monitor</a> |
+                <a href="#" wire:click="renderExample('homeAssistant')" class="text-xl">Temperature Sensors</a>
+            </div>
         </div>
         <form wire:submit="submit">
             <div class="mb-4">

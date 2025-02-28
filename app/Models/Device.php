@@ -42,8 +42,7 @@ class Device extends Model
         $rssi = $this->last_rssi_level;
         if ($rssi >= 0) {
             return 0; // No signal (0 bars)
-        }
-        else if ($rssi <= -80) {
+        } elseif ($rssi <= -80) {
             return 1; // Weak signal (1 bar)
         } elseif ($rssi <= -60) {
             return 2; // Moderate signal (2 bars)
