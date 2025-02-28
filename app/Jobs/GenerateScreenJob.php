@@ -36,7 +36,7 @@ class GenerateScreenJob implements ShouldQueue
         // Generate PNG
         try {
             Browsershot::html($this->markup)
-                ->setOption('args', config('app.puppeteer_docker') ? ['--no-sandbox', '--disable-setuid-sandbox'] : [])
+                ->setOption('args', config('app.puppeteer_docker') ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'] : [])
                 ->windowSize(800, 480)
                 ->save($pngPath);
         } catch (\Exception $e) {
