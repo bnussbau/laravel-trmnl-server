@@ -39,14 +39,14 @@ class DeviceManager extends Component
     {
         $this->validate();
 
-        Device::factory([
+        Device::create([
             'name' => $this->name,
             'mac_address' => $this->mac_address,
             'api_key' => $this->api_key,
             'default_refresh_interval' => $this->default_refresh_interval,
             'friendly_id' => $this->friendly_id,
             'user_id' => auth()->id(),
-        ])->create();
+        ]);
 
         $this->reset();
         \Flux::modal('create-device')->close();
