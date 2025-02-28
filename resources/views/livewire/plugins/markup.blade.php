@@ -11,6 +11,7 @@ new class extends Component {
 
     public function submit()
     {
+        \Log::info("submitted");
         $this->isLoading = true;
 
         $this->validate([
