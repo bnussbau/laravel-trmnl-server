@@ -21,4 +21,4 @@ yarn-error.log
 /.vscode
 /.zed
 /bootstrap/cache/*
-#/database/database.sqlite
+/database/database.sqlite

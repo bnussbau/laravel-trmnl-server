@@ -57,7 +57,9 @@ RUN mkdir -p /var/log/supervisor \
     && mkdir -p storage/logs \
     && mkdir -p storage/framework/{cache,sessions,views} \
     && chmod -R 775 storage \
-    && chmod -R 775 bootstrap/cache
+    && chmod -R 775 bootstrap/cache \
+    && touch database/database.sqlite \
+    && chmod -R 777 database
 
 # Expose port 80
 EXPOSE 80
