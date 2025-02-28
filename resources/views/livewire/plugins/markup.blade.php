@@ -20,11 +20,11 @@ new class extends Component {
         try {
             $rendered = Blade::render($this->blade_code);
 
-            if (config('app.puppeteer_docker')) {
-                GenerateScreenJob::dispatch(auth()->user()->devices()->first()->id, $rendered);
-            } else {
+//            if (config('app.puppeteer_docker')) {
+//                GenerateScreenJob::dispatch(auth()->user()->devices()->first()->id, $rendered);
+//            } else {
                 GenerateScreenJob::dispatchSync(auth()->user()->devices()->first()->id, $rendered);
-            }
+//            }
 
         } catch (\Exception $e) {
             $this->dispatch('notify', [
