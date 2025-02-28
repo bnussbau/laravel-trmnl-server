@@ -33,16 +33,12 @@ class GenerateScreenJob implements ShouldQueue
         $pngPath = Storage::disk('public')->path('/images/generated/'.$uuid.'.png');
         $bmpPath = Storage::disk('public')->path('/images/generated/'.$uuid.'.bmp');
 
-        \Log::info('Markup: '.$this->markup);
-
         // Generate PNG
         try {
             Browsershot::html($this->markup)
                 ->setOption('args', config('app.puppeteer_docker') ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'] : [])
                 ->windowSize(800, 480)
                 ->save($pngPath);
-
-            \Log::info('PNG generated: '.$pngPath);
         } catch (\Exception $e) {
             throw new \RuntimeException('Failed to generate PNG: '.$e->getMessage(), 0, $e);
         }
@@ -52,8 +48,8 @@ class GenerateScreenJob implements ShouldQueue
         } catch (\ImagickException $e) {
             throw new \RuntimeException('Failed to convert image to BMP: '.$e->getMessage(), 0, $e);
         }
-        \Log::info('UUID: '.$uuid);
         Device::find($this->deviceId)->update(['current_screen_image' => $uuid]);
+        \Log::info("Device $this->deviceId: updated with new image: $uuid");
 
         $this->cleanupFolder();
     }

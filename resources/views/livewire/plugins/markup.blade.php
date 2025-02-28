@@ -11,7 +11,6 @@ new class extends Component {
 
     public function submit()
     {
-        \Log::info("submitted");
         $this->isLoading = true;
 
         $this->validate([
@@ -20,7 +19,12 @@ new class extends Component {
 
         try {
             $rendered = Blade::render($this->blade_code);
-            GenerateScreenJob::dispatchSync(auth()->user()->devices()->first()->id, $rendered);
+
+            if (config('app.puppeteer_docker')) {
+                GenerateScreenJob::dispatch(auth()->user()->devices()->first()->id, $rendered);
+            } else {
+                GenerateScreenJob::dispatchSync(auth()->user()->devices()->first()->id, $rendered);
+            }
 
         } catch (\Exception $e) {
             $this->dispatch('notify', [
