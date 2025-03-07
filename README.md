@@ -1,5 +1,7 @@
 ## TRMNL BYOS (PHP/Laravel)
 
+[![tests](https://github.com/usetrmnl/byos_laravel/actions/workflows/test.yml/badge.svg)](https://github.com/usetrmnl/byos_laravel/actions/workflows/test.yml)
+
 Laravel Trmnl Server is a self-hostable implementation of a TRMNL server, built with Laravel. 
 It enables you to manage TRMNL devices, generate screens dynamically, and can act as a proxy for the TRMNL API (native plugin system). 
 Inspired by [usetrmnl/byos_sinatra](https://github.com/usetrmnl/byos_sinatra).
@@ -236,7 +238,7 @@ Here are some features and improvements that are open for contribution:
 - Provide Web UI controls to enable/disable plugins.
 
 ##### 📦 Visual Studio Code Devcontainer
-* Add a .devcontainer to this repo for easier development with Docker.
+* ~~Add a .devcontainer to this repo for easier development with Docker.~~ ✅
 
 #####  Improve Code Coverage
 
@@ -259,7 +261,7 @@ Contributions are welcome! If you’d like to improve the project, follow these 
     - Push your branch and create a PR.
     - Provide a clear description of your changes.
 
-🚀 Thank you for contributing! Every contribution helps improve the project.
+Thank you for contributing!
 
 ### License
 MIT
