@@ -18,6 +18,7 @@ If you are looking for a Laravel package designed to streamline the development 
 * 🔄 TRMNL API Proxy – Can act as a proxy for the TRMNL Display API (requires TRMNL Developer Edition). 
   * This enables a hybrid setup – for example, you can update your custom Train Monitor every 5 minutes in the morning, while displaying native TRMNL plugins throughout the day.
 * 🐳 Deployment – Dockerized setup for easier hosting (Dockerfile, docker-compose).
+* 🛠️ Devcontainer support for easier development.
 
 ### 🎯 Target Audience
 

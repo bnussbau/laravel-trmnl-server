@@ -11,8 +11,13 @@ RUN apk add --no-cache \
   imagemagick-dev \
   chromium
 
+<<<<<<< HEAD
 ENV PUPPETEER_EXECUTABLE_PATH /usr/bin/chromium
 ENV PUPPETEER_DOCKER 1
+=======
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_DOCKER=1
+>>>>>>> fa85c8201093470938e55ab19ea1a341c9d2f8b7
 
 RUN mkdir -p /usr/src/php/ext/imagick
 RUN chmod 777 /usr/src/php/ext/imagick
