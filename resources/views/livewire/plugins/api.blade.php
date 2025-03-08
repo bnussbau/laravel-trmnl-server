@@ -32,7 +32,7 @@ new class extends Component {
         <div>
             <p>
                 <flux:badge>POST</flux:badge>
-                <span class="ml-2 font-mono">{{route('display.update')}}</span>
+                <span class="ml-2 font-mono">{{route('display.update')}}?device_id=</span>
             </p>
             <div class="mt-4">
                 <h3 class="text-lg">Headers</h3>
