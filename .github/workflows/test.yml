@@ -48,4 +48,4 @@ jobs:
         run: npm run build
 
       - name: Run Tests
-        run: ./vendor/bin/pest --ci
+        run: ./vendor/bin/pest --ci --coverage
