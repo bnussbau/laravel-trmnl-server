@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\GenerateScreenJob;
+use Illuminate\Support\Collection;
 use Livewire\Volt\Component;
 
 new class extends Component {
@@ -8,24 +9,32 @@ new class extends Component {
     public string $blade_code = '';
     public bool $isLoading = false;
 
+    public Collection $devices;
+    public array $checked_devices;
+
+    public function mount()
+    {
+        $this->devices = auth()->user()->devices->pluck('id', 'name');
+    }
+
 
     public function submit()
     {
         $this->isLoading = true;
 
         $this->validate([
+            'checked_devices' => 'required|array',
             'blade_code' => 'required|string'
         ]);
 
+        //only devices that are owned by the user
+        $this->checked_devices = array_intersect($this->checked_devices, auth()->user()->devices->pluck('id')->toArray());
+
         try {
             $rendered = Blade::render($this->blade_code);
-
-//            if (config('app.puppeteer_docker')) {
-//                GenerateScreenJob::dispatch(auth()->user()->devices()->first()->id, $rendered);
-//            } else {
-                GenerateScreenJob::dispatchSync(auth()->user()->devices()->first()->id, $rendered);
-//            }
-
+            foreach ($this->checked_devices as $device) {
+                GenerateScreenJob::dispatchSync($device, $rendered);
+            }
         } catch (\Exception $e) {
             $this->addError('error', $e->getMessage());
         }
@@ -159,7 +168,14 @@ HTML;
             </div>
 
             <div class="flex">
+                <flux:checkbox.group wire:model="checked_devices" label="Devices">
+                    @foreach($devices as $name => $id)
+                        <flux:checkbox label="{{ $name }}" value="{{ $id }}"/>
+                    @endforeach
+                </flux:checkbox.group>
+
                 <flux:spacer/>
+
                 <flux:button type="submit" variant="primary">
                     Generate Screen
                 </flux:button>
