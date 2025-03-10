@@ -107,11 +107,10 @@ Route::get('/setup', function (Request $request) {
 });
 
 Route::post('/log', function (Request $request) {
-    $mac_address = $request->header('id');
+    //    $mac_address = $request->header('id');
     $access_token = $request->header('access-token');
 
-    $device = Device::where('mac_address', $mac_address)
-        ->where('api_key', $access_token)
+    $device = Device::where('api_key', $access_token) // where('mac_address', $mac_address)
         ->first();
 
     if (! $device) {
@@ -131,7 +130,7 @@ Route::post('/log', function (Request $request) {
     }
 
     return response()->json([
-        'status' => '0',
+        'status' => '200',
     ]);
 });
 
