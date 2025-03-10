@@ -16,7 +16,7 @@ new class extends Component {
         'markup' =>
             ['name' => 'Markup', 'flux_icon_name' => 'code-bracket', 'detail_view_route' => 'plugins.markup'],
         'api' =>
-            ['name' => 'API', 'flux_icon_name' => 'code-bracket', 'detail_view_route' => 'plugins.api'],
+            ['name' => 'API', 'flux_icon_name' => 'braces', 'detail_view_route' => 'plugins.api'],
     ];
 
     protected $rules = [

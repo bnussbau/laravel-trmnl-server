@@ -1,9 +1,13 @@
 <?php
 
 use Livewire\Volt\Component;
+use Illuminate\Support\Collection;
+
 
 new class extends Component {
     public $token;
+    public $devices;
+    public $selected_device;
 
     public function mount(): void
     {
@@ -12,6 +16,9 @@ new class extends Component {
             $token = Auth::user()->createToken('api-token', ['update-screen']);
         }
         $this->token = $token->plainTextToken;
+
+        $this->devices = auth()->user()->devices?->pluck('id', 'name');
+        $this->selected_device = $this->devices->first();
     }
 
     public function regenerateToken()
@@ -29,10 +36,23 @@ new class extends Component {
             <h2 class="text-2xl font-semibold dark:text-gray-100">API</h2>
 
         </div>
+
+        <div class="mb-6 max-w-md">
+            @if(isset($devices))
+                <flux:select wire:model.live="selected_device" label="Select Device">
+                    @foreach($devices as $id => $name)
+                        <flux:select.option value="{{$name}}">
+                            {{ $id }}
+                        </flux:select.option>
+                    @endforeach
+                </flux:select>
+            @endif
+        </div>
+
         <div>
             <p>
                 <flux:badge>POST</flux:badge>
-                <span class="ml-2 font-mono">{{route('display.update')}}?device_id=</span>
+                <span class="ml-2 font-mono">{{ route('display.update') }}?device_id={{ $selected_device }}</span>
             </p>
             <div class="mt-4">
                 <h3 class="text-lg">Headers</h3>
