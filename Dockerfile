@@ -15,8 +15,8 @@ RUN apk add --no-cache \
     chromium
 
 # Configure Chromium Path
-ENV PUPPETEER_EXECUTABLE_PATH /usr/bin/chromium
-ENV PUPPETEER_DOCKER 1
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_DOCKER=1
 
 #RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS imagemagick-dev \
 #&& pecl install imagick \

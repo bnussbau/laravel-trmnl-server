@@ -102,7 +102,7 @@ test('device can submit logs', function () {
     ])->postJson('/api/log', $logData);
 
     $response->assertOk()
-        ->assertJson(['status' => '0']);
+        ->assertJson(['status' => '200']);
 
     expect($device->fresh()->last_log_request)
         ->toBe($logData);
