@@ -121,7 +121,7 @@ HTML;
                     <x-trmnl::content>
                         <x-trmnl::value size="large">23.3°</x-trmnl::value>
                         <x-trmnl::label class="w--full flex">
-                            <flux:icon icon="droplet"/>
+                            <flux:icon icon="droplet" style="max-height: 24px;"/>
                             47.52 %
                         </x-trmnl::label>
                         <x-trmnl::label class="w--full flex">Sensor 1</x-trmnl::label>
