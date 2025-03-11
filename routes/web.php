@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
 
     Volt::route('plugins', 'plugins.index')->name('plugins.index');
 
+    Volt::route('plugins/receipt/{plugin}', 'plugins.receipt')->name('plugins.receipt');
     Volt::route('plugins/markup', 'plugins.markup')->name('plugins.markup');
     Volt::route('plugins/api', 'plugins.api')->name('plugins.api');
 });

@@ -17,11 +17,11 @@
             Dashboard
         </flux:navbar.item>
         <flux:navbar.item icon="square-chart-gantt" href="{{ route('devices') }}" wire:navigate
-                          :current="request()->routeIs('devices')">
+                          :current="request()->routeIs(['devices', 'devices.configure'])">
             Devices
         </flux:navbar.item>
         <flux:navbar.item icon="puzzle-piece" href="{{ route('plugins.index') }}" wire:navigate
-                          :current="request()->routeIs(['plugins.index', 'plugins.markup'])">
+                          :current="request()->routeIs(['plugins.index', 'plugins.markup', 'plugins.api', 'plugins.receipt'])">
             Plugins
         </flux:navbar.item>
     </flux:navbar>

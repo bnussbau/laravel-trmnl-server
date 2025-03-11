@@ -124,7 +124,7 @@ new class extends Component {
             @foreach($plugins as $plugin)
                 <div
                     class="rounded-xl border bg-white dark:bg-stone-950 dark:border-stone-800 text-stone-800 shadow-xs">
-                    <a href="{{ isset($plugin['detail_view_route']) ? route($plugin['detail_view_route']) : '#' }}" class="block">
+                    <a href="{{ ($plugin['detail_view_route']) ? route($plugin['detail_view_route']) : route('plugins.receipt', ['plugin' => $plugin['id']]) }}" class="block">
                         <div class="flex items-center space-x-4 px-10 py-8">
                             <flux:icon name="{{$plugin['flux_icon_name'] ?? 'puzzle-piece'}}" class="text-4xl text-accent"/>
                             <h3 class="text-xl font-medium dark:text-zinc-200">{{$plugin['name']}}</h3>

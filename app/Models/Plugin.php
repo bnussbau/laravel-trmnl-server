@@ -12,6 +12,10 @@ class Plugin extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'data_payload' => 'json',
+    ];
+
     protected static function boot()
     {
         parent::boot();

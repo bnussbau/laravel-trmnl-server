@@ -34,13 +34,17 @@ new class extends Component {
                         <div class="px-10 py-8">
                             @php
                                 $current_image_uuid =$device->current_screen_image;
-                                file_exists('storage/images/generated/' . $current_image_uuid . '.png') ? $file_extension = 'png' : $file_extension = 'bmp';
-                                $current_image_path = 'storage/images/generated/' . $current_image_uuid . '.' . $file_extension;
+                                if($current_image_uuid) {
+                                    file_exists('storage/images/generated/' . $current_image_uuid . '.png') ? $file_extension = 'png' : $file_extension = 'bmp';
+                                    $current_image_path = 'storage/images/generated/' . $current_image_uuid . '.' . $file_extension;
+                                } else {
+                                    $current_image_path = 'storage/images/setup-logo.bmp';
+                                }
                             @endphp
 
                             <h1 class="text-xl font-medium dark:text-zinc-200">{{ $device->name }}</h1>
                             <p class="text-sm dark:text-zinc-400">{{$device->mac_address}}</p>
-                            @if($current_image_uuid)
+                            @if($current_image_path)
                                 <flux:separator class="mt-2 mb-4"/>
                                 <img src="{{ asset($current_image_path) }}" alt="Current Image"/>
                             @endif

@@ -68,8 +68,12 @@ new class extends Component {
             <div class="px-10 py-8 min-w-lg">
                 @php
                     $current_image_uuid =$device->current_screen_image;
-                    file_exists('storage/images/generated/' . $current_image_uuid . '.png') ? $file_extension = 'png' : $file_extension = 'bmp';
-                    $current_image_path = 'storage/images/generated/' . $current_image_uuid . '.' . $file_extension;
+                    if($current_image_uuid) {
+                        file_exists('storage/images/generated/' . $current_image_uuid . '.png') ? $file_extension = 'png' : $file_extension = 'bmp';
+                        $current_image_path = 'storage/images/generated/' . $current_image_uuid . '.' . $file_extension;
+                    } else {
+                        $current_image_path = 'storage/images/setup-logo.bmp';
+                    }
                 @endphp
 
                 <div class="flex items-center justify-between">
@@ -125,7 +129,7 @@ new class extends Component {
 
                         <flux:input label="Friendly ID" wire:model="friendly_id"/>
                         <flux:input label="MAC Address" wire:model="mac_address"/>
-                        <flux:input label="Default Refresh Interval" wire:model="default_refresh_interval"/>
+                        <flux:input label="Default Refresh Interval (seconds)" wire:model="default_refresh_interval" type="number"/>
 
                         <div class="flex">
                             <flux:spacer/>
@@ -153,7 +157,7 @@ new class extends Component {
                 </flux:modal>
 
 
-                @if($current_image_uuid)
+                @if($current_image_path)
                     <flux:separator class="mt-6 mb-6" text="Next Screen"/>
                     <img src="{{ asset($current_image_path) }}" alt="Next Image"/>
                 @endif

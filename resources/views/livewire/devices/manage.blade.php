@@ -77,8 +77,12 @@ new class extends Component {
                 </flux:modal.trigger>
             </div>
             @if (session()->has('message'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                    {{ session('message') }}
+                <div class="mb-4">
+                    <flux:callout variant="success" icon="check-circle" heading=" {{ session('message') }}">
+                        <x-slot name="controls">
+                            <flux:button icon="x-mark" variant="ghost" x-on:click="$el.closest('[data-flux-callout]').remove()" />
+                        </x-slot>
+                    </flux:callout>
                 </div>
             @endif
 
@@ -116,7 +120,7 @@ new class extends Component {
                         <div class="mb-4">
                             <flux:input label="Refresh Rate (seconds)" wire:model="default_refresh_interval"
                                         id="default_refresh_interval"
-                                        class="block mt-1 w-full" type="text" name="default_refresh_interval"
+                                        class="block mt-1 w-full" type="number" name="default_refresh_interval"
                                         autofocus/>
                         </div>
                         <div class="flex">
