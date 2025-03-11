@@ -31,7 +31,8 @@ RUN chmod 777 /usr/src/php/ext/imagick
 RUN curl -fsSL https://github.com/Imagick/imagick/archive/refs/tags/3.7.0.tar.gz | tar xvz -C "/usr/src/php/ext/imagick" --strip 1
 
 # Install PHP extensions
-RUN docker-php-ext-install opcache imagick
+#RUN docker-php-ext-install opcache imagick
+RUN docker-php-ext-install imagick
 
 # Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
