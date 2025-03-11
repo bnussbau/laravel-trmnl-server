@@ -17,7 +17,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     #[Validate('required|string')]
     public string $password = '';
 
-    public bool $remember = false;
+    public bool $remember = true;
 
     /**
      * Handle an incoming authentication request.
@@ -69,6 +69,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
     protected function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->email) . '|' . request()->ip());
+    }
+
+    public function mount(): void
+    {
+        if (app()->isLocal()) {
+            $this->email = 'admin@example.com';
+            $this->password = 'admin@example.com';
+        }
     }
 }; ?>
 

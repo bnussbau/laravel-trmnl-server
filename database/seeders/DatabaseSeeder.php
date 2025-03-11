@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Device;
+use App\Models\Plugin;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -23,6 +24,8 @@ class DatabaseSeeder extends Seeder
             ]);
 
             // Device::factory(5)->create();
+
+            // Plugin::factory(3)->create();
         }
     }
 }
