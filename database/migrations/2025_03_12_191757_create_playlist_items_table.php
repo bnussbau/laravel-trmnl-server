@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('playlists', function (Blueprint $table) {
+        Schema::create('playlist_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('device_id')->constrained()->onDelete('cascade');
-            $table->string('name');
+            $table->foreignId('playlist_id')->constrained()->onDelete('cascade');
+            $table->foreignId('plugin_id')->constrained()->onDelete('cascade');
+            $table->integer('order')->default(0);
             $table->boolean('is_active')->default(true);
-            $table->json('weekdays')->nullable(); // Array of weekday numbers (0-6)
-            $table->time('active_from')->nullable();
-            $table->time('active_until')->nullable();
+            $table->timestamp('last_displayed_at')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('playlists');
+        Schema::dropIfExists('playlist_items');
     }
 };

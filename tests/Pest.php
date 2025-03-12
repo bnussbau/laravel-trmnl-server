@@ -16,6 +16,12 @@ pest()->extend(Tests\TestCase::class)
     ->in('Feature');
 
 registerSpatiePestHelpers();
+
+arch()->preset()->laravel();
+
+arch()
+    ->expect('App')
+    ->not->toUse(['die', 'dd', 'dump']);
 /*
 |--------------------------------------------------------------------------
 | Expectations

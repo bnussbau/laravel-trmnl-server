@@ -15,6 +15,11 @@ new class extends Component {
     public string|null $polling_header;
     public $data_payload;
     public array $checked_devices = [];
+    public string $playlist_name = '';
+    public array $selected_weekdays = [];
+    public string $active_from = '';
+    public string $active_until = '';
+    public string $selected_playlist = '';
 
     public function mount(): void
     {
@@ -49,8 +54,13 @@ new class extends Component {
         'polling_url' => 'required|url',
         'polling_verb' => 'required|string|in:get,post',
         'polling_header' => 'nullable|string|max:255',
-        'blade_code' => 'string',
+        'blade_code' => 'nullable|string',
         'checked_devices' => 'array',
+        'playlist_name' => 'required_if:selected_playlist,new|string|max:255',
+        'selected_weekdays' => 'array',
+        'active_from' => 'nullable|date_format:H:i',
+        'active_until' => 'nullable|date_format:H:i',
+        'selected_playlist' => 'nullable|string',
     ];
 
     public function editSettings()
@@ -74,20 +84,44 @@ new class extends Component {
     {
         $this->validate([
             'checked_devices' => 'required|array|min:1',
+            'selected_playlist' => 'required|string',
         ]);
 
         foreach ($this->checked_devices as $deviceId) {
-            $maxOrder = \App\Models\Playlist::where('device_id', $deviceId)->max('order') ?? 0;
-            
-            \App\Models\Playlist::create([
-                'device_id' => $deviceId,
+            $playlist = null;
+
+            if ($this->selected_playlist === 'new') {
+                // Create new playlist
+                $this->validate([
+                    'playlist_name' => 'required|string|max:255',
+                ]);
+
+                $playlist = \App\Models\Playlist::create([
+                    'device_id' => $deviceId,
+                    'name' => $this->playlist_name,
+                    'weekdays' => !empty($this->selected_weekdays) ? $this->selected_weekdays : null,
+                    'active_from' => $this->active_from ?: null,
+                    'active_until' => $this->active_until ?: null,
+                ]);
+            } else {
+                $playlist = \App\Models\Playlist::findOrFail($this->selected_playlist);
+            }
+
+            // Add plugin to playlist
+            $maxOrder = $playlist->items()->max('order') ?? 0;
+            $playlist->items()->create([
                 'plugin_id' => $this->plugin->id,
                 'order' => $maxOrder + 1,
             ]);
         }
 
-        $this->reset(['checked_devices']);
+        $this->reset(['checked_devices', 'playlist_name', 'selected_weekdays', 'active_from', 'active_until', 'selected_playlist']);
         Flux::modal('add-plugin')->close();
+    }
+
+    public function getDevicePlaylists($deviceId)
+    {
+        return \App\Models\Playlist::where('device_id', $deviceId)->get();
     }
 
     public function renderExample(string $example)
@@ -149,12 +183,49 @@ HTML;
 
                 <form wire:submit="addToPlaylist">
                     <div class="mb-4">
-                        <flux:checkbox.group wire:model="checked_devices" label="Select Devices">
+                        <flux:checkbox.group wire:model.live="checked_devices" label="Select Devices">
                             @foreach(auth()->user()->devices as $device)
                                 <flux:checkbox label="{{ $device->name }}" value="{{ $device->id }}"/>
                             @endforeach
                         </flux:checkbox.group>
                     </div>
+
+                    @if(count($checked_devices) === 1)
+                        <div class="mb-4">
+                            <flux:radio.group wire:model="selected_playlist" label="Select Playlist" variant="segmented">
+                                <flux:radio value="new" label="Create New"/>
+                                @foreach($this->getDevicePlaylists($checked_devices[0]) as $playlist)
+                                    <flux:radio value="{{ $playlist->id }}" label="{{ $playlist->name }}"/>
+                                @endforeach
+                            </flux:radio.group>
+                        </div>
+
+                        @if($selected_playlist === 'new')
+                            <div class="mb-4">
+                                <flux:input label="Playlist Name" wire:model="playlist_name"/>
+                            </div>
+
+                            <div class="mb-4">
+                                <flux:checkbox.group wire:model="selected_weekdays" label="Active Days">
+                                    <flux:checkbox label="Monday" value="1"/>
+                                    <flux:checkbox label="Tuesday" value="2"/>
+                                    <flux:checkbox label="Wednesday" value="3"/>
+                                    <flux:checkbox label="Thursday" value="4"/>
+                                    <flux:checkbox label="Friday" value="5"/>
+                                    <flux:checkbox label="Saturday" value="6"/>
+                                    <flux:checkbox label="Sunday" value="0"/>
+                                </flux:checkbox.group>
+                            </div>
+
+                            <div class="mb-4">
+                                <flux:input type="time" label="Active From" wire:model="active_from"/>
+                            </div>
+
+                            <div class="mb-4">
+                                <flux:input type="time" label="Active Until" wire:model="active_until"/>
+                            </div>
+                        @endif
+                    @endif
 
                     <div class="flex">
                         <flux:spacer/>

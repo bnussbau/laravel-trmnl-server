@@ -57,39 +57,23 @@ class Device extends Model
         return $this->hasMany(Playlist::class);
     }
 
-    public function getNextPlaylistItem()
+    public function getNextPlaylistItem(): ?PlaylistItem
     {
-        // Get active playlist items ordered by display order
-        $playlistItems = $this->playlists()
+        // Get all active playlists
+        $playlists = $this->playlists()
             ->where('is_active', true)
-            ->orderBy('order')
             ->get();
 
-        if ($playlistItems->isEmpty()) {
-            return null;
+        // Find the first active playlist with an available item
+        foreach ($playlists as $playlist) {
+            if ($playlist->isActiveNow()) {
+                $nextItem = $playlist->getNextPlaylistItem();
+                if ($nextItem) {
+                    return $nextItem;
+                }
+            }
         }
 
-        // Get the last displayed item
-        $lastDisplayed = $playlistItems
-            ->sortByDesc('last_displayed_at')
-            ->first();
-
-        if (! $lastDisplayed || ! $lastDisplayed->last_displayed_at) {
-            // If no item has been displayed yet, return the first one
-            return $playlistItems->first();
-        }
-
-        // Find the next item in sequence
-        $currentOrder = $lastDisplayed->order;
-        $nextItem = $playlistItems
-            ->where('order', '>', $currentOrder)
-            ->first();
-
-        // If there's no next item, loop back to the first one
-        if (! $nextItem) {
-            return $playlistItems->first();
-        }
-
-        return $nextItem;
+        return null;
     }
 }

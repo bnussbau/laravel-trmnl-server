@@ -48,6 +48,7 @@ Route::get('/display', function (Request $request) {
         if ($playlistItem) {
             $playlistItem->update(['last_displayed_at' => now()]);
             $markup = Blade::render($playlistItem->plugin->render_markup, ['data' => $playlistItem->plugin->data_payload]);
+
             GenerateScreenJob::dispatchSync($device->id, $markup);
         }
     }
