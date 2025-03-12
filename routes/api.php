@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 Route::get('/display', function (Request $request) {
-
     $mac_address = $request->header('id');
     $access_token = $request->header('access-token');
     $device = Device::where('mac_address', $mac_address)
@@ -42,6 +41,17 @@ Route::get('/display', function (Request $request) {
         'last_firmware_version' => $request->header('fw-version'),
     ]);
 
+    // Skip if cloud proxy is enabled for device
+    if (! $device->proxy_cloud) {
+        $playlistItem = $device->getNextPlaylistItem();
+
+        if ($playlistItem) {
+            $playlistItem->update(['last_displayed_at' => now()]);
+            $markup = Blade::render($playlistItem->plugin->render_markup, ['data' => $playlistItem->plugin->data_payload]);
+            GenerateScreenJob::dispatchSync($device->id, $markup);
+        }
+    }
+
     $image_uuid = $device->current_screen_image;
     if (! $image_uuid) {
         $image_path = 'images/setup-logo.bmp';
@@ -55,7 +65,7 @@ Route::get('/display', function (Request $request) {
         'status' => '0',
         'image_url' => url('storage/'.$image_path),
         'filename' => $filename,
-        'refresh_rate' => 900,
+        'refresh_rate' => $device->default_refresh_interval,
         'reset_firmware' => false,
         'update_firmware' => false,
         'firmware_url' => null,

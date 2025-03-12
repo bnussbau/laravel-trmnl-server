@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Device extends Model
 {
@@ -49,5 +50,46 @@ class Device extends Model
         } else {
             return 3; // Strong signal (3 bars)
         }
+    }
+
+    public function playlists(): HasMany
+    {
+        return $this->hasMany(Playlist::class);
+    }
+
+    public function getNextPlaylistItem()
+    {
+        // Get active playlist items ordered by display order
+        $playlistItems = $this->playlists()
+            ->where('is_active', true)
+            ->orderBy('order')
+            ->get();
+
+        if ($playlistItems->isEmpty()) {
+            return null;
+        }
+
+        // Get the last displayed item
+        $lastDisplayed = $playlistItems
+            ->sortByDesc('last_displayed_at')
+            ->first();
+
+        if (! $lastDisplayed || ! $lastDisplayed->last_displayed_at) {
+            // If no item has been displayed yet, return the first one
+            return $playlistItems->first();
+        }
+
+        // Find the next item in sequence
+        $currentOrder = $lastDisplayed->order;
+        $nextItem = $playlistItems
+            ->where('order', '>', $currentOrder)
+            ->first();
+
+        // If there's no next item, loop back to the first one
+        if (! $nextItem) {
+            return $playlistItems->first();
+        }
+
+        return $nextItem;
     }
 }

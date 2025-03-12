@@ -14,6 +14,7 @@ new class extends Component {
     public string $polling_verb;
     public string|null $polling_header;
     public $data_payload;
+    public array $checked_devices = [];
 
     public function mount(): void
     {
@@ -49,6 +50,7 @@ new class extends Component {
         'polling_verb' => 'required|string|in:get,post',
         'polling_header' => 'nullable|string|max:255',
         'blade_code' => 'string',
+        'checked_devices' => 'array',
     ];
 
     public function editSettings()
@@ -68,6 +70,25 @@ new class extends Component {
         }
     }
 
+    public function addToPlaylist()
+    {
+        $this->validate([
+            'checked_devices' => 'required|array|min:1',
+        ]);
+
+        foreach ($this->checked_devices as $deviceId) {
+            $maxOrder = \App\Models\Playlist::where('device_id', $deviceId)->max('order') ?? 0;
+            
+            \App\Models\Playlist::create([
+                'device_id' => $deviceId,
+                'plugin_id' => $this->plugin->id,
+                'order' => $maxOrder + 1,
+            ]);
+        }
+
+        $this->reset(['checked_devices']);
+        Flux::modal('add-plugin')->close();
+    }
 
     public function renderExample(string $example)
     {
@@ -107,8 +128,6 @@ HTML;
 </x-trmnl::view>
 HTML;
     }
-
-
 }
 
 ?>
@@ -121,6 +140,29 @@ HTML;
                 <flux:button icon="play" variant="primary">Add to Playlist</flux:button>
             </flux:modal.trigger>
         </div>
+
+        <flux:modal name="add-plugin" class="md:w-96">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Add to Playlist</flux:heading>
+                </div>
+
+                <form wire:submit="addToPlaylist">
+                    <div class="mb-4">
+                        <flux:checkbox.group wire:model="checked_devices" label="Select Devices">
+                            @foreach(auth()->user()->devices as $device)
+                                <flux:checkbox label="{{ $device->name }}" value="{{ $device->id }}"/>
+                            @endforeach
+                        </flux:checkbox.group>
+                    </div>
+
+                    <div class="flex">
+                        <flux:spacer/>
+                        <flux:button type="submit" variant="primary">Add to Playlist</flux:button>
+                    </div>
+                </form>
+            </div>
+        </flux:modal>
 
         <div class="mt-5 mb-5">
             <h3 class="text-xl font-semibold dark:text-gray-100">Settings</h3>
