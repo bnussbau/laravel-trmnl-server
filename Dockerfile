@@ -1,6 +1,13 @@
+# Composer dependencies stage
+FROM composer:latest AS composer
+WORKDIR /app
+COPY composer.* ./
+RUN composer install --no-scripts --no-autoloader --prefer-dist --ignore-platform-req=ext-imagick
+
+# PHP Stage
 FROM php:8.3-fpm-alpine3.20
 
-# Install system dependencies
+# Install system dependencies in a single layer
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -14,66 +21,49 @@ RUN apk add --no-cache \
     imagemagick-dev \
     chromium
 
-# Configure Chromium Path
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-ENV PUPPETEER_DOCKER=1
+# Configure environment variables
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    PUPPETEER_DOCKER=1
 
-#RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS imagemagick-dev \
-#&& pecl install imagick \
-#&& docker-php-ext-enable imagick \
-#&& apk del .build-deps \
+# Install PHP extensions and configure imagick in a single layer
+RUN mkdir -p /usr/src/php/ext/imagick \
+    && chmod 777 /usr/src/php/ext/imagick \
+    && curl -fsSL https://github.com/Imagick/imagick/archive/refs/tags/3.7.0.tar.gz | tar xvz -C "/usr/src/php/ext/imagick" --strip 1 \
+    && docker-php-ext-install imagick opcache
 
-#RUN docker-php-ext-install imagick \
-#    && docker-php-ext-enable imagick
-
-RUN mkdir -p /usr/src/php/ext/imagick
-RUN chmod 777 /usr/src/php/ext/imagick
-RUN curl -fsSL https://github.com/Imagick/imagick/archive/refs/tags/3.7.0.tar.gz | tar xvz -C "/usr/src/php/ext/imagick" --strip 1
-
-# Install PHP extensions
-#RUN docker-php-ext-install opcache imagick
-RUN docker-php-ext-install imagick
-
-# Install composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www/html
-
 
 # Copy configuration files
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
 
-# Create required directories
+# Create required directories and set permissions in a single layer
 RUN mkdir -p /var/log/supervisor \
-    && mkdir -p storage/logs \
-    && mkdir -p storage/framework/{cache,sessions,views} \
-    && chmod -R 775 storage \
-    && mkdir -p bootstrap/cache \
-    && chmod -R 775 bootstrap/cache \
-    && mkdir -p database \
+    storage/logs \
+    storage/framework/{cache,sessions,views} \
+    bootstrap/cache \
+    database \
     && touch database/database.sqlite \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache \
     && chmod -R 777 database
 
-COPY --chown=www-data:www-data ./.env.example ./.env
+# Copy composer dependencies from composer stage
+COPY --from=composer /app/vendor ./vendor
+COPY --chown=www-data:www-data composer.* ./
 
-COPY --chown=www-data:www-data ./composer.json ./composer.json
-COPY --chown=www-data:www-data ./composer.lock ./composer.lock
-COPY --chown=www-data:www-data ./package.json ./package.json
-COPY --chown=www-data:www-data ./package-lock.json ./package-lock.json
-COPY --chown=www-data:www-data ./artisan ./artisan
-
-# Install application dependencies
-RUN composer install --no-interaction --prefer-dist --no-scripts
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
 # Copy application files
 COPY --chown=www-data:www-data . .
+COPY --chown=www-data:www-data ./.env.example ./.env
 
-# Optimize autoloader & build assets
-RUN composer install --optimize-autoloader
+RUN composer dump-autoload --optimize
 RUN npm run build
 
 # Expose port 80
