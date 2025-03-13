@@ -52,11 +52,11 @@ new class extends Component {
 
     public function mount(): void
     {
-        $userPlugins =auth()->user()->plugins->map(function ($plugin) {
+        $userPlugins =auth()->user()?->plugins?->map(function ($plugin) {
             return $plugin->toArray();
         })->toArray();
 
-        $this->plugins = array_merge($this->native_plugins, $userPlugins);
+        $this->plugins = array_merge($this->native_plugins, $userPlugins ?? []);
     }
 
 };
