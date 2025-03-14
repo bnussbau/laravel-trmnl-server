@@ -24,6 +24,10 @@
                           :current="request()->routeIs(['plugins.index', 'plugins.markup', 'plugins.api', 'plugins.receipt'])">
             Plugins
         </flux:navbar.item>
+        <flux:navbar.item icon="play" href="{{ route('playlists.index') }}" wire:navigate
+                          :current="request()->routeIs('playlists.index')">
+            Playlists
+        </flux:navbar.item>
     </flux:navbar>
 
     <flux:spacer/>
@@ -99,6 +103,10 @@
             <flux:navbar.item icon="puzzle-piece" href="{{ route('plugins.index') }}" wire:navigate
                               :current="request()->routeIs('plugins.index')" class="m-2">
                 Plugins
+            </flux:navbar.item>
+            <flux:navbar.item icon="play" href="{{ route('playlists.index') }}" wire:navigate
+                              :current="request()->routeIs('playlists.index')" class="m-2">
+                Playlists
             </flux:navbar.item>
         </flux:navlist.group>
     </flux:navlist>

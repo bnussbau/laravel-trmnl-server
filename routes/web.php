@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('plugins/receipt/{plugin}', 'plugins.receipt')->name('plugins.receipt');
     Volt::route('plugins/markup', 'plugins.markup')->name('plugins.markup');
     Volt::route('plugins/api', 'plugins.api')->name('plugins.api');
+    Volt::route('playlists', 'playlists.index')->name('playlists.index');
 });
 
 require __DIR__.'/auth.php';
