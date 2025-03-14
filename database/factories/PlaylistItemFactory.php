@@ -15,14 +15,13 @@ class PlaylistItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'order' => $this->faker->randomNumber(),
-            'is_active' => $this->faker->boolean(),
-            'last_displayed_at' => Carbon::now(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-
             'playlist_id' => Playlist::factory(),
             'plugin_id' => Plugin::factory(),
+            'order' => $this->faker->numberBetween(0, 100),
+            'is_active' => $this->faker->boolean(80), // 80% chance of being active
+            'last_displayed_at' => null,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 }

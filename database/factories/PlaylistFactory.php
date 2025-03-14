@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Device;
 use App\Models\Playlist;
-use App\Models\Plugin;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
@@ -15,14 +14,14 @@ class PlaylistFactory extends Factory
     public function definition(): array
     {
         return [
-            'order' => $this->faker->randomNumber(),
-            'is_active' => $this->faker->boolean(),
-            'last_displayed_at' => Carbon::now(),
+            'name' => $this->faker->words(3, true),
+            'is_active' => $this->faker->boolean(80), // 80% chance of being active
+            'weekdays' => $this->faker->randomElements(range(0, 6), $this->faker->numberBetween(1, 7)),
+            'active_from' => $this->faker->time('H:i:s'),
+            'active_until' => $this->faker->time('H:i:s'),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
-
             'device_id' => Device::factory(),
-            'plugin_id' => Plugin::factory(),
         ];
     }
 }
