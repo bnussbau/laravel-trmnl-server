@@ -47,7 +47,11 @@ Route::get('/display', function (Request $request) {
 
         if ($playlistItem) {
             $playlistItem->update(['last_displayed_at' => now()]);
-            $markup = Blade::render($playlistItem->plugin->render_markup, ['data' => $playlistItem->plugin->data_payload]);
+            if ($playlistItem->plugin->render_markup) {
+                $markup = Blade::render($playlistItem->plugin->render_markup, ['data' => $playlistItem->plugin->data_payload]);
+            } elseif ($playlistItem->plugin->render_markup_view) {
+                $markup = view($playlistItem->plugin->render_markup_view, ['data' => $playlistItem->plugin->data_payload])->render();
+            }
 
             GenerateScreenJob::dispatchSync($device->id, $markup);
         }
