@@ -4,7 +4,6 @@ use App\Models\Playlist;
 use App\Models\PlaylistItem;
 use App\Models\Plugin;
 
-
 test('playlist item belongs to playlist', function () {
     $playlist = Playlist::factory()->create();
     $playlistItem = PlaylistItem::factory()->create(['playlist_id' => $playlist->id]);
