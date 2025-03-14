@@ -46,11 +46,18 @@ Route::get('/display', function (Request $request) {
         $playlistItem = $device->getNextPlaylistItem();
 
         if ($playlistItem) {
+            $plugin = $playlistItem->plugin;
+
+            // Check and update stale data if needed
+            if ($plugin->isDataStale()) {
+                $plugin->updateDataPayload();
+            }
+
             $playlistItem->update(['last_displayed_at' => now()]);
-            if ($playlistItem->plugin->render_markup) {
-                $markup = Blade::render($playlistItem->plugin->render_markup, ['data' => $playlistItem->plugin->data_payload]);
-            } elseif ($playlistItem->plugin->render_markup_view) {
-                $markup = view($playlistItem->plugin->render_markup_view, ['data' => $playlistItem->plugin->data_payload])->render();
+            if ($plugin->render_markup) {
+                $markup = Blade::render($plugin->render_markup, ['data' => $plugin->data_payload]);
+            } elseif ($plugin->render_markup_view) {
+                $markup = view($plugin->render_markup_view, ['data' => $plugin->data_payload])->render();
             }
 
             GenerateScreenJob::dispatchSync($device->id, $markup);

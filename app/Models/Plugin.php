@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class Plugin extends Model
@@ -14,6 +15,8 @@ class Plugin extends Model
 
     protected $casts = [
         'data_payload' => 'json',
+        'data_payload_updated_at' => 'datetime',
+        'is_native' => 'boolean',
     ];
 
     protected static function boot()
@@ -25,5 +28,25 @@ class Plugin extends Model
                 $model->uuid = Str::uuid();
             }
         });
+    }
+
+    public function isDataStale(): bool
+    {
+        if (! $this->data_payload_updated_at || ! $this->data_stale_minutes) {
+            return true;
+        }
+
+        return $this->data_payload_updated_at->addMinutes($this->data_stale_minutes)->isPast();
+    }
+
+    public function updateDataPayload(): void
+    {
+        if ($this->data_strategy === 'polling' && $this->polling_url) {
+            $response = Http::get($this->polling_url)->json();
+            $this->update([
+                'data_payload' => $response,
+                'data_payload_updated_at' => now(),
+            ]);
+        }
     }
 }
