@@ -75,7 +75,7 @@ Route::get('/display', function (Request $request) {
     }
 
     return response()->json([
-        'status' => '0',
+        'status' => 0,
         'image_url' => url('storage/'.$image_path),
         'filename' => $filename,
         'refresh_rate' => $device->default_refresh_interval,
@@ -91,7 +91,7 @@ Route::get('/setup', function (Request $request) {
 
     if (! $mac_address) {
         return response()->json([
-            'status' => '404',
+            'status' => 404,
             'message' => 'MAC Address not registered',
         ], 404);
     }
@@ -114,14 +114,14 @@ Route::get('/setup', function (Request $request) {
             ]);
         } else {
             return response()->json([
-                'status' => '404',
+                'status' => 404,
                 'message' => 'MAC Address not registered or invalid access token',
             ], 404);
         }
     }
 
     return response()->json([
-        'status' => '200',
+        'status' => 200,
         'api_key' => $device->api_key,
         'friendly_id' => $device->friendly_id,
         'image_url' => url('storage/images/setup-logo.png'),
@@ -138,7 +138,7 @@ Route::post('/log', function (Request $request) {
 
     if (! $device) {
         return response()->json([
-            'status' => '404',
+            'status' => 404,
             'message' => 'Device not found or invalid access token',
         ], 404);
     }
@@ -153,7 +153,7 @@ Route::post('/log', function (Request $request) {
     }
 
     return response()->json([
-        'status' => '200',
+        'status' => 200,
     ]);
 });
 
