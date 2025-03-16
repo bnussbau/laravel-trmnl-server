@@ -67,7 +67,10 @@ test('it fetches and processes proxy cloud responses for devices', function () {
     $device->refresh();
 
     expect($device->current_screen_image)->toBe('test-image')
-        ->and($device->proxy_cloud_response)->toBe('{"image_url":"https:\\/\\/example.com\\/test-image.bmp","filename":"test-image"}');
+        ->and($device->proxy_cloud_response)->toBe([
+            'image_url' => 'https://example.com/test-image.bmp',
+            'filename' => 'test-image',
+        ]);
 
     // Assert the image was saved
     Storage::disk('public')->assertExists('images/generated/test-image.bmp');
