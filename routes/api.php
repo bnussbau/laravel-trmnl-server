@@ -64,6 +64,7 @@ Route::get('/display', function (Request $request) {
         }
     }
 
+    $device->refresh();
     $image_uuid = $device->current_screen_image;
     if (! $image_uuid) {
         $image_path = 'images/setup-logo.bmp';
