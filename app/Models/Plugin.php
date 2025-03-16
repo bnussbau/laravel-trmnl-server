@@ -42,7 +42,10 @@ class Plugin extends Model
     public function updateDataPayload(): void
     {
         if ($this->data_strategy === 'polling' && $this->polling_url) {
-            $response = Http::get($this->polling_url)->json();
+            $response = Http::withHeaders(['User-Agent' => 'usetrmnl/byos_laravel', 'Accept' => 'application/json'])
+                ->get($this->polling_url)
+                ->json();
+
             $this->update([
                 'data_payload' => $response,
                 'data_payload_updated_at' => now(),
