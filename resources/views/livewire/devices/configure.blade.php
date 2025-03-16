@@ -17,7 +17,7 @@ new class extends Component {
     // Playlist properties
     public $playlists;
     public $playlist_name;
-    public $selected_weekdays = [];
+    public $selected_weekdays = null;
     public $active_from;
     public $active_until;
 
@@ -74,7 +74,7 @@ new class extends Component {
     {
         $this->validate([
             'playlist_name' => 'required|string|max:255',
-            'selected_weekdays' => 'array',
+            'selected_weekdays' => 'nullable|array',
             'active_from' => 'nullable|date_format:H:i',
             'active_until' => 'nullable|date_format:H:i',
         ]);
@@ -226,10 +226,10 @@ new class extends Component {
                     </div>
                     <div>
                         <flux:modal.trigger name="edit-device">
-                            <flux:button icon="pencil-square" variant="subtle"/>
+                            <flux:button icon="pencil-square" />
                         </flux:modal.trigger>
                         <flux:modal.trigger name="delete-device">
-                            <flux:button icon="trash" variant="danger"/>
+                            <flux:button icon="trash" variant="subtle"/>
                         </flux:modal.trigger>
                     </div>
                 </div>

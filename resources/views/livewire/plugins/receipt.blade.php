@@ -17,7 +17,7 @@ new class extends Component {
     public $data_payload;
     public array $checked_devices = [];
     public string $playlist_name = '';
-    public array $selected_weekdays = [];
+    public array|null $selected_weekdays = null;
     public string $active_from = '';
     public string $active_until = '';
     public string $selected_playlist = '';
@@ -67,7 +67,7 @@ new class extends Component {
         'blade_code' => 'nullable|string',
         'checked_devices' => 'array',
         'playlist_name' => 'required_if:selected_playlist,new|string|max:255',
-        'selected_weekdays' => 'array',
+        'selected_weekdays' => 'nullable|array',
         'active_from' => 'nullable|date_format:H:i',
         'active_until' => 'nullable|date_format:H:i',
         'selected_playlist' => 'nullable|string',
@@ -202,7 +202,7 @@ HTML;
 
                     @if(count($checked_devices) === 1)
                         <div class="mb-4">
-                            <flux:radio.group wire:model="selected_playlist" label="Select Playlist"
+                            <flux:radio.group wire:model.live.debounce="selected_playlist" label="Select Playlist"
                                               variant="segmented">
                                 <flux:radio value="new" label="Create New"/>
                                 @foreach($this->getDevicePlaylists($checked_devices[0]) as $playlist)
