@@ -6,6 +6,7 @@ use Livewire\Volt\Component;
 new class extends Component {
     public Plugin $plugin;
     public string|null $blade_code;
+    public string|null $view_content;
 
     public string $name;
     public int $data_stale_minutes;
@@ -25,6 +26,15 @@ new class extends Component {
     {
         abort_unless(auth()->user()->plugins->contains($this->plugin), 403);
         $this->blade_code = $this->plugin->render_markup;
+
+        if ($this->plugin->render_markup_view) {
+            try {
+                $viewPath = resource_path('views/' . str_replace('.', '/', $this->plugin->render_markup_view) . '.blade.php');
+                $this->view_content = file_get_contents($viewPath);
+            } catch (\Exception $e) {
+                $this->view_content = null;
+            }
+        }
 
         $this->fillformFields();
     }
@@ -192,7 +202,8 @@ HTML;
 
                     @if(count($checked_devices) === 1)
                         <div class="mb-4">
-                            <flux:radio.group wire:model="selected_playlist" label="Select Playlist" variant="segmented">
+                            <flux:radio.group wire:model="selected_playlist" label="Select Playlist"
+                                              variant="segmented">
                                 <flux:radio value="new" label="Create New"/>
                                 @foreach($this->getDevicePlaylists($checked_devices[0]) as $playlist)
                                     <flux:radio value="{{ $playlist->id }}" label="{{ $playlist->name }}"/>
@@ -297,29 +308,49 @@ HTML;
         <flux:separator/>
         <div class="mt-5 mb-5 ">
             <h3 class="text-xl font-semibold dark:text-gray-100">Markup</h3>
-            <div class="text-accent">
-                <a href="#" wire:click="renderExample('layoutTitle')" class="text-xl">Layout with Title Bar</a> |
-                <a href="#" wire:click="renderExample('layout')" class="text-xl">Blank Layout</a>
-            </div>
+            @if($plugin->render_markup_view)
+                <div>
+                    Edit view
+                    <span class="font-mono text-accent mb-4">{{ $plugin->render_markup_view }}</span> to update.
+                </div>
+                <div class="mb-4 mt-4">
+                    <flux:textarea
+                        label="File Content"
+                        class="font-mono"
+                        wire:model="view_content"
+                        id="view_content"
+                        name="view_content"
+                        rows="15"
+                        readonly
+                    />
+                </div>
+            @else
+                <div class="text-accent">
+                    <a href="#" wire:click="renderExample('layoutTitle')" class="text-xl">Layout with Title Bar</a> |
+                    <a href="#" wire:click="renderExample('layout')" class="text-xl">Blank Layout</a>
+                </div>
+            @endif
         </div>
-        <form wire:submit="saveMarkup">
-            <div class="mb-4">
-                <flux:textarea
-                    label="Blade Code"
-                    class="font-mono"
-                    wire:model="blade_code"
-                    id="blade_code"
-                    name="blade_code"
-                    rows="15"
-                    placeholder="Enter your blade code here..."
-                />
-            </div>
+        @if(!$plugin->render_markup_view)
+            <form wire:submit="saveMarkup">
+                <div class="mb-4">
+                    <flux:textarea
+                        label="Blade Code"
+                        class="font-mono"
+                        wire:model="blade_code"
+                        id="blade_code"
+                        name="blade_code"
+                        rows="15"
+                        placeholder="Enter your blade code here..."
+                    />
+                </div>
 
-            <div class="flex">
-                <flux:button type="submit" variant="primary">
-                    Save
-                </flux:button>
-            </div>
-        </form>
+                <div class="flex">
+                    <flux:button type="submit" variant="primary">
+                        Save
+                    </flux:button>
+                </div>
+            </form>
+        @endif
     </div>
 </div>
