@@ -15,6 +15,7 @@ class Device extends Model
     protected $casts = [
         'proxy_cloud' => 'boolean',
         'last_log_request' => 'json',
+        'proxy_cloud_response' => 'json',
     ];
 
     public function getBatteryPercentAttribute()
@@ -50,6 +51,22 @@ class Device extends Model
         } else {
             return 3; // Strong signal (3 bars)
         }
+    }
+
+    public function getUpdateFirmwareAttribute() : bool
+    {
+        if ($this->proxy_cloud_response && $this->proxy_cloud_response['update_firmware']) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getFirmwareUrlAttribute() : string | null
+    {
+        if ($this->proxy_cloud_response && $this->proxy_cloud_response['firmware_url']) {
+            return $this->proxy_cloud_response['firmware_url'];
+        }
+        return null;
     }
 
     public function playlists(): HasMany
