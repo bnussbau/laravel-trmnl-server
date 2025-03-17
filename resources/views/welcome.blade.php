@@ -1,6 +1,6 @@
 <x-layouts.auth.card>
     <div class="flex flex-col gap-6">
-        <x-auth-header title="Laravel TRMNL Server" description="Server is up and running."/>
+        <x-auth-header title="TRMNL BYOS Laravel" description="Server is up and running."/>
     </div>
     <header class="w-full lg:max-w-4xl max-w-[335px] text-sm mt-6 not-has-[nav]:hidden">
         @if (Route::has('login'))

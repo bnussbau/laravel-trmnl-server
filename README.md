@@ -2,8 +2,8 @@
 
 [![tests](https://github.com/usetrmnl/byos_laravel/actions/workflows/test.yml/badge.svg)](https://github.com/usetrmnl/byos_laravel/actions/workflows/test.yml)
 
-Laravel Trmnl Server is a self-hostable implementation of a TRMNL server, built with Laravel. 
-It enables you to manage TRMNL devices, generate screens dynamically, and can act as a proxy for the TRMNL API (native plugin system). 
+TRMNL BYOS Laravel is a self-hostable implementation of a TRMNL server, built with Laravel. 
+It enables you to manage TRMNL devices, generate screens dynamically, and can act as a proxy for the native cloud service (native plugins, receipts). 
 Inspired by [usetrmnl/byos_sinatra](https://github.com/usetrmnl/byos_sinatra).
 
 If you are looking for a Laravel package designed to streamline the development of both public and private TRMNL plugins, check out [bnussbau/trmnl-laravel](https://github.com/bnussbau/laravel-trmnl).
@@ -16,9 +16,10 @@ If you are looking for a Laravel package designed to streamline the development 
 
 * 📡 Device Information – Display battery status, WiFi strength, firmware version, and more. 
 * 🔍 Auto-Join – Automatically detects and adds devices from your local network. 
-* 🖥️ Screen Generation – Supports Markup, API, or update via Code. 
-* 🔄 TRMNL API Proxy – Can act as a proxy for the TRMNL Display API (requires TRMNL Developer Edition). 
+* 🖥️ Screen Generation – Supports Plugins, API, Markup or updates via Code. 
+* 🔄 TRMNL API Proxy – Can act as a proxy for the native cloud service (requires TRMNL Developer Edition). 
   * This enables a hybrid setup – for example, you can update your custom Train Monitor every 5 minutes in the morning, while displaying native TRMNL plugins throughout the day.
+* 🌙 Dark Mode – Switch between light and dark mode.
 * 🐳 Deployment – Dockerized setup for easier hosting (Dockerfile, docker-compose).
 * 🛠️ Devcontainer support for easier development.
 
@@ -30,7 +31,15 @@ It serves as a starter kit, giving you the flexibility to build and extend it ho
 ### Support ❤️
 This repo is maintained voluntarily by [@bnussbau](https://github.com/bnussbau).
 
-Support the development of this package by purchasing a TRMNL device through our referral link: https://usetrmnl.com/?ref=laravel-trmnl. At checkout, use the code `laravel-trmnl` to receive a $15 discount on your purchase.
+Support the development of this package by purchasing a TRMNL device through the referral link: https://usetrmnl.com/?ref=laravel-trmnl. At checkout, use the code `laravel-trmnl` to receive a $15 discount on your purchase.
+
+### Hosting
+
+Run everywhere, where Docker is supported: Raspberry Pi, VPS, NAS, Container Cloud Service (Cloud Run, ...)
+
+Docker Compose file located at: [docker/prod/docker-compose.yml](docker/prod/docker-compose.yml).
+
+For production use, generate a new APP_KEY and set the environment variable `APP_KEY=`.
 
 ### Requirements
 
@@ -38,7 +47,8 @@ Support the development of this package by purchasing a TRMNL device through our
 * ext-imagick
 * puppeteer [see Browsershot docs](https://spatie.be/docs/browsershot/v4/requirements)
 
-### Installation
+
+### Local Development
 
 #### Clone the repository
 
@@ -68,7 +78,7 @@ php artisan migrate --seed
 
 #### Run the server
 
-To make your server accessible in the network, you can run the following command:
+To expose the built-in server to the local network, you can run the following command:
 
 ```bash
 php artisan serve  --host=0.0.0.0 --port 4567
@@ -76,13 +86,32 @@ php artisan serve  --host=0.0.0.0 --port 4567
 
 ### Docker
 Use the provided Dockerfile, or docker-compose file to run the server in a container.
-You can persist the database file by mounting a volume to `/var/www/html/database/database.sqlite`.
 
-```Dockerfile
-# docker-compose.yaml
-volumes:
-    - ./database/database.sqlite:/var/www/html/database/database.sqlite
+#### .devcontainer
+
+Open this repository in Visual Studio Code with the Dev Containers extension installed. This will automatically build the devcontainer and start the server.
+
+Copy the .env.example.local to .env:
+
+```bash
+cp .env.example.local .env
 ```
+
+Run migrations and seed the database:
+
+```bash
+php artisan migrate --seed
+```
+
+Link storage to expose public assets:
+
+```bash
+php artisan storage:link
+```
+
+Server is ready. Visit tab "Ports" in VSCode and visit the "Forwarded Address" in your browser.
+
+Login with user / password `admin@example.com` / `admin@example.com`
 
 ### Usage
 
@@ -94,6 +123,7 @@ volumes:
 | `TRMNL_PROXY_REFRESH_MINUTES` | How often should the server fetch new images from native service | 15                |
 | `REGISTRATION_ENABLED`        | Allow user registration via Webinterface                         | 1                 |
 | `FORCE_HTTPS`                 | If your server handles SSL termination, enforce HTTPS.           | 0                 |
+| `PHP_OPCACHE_ENABLE`          | Enable PHP Opcache                                               | 0                 |
 
 #### Login
 
@@ -134,6 +164,14 @@ See this YouTube guide: [https://www.youtube.com/watch?v=3xehPW-PCOM](https://ww
 
 ### 🖥️ Generate Screens
 
+#### Markup via Web Interface
+
+1.	Navigate to Plugins > Markup in the Web Interface.
+2.	Enter your markup manually or select from the available templates.
+3.	Save and apply the changes.
+
+* Available Blade Components are listed here: [laravel-trmnl | Blade Components](https://github.com/bnussbau/laravel-trmnl/tree/main/resources/views/components)
+
 #### 🎨 Blade View
 * Edit `resources/views/trmnl.blade.php`
   * Available Blade Components are listed here: [laravel-trmnl | Blade Components](https://github.com/bnussbau/laravel-trmnl/tree/main/resources/views/components)
@@ -161,14 +199,6 @@ You can dynamically update screens by sending a POST request.
 ```
 
 Token can be retrieved under Plugins > API in the Web Interface.
-
-#### Markup via Web Interface
-
-1.	Navigate to Plugins > Markup in the Web Interface.
-2.	Enter your markup manually or select from the available templates.
-3.	Save and apply the changes.
-
-* Available Blade Components are listed here: [laravel-trmnl | Blade Components](https://github.com/bnussbau/laravel-trmnl/tree/main/resources/views/components)
 
 #### 🛠️ Generate Screens Programmatically
 
