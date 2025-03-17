@@ -68,5 +68,24 @@ class ExampleReceiptsSeeder extends Seeder
                 'flux_icon_name' => 'chat-bubble-bottom-center',
             ]
         );
+
+        Plugin::create(
+            [
+                'uuid' => '8d472959-400f-46ee-afb2-4a9f1cfd521f',
+                'name' => 'This Day in History',
+                'user_id' => '1',
+                'data_payload' => null,
+                'data_stale_minutes' => 720,
+                'data_strategy' => 'polling',
+                'polling_url' => 'https://raw.githubusercontent.com/jvivona/tidbyt-data/refs/heads/main/thisdayinhistwikipedia/thisdayinhist.json',
+                'polling_verb' => 'get',
+                'polling_header' => null,
+                'render_markup' => null,
+                'render_markup_view' => 'receipts.day-in-history',
+                'detail_view_route' => null,
+                'icon_url' => null,
+                'flux_icon_name' => 'calendar',
+            ]
+        );
     }
 }

@@ -23,9 +23,18 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('admin@example.com'),
             ]);
 
+             Device::factory(1)->create([
+                 'mac_address' => '00:00:00:00:00:00',
+                 'api_key' => 'test-api-key'
+             ]);
+
             // Device::factory(5)->create();
 
             // Plugin::factory(3)->create();
+
+            $this->call([
+                ExampleReceiptsSeeder::class,
+            ]);
         }
     }
 }

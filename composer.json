@@ -14,6 +14,7 @@
         "ext-imagick": "*",
         "bnussbau/laravel-trmnl": "^0.1.4",
         "intervention/image": "^3.11",
+        "keepsuit/laravel-liquid": "^0.5.2",
         "laravel/framework": "^12.1",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
