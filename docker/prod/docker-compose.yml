@@ -1,8 +1,6 @@
 services:
     app:
-        build:
-            context: .
-            dockerfile: Dockerfile
+        image: ghcr.io/usetrmnl/byos_laravel:latest
         ports:
             - "4567:8080"
         environment:
@@ -13,7 +11,6 @@ services:
            - database:/var/www/html/database/
            - storage:/var/www/html/storage
         restart: unless-stopped
-        #platform: "linux/arm64/v8"
 volumes:
     database:
     storage:
