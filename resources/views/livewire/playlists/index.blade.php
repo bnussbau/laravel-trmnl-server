@@ -11,9 +11,10 @@ new class extends Component {
 
     // Playlist form properties
     public $playlist_name;
-    public $selected_weekdays = [];
+    public $selected_weekdays = null;
     public $active_from;
     public $active_until;
+    public $refresh_time = null;
 
     public function mount()
     {
@@ -89,29 +90,40 @@ new class extends Component {
 
         $this->validate([
             'playlist_name' => 'required|string|max:255',
-            'selected_weekdays' => 'array',
+            'selected_weekdays' => 'nullable|array',
             'active_from' => 'nullable|date_format:H:i',
             'active_until' => 'nullable|date_format:H:i',
+            'refresh_time' => 'nullable|integer|min:60',
         ]);
+
+        if ($this->refresh_time < 60) {
+            $this->refresh_time = null;
+        }
+
+        if (empty($this->selected_weekdays)){
+            $this->selected_weekdays = null;
+        }
 
         $playlist->update([
             'name' => $this->playlist_name,
             'weekdays' => $this->selected_weekdays,
             'active_from' => $this->active_from,
             'active_until' => $this->active_until,
+            'refresh_time' => $this->refresh_time,
         ]);
 
         $this->devices = auth()->user()->devices()->with(['playlists.items.plugin'])->get();
-        $this->reset(['playlist_name', 'selected_weekdays', 'active_from', 'active_until']);
+        $this->reset(['playlist_name', 'selected_weekdays', 'active_from', 'active_until', 'refresh_time']);
         Flux::modal('edit-playlist-' . $playlist->id)->close();
     }
 
     public function preparePlaylistEdit(Playlist $playlist)
     {
         $this->playlist_name = $playlist->name;
-        $this->selected_weekdays = $playlist->weekdays ?? [];
+        $this->selected_weekdays = $playlist->weekdays ?? null;
         $this->active_from = optional($playlist->active_from)->format('H:i');
         $this->active_until = optional($playlist->active_until)->format('H:i');
+        $this->refresh_time = $playlist->refresh_time;
     }
 }; ?>
 
@@ -255,6 +267,10 @@ new class extends Component {
 
                                             <div class="mb-4">
                                                 <flux:input type="time" label="Active Until" wire:model="active_until"/>
+                                            </div>
+
+                                            <div class="mb-4">
+                                                <flux:input type="number" label="Refresh Time (seconds)" wire:model="refresh_time" min="1" placeholder="Leave empty to use device default"/>
                                             </div>
 
                                             <div class="flex">

@@ -18,6 +18,7 @@ class Playlist extends Model
         'weekdays' => 'array',
         'active_from' => 'datetime:H:i',
         'active_until' => 'datetime:H:i',
+        'refresh_time' => 'integer',
     ];
 
     public function device(): BelongsTo

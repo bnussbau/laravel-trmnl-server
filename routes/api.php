@@ -41,11 +41,14 @@ Route::get('/display', function (Request $request) {
         'last_firmware_version' => $request->header('fw-version'),
     ]);
 
+    $refreshTimeOverride = null;
     // Skip if cloud proxy is enabled for device
-    if (! $device->proxy_cloud) {
+    if (! $device->proxy_cloud || $device->getNextPlaylistItem()) {
         $playlistItem = $device->getNextPlaylistItem();
 
         if ($playlistItem) {
+            $refreshTimeOverride = $playlistItem->playlist()->first()->refresh_time;
+
             $plugin = $playlistItem->plugin;
 
             // Check and update stale data if needed
@@ -78,7 +81,7 @@ Route::get('/display', function (Request $request) {
         'status' => 0,
         'image_url' => url('storage/'.$image_path),
         'filename' => $filename,
-        'refresh_rate' => $device->default_refresh_interval,
+        'refresh_rate' => $refreshTimeOverride ?? $device->default_refresh_interval,
         'reset_firmware' => false,
         'update_firmware' => $device->update_firmware,
         'firmware_url' => $device->firmware_url,
