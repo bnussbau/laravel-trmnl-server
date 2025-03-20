@@ -42,7 +42,20 @@ class Plugin extends Model
     public function updateDataPayload(): void
     {
         if ($this->data_strategy === 'polling' && $this->polling_url) {
-            $response = Http::withHeaders(['User-Agent' => 'usetrmnl/byos_laravel', 'Accept' => 'application/json'])
+            // Parse headers from polling_header string
+            $headers = ['User-Agent' => 'usetrmnl/byos_laravel', 'Accept' => 'application/json'];
+            
+            if ($this->polling_header) {
+                $headerLines = explode("\n", trim($this->polling_header));
+                foreach ($headerLines as $line) {
+                    $parts = explode(':', $line, 2);
+                    if (count($parts) === 2) {
+                        $headers[trim($parts[0])] = trim($parts[1]);
+                    }
+                }
+            }
+
+            $response = Http::withHeaders($headers)
                 ->get($this->polling_url)
                 ->json();
 

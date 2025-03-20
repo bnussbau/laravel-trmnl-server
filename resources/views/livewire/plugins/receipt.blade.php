@@ -83,9 +83,24 @@ new class extends Component {
     public function updateData()
     {
         if ($this->plugin->data_strategy === 'polling') {
-            $response = Http::get($this->plugin->polling_url)->json();
-            $this->plugin->update(['data_payload' => $response]);
+            // Parse headers from polling_header string
+            $headers = ['User-Agent' => 'usetrmnl/byos_laravel', 'Accept' => 'application/json'];
+            
+            if ($this->plugin->polling_header) {
+                $headerLines = explode("\n", trim($this->plugin->polling_header));
+                foreach ($headerLines as $line) {
+                    $parts = explode(':', $line, 2);
+                    if (count($parts) === 2) {
+                        $headers[trim($parts[0])] = trim($parts[1]);
+                    }
+                }
+            }
 
+            $response = Http::withHeaders($headers)
+                ->get($this->plugin->polling_url)
+                ->json();
+                
+            $this->plugin->update(['data_payload' => $response]);
             $this->data_payload = json_encode($response);
         }
     }
@@ -289,8 +304,15 @@ HTML;
                     </div>
 
                     <div class="mb-4">
-                        <flux:input label="Polling Header" wire:model="polling_header" id="polling_header"
-                                    class="block mt-1 w-full" type="text" name="polling_header" autofocus/>
+                        <flux:textarea 
+                            label="Polling Headers (one per line, format: Header: Value)" 
+                            wire:model="polling_header" 
+                            id="polling_header"
+                            class="block mt-1 w-full font-mono" 
+                            name="polling_header" 
+                            rows="3"
+                            placeholder="Authorization: Bearer ey.*******&#10;Content-Type: application/json"
+                        />
                     </div>
 
                     <div class="flex">
