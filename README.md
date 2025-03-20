@@ -9,6 +9,7 @@ Inspired by [usetrmnl/byos_sinatra](https://github.com/usetrmnl/byos_sinatra).
 If you are looking for a Laravel package designed to streamline the development of both public and private TRMNL plugins, check out [bnussbau/trmnl-laravel](https://github.com/bnussbau/laravel-trmnl).
 
 ![Screenshot](README_byos-screenshot.png)
+![Screenshot](README_byos-screenshot-dark.png)
 
 * 👉 [more Screenshots](screenshots/SCREENSHOTS.md)
 
