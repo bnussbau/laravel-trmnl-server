@@ -87,5 +87,24 @@ class ExampleReceiptsSeeder extends Seeder
                 'flux_icon_name' => 'calendar',
             ]
         );
+
+        Plugin::create(
+            [
+                'uuid' => '4349fdad-a273-450b-aa00-3d32f2de788d',
+                'name' => 'Home Assistant',
+                'user_id' => '1',
+                'data_payload' => null,
+                'data_stale_minutes' => 30,
+                'data_strategy' => 'polling',
+                'polling_url' => 'http://raspberrypi.local:8123/api/states',
+                'polling_verb' => 'get',
+                'polling_header' => 'Authorization: Bearer YOUR_API_KEY',
+                'render_markup' => null,
+                'render_markup_view' => 'receipts.home-assistant',
+                'detail_view_route' => null,
+                'icon_url' => null,
+                'flux_icon_name' => 'thermometer',
+            ]
+        );
     }
 }
