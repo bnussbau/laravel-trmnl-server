@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=Inter:300,400,500" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://usetrmnl.com/css/latest/plugins.css">
+    <script src="https://usetrmnl.com/js/latest/plugins.js"></script>
+    <title>plugin</title>
+    <style>
+        .trmnl .content .description {
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body class="environment trmnl">
+<div class="screen">
+    <div class="view view--full">
+        <div class="layout layout--col gap--space-between">
+            <!-- Top row: 2 columns -->
+            <div class="grid">
+                <!-- Sunrise Time - Left column -->
+                <div class="item col-span-6">
+                    <div class="content text--center flex flex--col flex--center-xy">
+                        <span class="label label--large font--bold text--center">Sunrise</span>
+                        <span class="value value--large text--center font--normal">
+          {{ data.today.sunrise }}
+        </span>
+                    </div>
+                </div>
+                <!-- Sunset Time - Right column -->
+                <div class="item col-span-6">
+                    <div class="content text--center flex flex--col flex--center-xy">
+                        <span class="label label--large font--bold text--center">Sunset</span>
+                        <span class="value value--large text--center font--normal">
+          {{ data.today.sunset }}
+        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom row: 2 columns -->
+            <div class="grid">
+                <!-- Day Progress - Left column -->
+
+                <!-- Tomorrow's Times - Right column -->
+                <div class="item col-span-6">
+                    <div class="content text--center flex flex--col flex--center-xy">
+                        <span class="label label--large font--bold text--center">Tomorrow</span>
+                        <div class="value value--medium text--center font--normal">
+                            <div>
+                                <span>↑ {{ data.tomorrow.sunrise }}</span>
+                            </div>
+                            <div>
+                                <span>↓ {{ data.tomorrow.sunset }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Title Bar -->
+        <div class="title_bar">
+            <span class="title">Sunrise & Sunset</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

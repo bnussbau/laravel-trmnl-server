@@ -106,5 +106,24 @@ class ExampleRecipesSeeder extends Seeder
                 'flux_icon_name' => 'thermometer',
             ]
         );
+
+        Plugin::updateOrCreate(
+            [
+                'uuid' => 'be5f7e1f-3ad8-4d66-93b2-36f7d6dcbd80',
+                'name' => 'Sunrise/Sunset',
+                'user_id' => $user_id,
+                'data_payload' => null,
+                'data_stale_minutes' => 720,
+                'data_strategy' => 'polling',
+                'polling_url' => 'https://suntracker.me/?lat=48.2083&lon=16.3731',
+                'polling_verb' => 'get',
+                'polling_header' => null,
+                'render_markup' => null,
+                'render_markup_view' => 'recipes.sunrise-sunset',
+                'detail_view_route' => null,
+                'icon_url' => null,
+                'flux_icon_name' => 'sunrise',
+            ]
+        );
     }
 }
