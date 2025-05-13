@@ -24,6 +24,8 @@ If you are looking for a Laravel package designed to streamline the development 
 * 🐳 Deployment – Dockerized setup for easier hosting (Dockerfile, docker-compose).
 * 🛠️ Devcontainer support for easier development.
 
+![Devices](README_byos-devices.jpeg)
+
 ### 🎯 Target Audience
 
 This project is for developers who are looking for a self-hosted server for devices running the TRMNL firmware.
