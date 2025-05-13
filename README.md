@@ -4,7 +4,6 @@
 
 TRMNL BYOS Laravel is a self-hostable implementation of a TRMNL server, built with Laravel.
 It enables you to manage TRMNL devices, generate screens dynamically, and can act as a proxy for the native cloud service (native plugins, recipes).
-Inspired by [usetrmnl/byos_sinatra](https://github.com/usetrmnl/byos_sinatra).
 
 If you are looking for a Laravel package designed to streamline the development of both public and private TRMNL plugins, check out [bnussbau/trmnl-laravel](https://github.com/bnussbau/laravel-trmnl).
 
@@ -17,7 +16,8 @@ If you are looking for a Laravel package designed to streamline the development 
 
 * 📡 Device Information – Display battery status, WiFi strength, firmware version, and more.
 * 🔍 Auto-Join – Automatically detects and adds devices from your local network.
-* 🖥️ Screen Generation – Supports Plugins, API, Markup or updates via Code.
+* 🖥️ Screen Generation – Supports Plugins, Recipes, API, Markup, or updates via Code.
+  * Supported Devices / Apps: TRMNL, ESP32 with TRMNL firmware, [trmnl-android](https://github.com/usetrmnl/trmnl-android), [trmnl-kindle](https://github.com/usetrmnl/byos_laravel/pull/27), …
 * 🔄 TRMNL API Proxy – Can act as a proxy for the native cloud service (requires TRMNL Developer Edition).
     * This enables a hybrid setup – for example, you can update your custom Train Monitor every 5 minutes in the morning, while displaying native TRMNL plugins throughout the day.
 * 🌙 Dark Mode – Switch between light and dark mode.
@@ -44,79 +44,19 @@ Run everywhere, where Docker is supported: Raspberry Pi, VPS, NAS, Container Clo
 
 Docker Compose file located at: [docker/prod/docker-compose.yml](docker/prod/docker-compose.yml).
 
-For production use, generate a new APP_KEY and set the environment variable `APP_KEY=`.
+For production use, generate a new APP_KEY and set the environment variable `APP_KEY=`. For personal use, you can disable registration (see section Environment Variables).
 
-### Requirements
+Laravel Forge, or bare metal PHP server with Nginx or Apache is also supported.
+#### Requirements
 
 * PHP >= 8.2
 * ext-imagick
 * puppeteer [see Browsershot docs](https://spatie.be/docs/browsershot/v4/requirements)
 
-
 ### Local Development
 
-#### Clone the repository
+see [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
 
-```bash
-git clone git@github.com:usetrmnl/byos_laravel.git
-```
-
-#### Copy environment file
-
-```bash
-cp .env.example .env
-php artisan key:generate
-```
-
-#### Install dependencies
-
-```bash
-composer install
-npm i
-```
-
-#### Run migrations
-
-```bash
-php artisan migrate --seed
-```
-
-#### Run the server
-
-To expose the built-in server to the local network, you can run the following command:
-
-```bash
-php artisan serve  --host=0.0.0.0 --port 4567
-```
-
-### Docker
-Use the provided Dockerfile, or docker-compose file to run the server in a container.
-
-#### .devcontainer
-
-Open this repository in Visual Studio Code with the Dev Containers extension installed. This will automatically build the devcontainer and start the server.
-
-Copy the .env.example.local to .env:
-
-```bash
-cp .env.example.local .env
-```
-
-Run migrations and seed the database:
-
-```bash
-php artisan migrate --seed
-```
-
-Link storage to expose public assets:
-
-```bash
-php artisan storage:link
-```
-
-Server is ready. Visit tab "Ports" in VSCode and visit the "Forwarded Address" in your browser.
-
-Login with user / password `admin@example.com` / `admin@example.com`
 
 ### Demo Plugins
 
@@ -131,26 +71,27 @@ php artisan db:seed --class=ExampleRecipesSeeder
 * Weather
 * Train Departure Monitor
 * Home Assistant
+* Sunrise/Sunset
 
 ### Usage
 
 #### Environment Variables
 
-| Environment Variable          | Description                                                      | Default           |
-|-------------------------------|------------------------------------------------------------------|-------------------|
-| `TRMNL_PROXY_BASE_URL`        | Base URL of the native TRMNL service                             | https://trmnl.app |
-| `TRMNL_PROXY_REFRESH_MINUTES` | How often should the server fetch new images from native service | 15                |
-| `REGISTRATION_ENABLED`        | Allow user registration via Webinterface                         | 1                 |
-| `FORCE_HTTPS`                 | If your server handles SSL termination, enforce HTTPS.           | 0                 |
-| `PHP_OPCACHE_ENABLE`          | Enable PHP Opcache                                               | 0                 |
-| `TRMNL_IMAGE_URL_TIMEOUT`     | How long TRMNL waits for a response on the display endpoint.     | 15 (seconds)      |
+| Environment Variable          | Description                                                        | Default           |
+|-------------------------------|--------------------------------------------------------------------|-------------------|
+| `TRMNL_PROXY_BASE_URL`        | Base URL of the native TRMNL service                               | https://trmnl.app |
+| `TRMNL_PROXY_REFRESH_MINUTES` | How often should the server fetch new images from native service   | 15                |
+| `REGISTRATION_ENABLED`        | Allow user registration via Webinterface                           | 1                 |
+| `FORCE_HTTPS`                 | If your server handles SSL termination, enforce HTTPS.             | 0                 |
+| `PHP_OPCACHE_ENABLE`          | Enable PHP Opcache                                                 | 0                 |
+| `TRMNL_IMAGE_URL_TIMEOUT`     | How long TRMNL waits for a response on the display endpoint. (sec) | 30                |
 
 #### Login
 
 If your environment is local, you can access the server at `http://localhost:4567` and login with user / password
 `admin@example.com` / `admin@example.com`, otherwise register. With environment variable `REGISTRATION_ENABLED` you can control, if registration is allowed.
 
-#### ➕ Add Your TRMNL Device
+### ➕ Add Your TRMNL Device
 
 ##### Auto-Join (Local Network)
 
@@ -168,23 +109,6 @@ If your environment is local, you can access the server at `http://localhost:456
 - You can grab the TRMNL Mac Address and API Key from the TRMNL Dashboard
 - Alternatively, debug incoming requests to /api/setup to determine them
 
-##### Activate fresh TRMNL Device with Cloud Proxy
-
-1) Setup the TRMNL as in the official docs with the cloud service (connect one of the plugins to later verify it works)
-2) Setup Laravel BYOS, create a user and login
-3) In Laravel BYOS in the header bar, activate the toggle "Permit Auto-Join"
-4) Connect your TRMNL via USB-C and re-flash in the browser via [https://usetrmnl.com/flash](https://usetrmnl.com/flash)
-5) Go through the setup process again, in the screen where you provide the Wi-Fi credentials there is also option to set the Server URL. Use the local address of your Laravel BYOS
-6) The device should automatically appear in the device list; you can deactivate the "Permit Auto-Join" toggle again.
-7) In the devices list, activate the toggle "☁️ Proxy" for your device. (Make sure that the queue worker is active. In the docker image it should be running automatically.)
-8) As long as no Laravel BYOS plugin is scheduled, the device will show your cloud plugins.
-
-###### Troubleshooting
-
-Make sure that your device has a Developer license, you should be able to verify by calling the `https://trmnl.app/api/display` endpoint.
-
-* [https://docs.usetrmnl.com/go/private-api/introduction](https://docs.usetrmnl.com/go/private-api/introduction)
-* [https://docs.usetrmnl.com/go/private-api/fetch-screen-content](https://docs.usetrmnl.com/go/private-api/fetch-screen-content)
 
 ### ⚙️ Configure Server for Device
 
@@ -199,6 +123,24 @@ Make sure that your device has a Developer license, you should be able to verify
 If your device firmware is older than 1.4.6, you need to flash a new firmware version to point it to your server.
 
 See this YouTube guide: [https://www.youtube.com/watch?v=3xehPW-PCOM](https://www.youtube.com/watch?v=3xehPW-PCOM)
+
+### ☁️ Activate fresh TRMNL Device with Cloud Proxy
+
+1) Setup the TRMNL as in the official docs with the cloud service (connect one of the plugins to later verify it works)
+2) Setup Laravel BYOS, create a user and login
+3) In Laravel BYOS in the header bar, activate the toggle "Permit Auto-Join"
+4) Press and hold the button on the back of your TRMNL for 5 seconds to reactivate the captive portal (or reflash).
+5) Go through the setup process again, in the screen where you provide the Wi-Fi credentials there is also option to set the Server URL. Use the local address of your Laravel BYOS
+6) The device should automatically appear in the device list; you can deactivate the "Permit Auto-Join" toggle again.
+7) In the devices list, activate the toggle "☁️ Proxy" for your device. (Make sure that the queue worker is active. In the docker image it should be running automatically.)
+8) As long as no Laravel BYOS plugin is scheduled, the device will show your cloud plugins.
+
+###### Troubleshooting
+
+Make sure that your device has a Developer license, you should be able to verify by calling the `https://trmnl.app/api/display` endpoint.
+
+* [https://docs.usetrmnl.com/go/private-api/introduction](https://docs.usetrmnl.com/go/private-api/introduction)
+* [https://docs.usetrmnl.com/go/private-api/fetch-screen-content](https://docs.usetrmnl.com/go/private-api/fetch-screen-content)
 
 ### 🖥️ Generate Screens
 
@@ -236,90 +178,9 @@ You can dynamically update screens by sending a POST request.
 }
 ```
 
-Token can be retrieved under Plugins > API in the Web Interface.
-
-#### 🛠️ Generate Screens Programmatically
-
-You can fetch external data, process it, and generate screens dynamically.
-* Fetch data from an external source.
-* Either render it in a Blade view or directly insert markup.
-* Use Laravel’s scheduler to automate updates.
-
-#### 📌 Example: Fetch Train Monitor Data
-
-This example retrieves data from [trmnl-train-monitor](https://github.com/bnussbau/trmnl-train-monitor) and updates the screen periodically.
-
-##### Step 1: Create a new Artisan Command
-
-```bash
-php artisan make:command PluginTrainMonitorFetch
-```
-
-##### Step 2: Edit PluginTrainMonitorFetch.php
-
-```php
-class PluginTrainMonitorFetch extends Command
-{
-    protected $signature = 'plugin:train:fetch';
-
-    protected $description = 'Fetches train monitor data and updates the screen';
-
-    public function handle(): void
-    {
-        $markup = Http::get('https://oebb.trmnl.yourserver.at/markup')->json('markup');
-        GenerateScreenJob::dispatchSync(1, $markup);
-    }
-}
-```
-
-##### Step 3: Schedule the Command in console.php
-
-```php
-Schedule::command('plugin:train:fetch')
-    ->everyFiveMinutes()
-    ->timezone('Europe/Vienna')
-    ->between('5:00', '18:00');
-```
-
-This will automatically update the screen every 5 minutes between 5:00 AM and 6:00 PM local time.
-
-### 🏗️ Roadmap
-
-Here are some features and improvements that are open for contribution:
-
-##### 🔌 Plugin System
-
-- Ensure compatibility with the trmnl-laravel package.
-- Implement auto-discovery for plugins.
-
-##### 🖥️ “Native” Plugins
-
-- Architecture for native plugins.
-- Configuration UI
-
-#####  Improve Code Coverage
-
-- Expand Pest tests to cover more functionality.
-- Increase code coverage
-
 ### 🤝 Contribution
-Contributions are welcome! If you’d like to improve the project, follow these steps:
-
-1.	Open an Issue
-    - Before submitting a pull request, create an issue to discuss your idea.
-    - Clearly describe the feature or bug fix you want to work on.
-2.	Fork the Repository & Create a Branch
-3.  Make Your Changes & Add Tests
-    - Ensure your code follows best practices.
-    - Add Pest tests to cover your changes.
-4.	Run Tests
-      - `php artisan test`
-5.  Submit a Pull Request (PR)
-    - Push your branch and create a PR.
-    - Provide a clear description of your changes.
-
-Thank you for contributing!
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ### License
-MIT
+[MIT](LICENSE.md)
 
