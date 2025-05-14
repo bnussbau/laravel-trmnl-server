@@ -125,5 +125,24 @@ class ExampleRecipesSeeder extends Seeder
                 'flux_icon_name' => 'sunrise',
             ]
         );
+
+        Plugin::updateOrCreate(
+            [
+                'uuid' => '82d3ee14-d578-4969-bda5-2bbf825435fe',
+                'name' => 'Pollen Forecast',
+                'user_id' => $user_id,
+                'data_payload' => null,
+                'data_stale_minutes' => 720,
+                'data_strategy' => 'polling',
+                'polling_url' => 'https://air-quality-api.open-meteo.com/v1/air-quality?latitude=48.2083&longitude=16.3731&hourly=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,ragweed_pollen&current=alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,ragweed_pollen&timezone=Europe%2FVienna&forecast_days=2',
+                'polling_verb' => 'get',
+                'polling_header' => null,
+                'render_markup' => null,
+                'render_markup_view' => 'recipes.pollen-forecast-eu',
+                'detail_view_route' => null,
+                'icon_url' => null,
+                'flux_icon_name' => 'flower',
+            ]
+        );
     }
 }
