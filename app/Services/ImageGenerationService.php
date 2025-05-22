@@ -27,6 +27,7 @@ class ImageGenerationService
                     ->windowSize(800, 480)
                     ->save($pngPath);
             } catch (\Exception $e) {
+                \Log::error('Failed to generate PNG: '.$e->getMessage());
                 throw new \RuntimeException('Failed to generate PNG: '.$e->getMessage(), 0, $e);
             }
         } else {
@@ -36,6 +37,7 @@ class ImageGenerationService
                     ->windowSize(800, 480)
                     ->save($pngPath);
             } catch (\Exception $e) {
+                \Log::error('Failed to generate PNG: '.$e->getMessage());
                 throw new \RuntimeException('Failed to generate PNG: '.$e->getMessage(), 0, $e);
             }
         }

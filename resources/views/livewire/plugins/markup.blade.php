@@ -36,7 +36,7 @@ new class extends Component {
                 GenerateScreenJob::dispatchSync($device, null, $rendered);
             }
         } catch (\Exception $e) {
-            $this->addError('error', $e->getMessage());
+            $this->addError('generate_screen', $e->getMessage());
         }
 
         $this->isLoading = false;
@@ -203,6 +203,12 @@ HTML;
                 </flux:button>
             </div>
         </form>
+
+        @error('generate_screen')
+        <div class="mt-4">
+            <span class="font-mono text-red-700">{{ $message }}</span>
+        </div>
+        @enderror
 
         {{--        </div>--}}
     </div>
