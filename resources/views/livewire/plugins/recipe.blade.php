@@ -12,7 +12,7 @@ new class extends Component {
     public string $name;
     public int $data_stale_minutes;
     public string $data_strategy;
-    public string $polling_url;
+    public string|null $polling_url;
     public string $polling_verb;
     public string|null $polling_header;
     public $data_payload;
@@ -73,7 +73,7 @@ new class extends Component {
         'name' => 'required|string|max:255',
         'data_stale_minutes' => 'required|integer|min:1',
         'data_strategy' => 'required|string|in:polling,webhook',
-        'polling_url' => 'required|url',
+        'polling_url' => 'required_if:data_strategy,polling|nullable|url',
         'polling_verb' => 'required|string|in:get,post',
         'polling_header' => 'nullable|string|max:255',
         'blade_code' => 'nullable|string',
@@ -206,9 +206,11 @@ HTML;
 
         try {
             if ($this->plugin->render_markup_view) {
-                $markup = view($this->plugin->render_markup_view, ['data' => $this->plugin->data_payload])->render();
+                $previewMarkup = view($this->plugin->render_markup_view, ['data' => $this->plugin->data_payload])->render();
+            } else {
+                $previewMarkup = Blade::render($this->plugin->render_markup, ['data' => $this->plugin->data_payload]);
             }
-            $this->dispatch('preview-updated', preview: $markup);
+            $this->dispatch('preview-updated', preview: $previewMarkup);
         } catch (\Exception $e) {
             $this->dispatch('preview-error', message: $e->getMessage());
         }
@@ -334,13 +336,6 @@ HTML;
 
             <div class="bg-white dark:bg-zinc-900 rounded-lg overflow-hidden">
                 <iframe id="preview-frame" class="w-full h-[480px] border-0"></iframe>
-            </div>
-
-            <div class="flex gap-2">
-                <flux:spacer/>
-                <flux:modal.close>
-                    <flux:button variant="ghost">Close</flux:button>
-                </flux:modal.close>
             </div>
         </flux:modal>
 
