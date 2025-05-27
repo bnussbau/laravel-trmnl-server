@@ -29,8 +29,19 @@ new class extends Component {
 
         if ($this->plugin->render_markup_view) {
             try {
-                $viewPath = resource_path('views/' . str_replace('.', '/', $this->plugin->render_markup_view) . '.blade.php');
-                $this->view_content = file_get_contents($viewPath);
+                $basePath = resource_path('views/' . str_replace('.', '/', $this->plugin->render_markup_view));
+                $paths = [
+                    $basePath . '.blade.php',
+                    $basePath . '.liquid',
+                ];
+
+                $this->view_content = null;
+                foreach ($paths as $path) {
+                    if (file_exists($path)) {
+                        $this->view_content = file_get_contents($path);
+                        break;
+                    }
+                }
             } catch (\Exception $e) {
                 $this->view_content = null;
             }
@@ -285,7 +296,8 @@ HTML;
         <flux:modal name="delete-plugin" class="min-w-[22rem] space-y-6">
             <div>
                 <flux:heading size="lg">Delete {{ $plugin->name }}?</flux:heading>
-                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">This will remove this plugin from your account.</p>
+                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">This will remove this plugin from your
+                    account.</p>
             </div>
 
             <div class="flex gap-2">
@@ -327,7 +339,8 @@ HTML;
                                         placeholder="https://example.com/api"
                                         class="block mt-1 w-full" type="text" name="polling_url" autofocus>
                                 <x-slot name="iconTrailing">
-                                    <flux:button size="sm" variant="subtle" icon="cloud-arrow-down" wire:click="updateData"
+                                    <flux:button size="sm" variant="subtle" icon="cloud-arrow-down"
+                                                 wire:click="updateData"
                                                  tooltip="Fetch data now" class="-mr-1"/>
                                 </x-slot>
                             </flux:input>
@@ -363,9 +376,10 @@ HTML;
                             </flux:input>
                         </div>
                         <div>
-                            <p>Send JSON payload with key <code>merge_variables</code> to the webhook URL. The payload will be merged with the plugin data.</p>
+                            <p>Send JSON payload with key <code>merge_variables</code> to the webhook URL. The payload
+                                will be merged with the plugin data.</p>
                         </div>
-                            @endif
+                    @endif
 
                     <div class="flex">
                         <flux:spacer/>
