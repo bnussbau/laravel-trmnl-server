@@ -9,7 +9,7 @@
                 <div class="item h--full">
                     <div class="meta"></div>
                     <div class="justify-center">
-                        <span class="value value--xxxlarge" data-fit-value="true">{{Arr::get($data, 'properties.timeseries.0.data.instant.details.air_temperature', 'N/A')}}</span>
+                        <span class="value value--xxlarge" data-fit-value="true">{{Arr::get($data, 'properties.timeseries.0.data.instant.details.air_temperature', 'N/A')}}</span>
                         <span class="label">Temperature</span>
                     </div>
                 </div>
