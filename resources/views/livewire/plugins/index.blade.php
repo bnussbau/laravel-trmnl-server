@@ -23,7 +23,7 @@ new class extends Component {
         'name' => 'required|string|max:255',
         'data_stale_minutes' => 'required|integer|min:1',
         'data_strategy' => 'required|string|in:polling,webhook',
-        'polling_url' => 'required|url',
+        'polling_url' => 'required_if:data_strategy,polling|nullable|url',
         'polling_verb' => 'required|string|in:get,post',
         'polling_header' => 'nullable|string|max:255',
     ];
