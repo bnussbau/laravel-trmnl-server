@@ -60,11 +60,11 @@ class Device extends Model
 
     public function getUpdateFirmwareAttribute(): bool
     {
-        if ($this->proxy_cloud_response && $this->proxy_cloud_response['update_firmware']) {
+        if ($this->update_firmware_id) {
             return true;
         }
 
-        if ($this->update_firmware_id) {
+        if ($this->proxy_cloud_response && $this->proxy_cloud_response['update_firmware']) {
             return true;
         }
 
@@ -73,10 +73,6 @@ class Device extends Model
 
     public function getFirmwareUrlAttribute(): ?string
     {
-        if ($this->proxy_cloud_response && $this->proxy_cloud_response['firmware_url']) {
-            return $this->proxy_cloud_response['firmware_url'];
-        }
-
         if ($this->update_firmware_id) {
             $firmware = Firmware::find($this->update_firmware_id);
             if ($firmware) {
@@ -86,6 +82,10 @@ class Device extends Model
 
                 return $firmware->url;
             }
+        }
+
+        if ($this->proxy_cloud_response && $this->proxy_cloud_response['firmware_url']) {
+            return $this->proxy_cloud_response['firmware_url'];
         }
 
         return null;
