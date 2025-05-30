@@ -11,6 +11,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FetchProxyCloudResponses implements ShouldQueue
 {
@@ -48,7 +49,11 @@ class FetchProxyCloudResponses implements ShouldQueue
                     $imageType = urldecode($queryParams['response-content-type'] ?? 'image/bmp');
                     $imageExtension = $imageType === 'image/png' ? 'png' : 'bmp';
 
-                    \Log::info('Response data: '.$imageUrl);
+                    if (Str::contains($imageUrl, '.png')) {
+                        $imageExtension = 'png';
+                    }
+
+                    \Log::info("Response data: $imageUrl. Image Extension: $imageExtension");
                     if (isset($imageUrl)) {
                         try {
                             $imageContents = Http::get($imageUrl)->body();
