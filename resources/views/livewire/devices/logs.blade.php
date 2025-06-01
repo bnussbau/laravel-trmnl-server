@@ -63,17 +63,128 @@ new class extends Component {
                                 </div>
                             </td>
                             <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap text-zinc-500 dark:text-zinc-300">
-                                <div class="inline-flex items-center font-medium whitespace-nowrap -mt-1 -mb-1 text-xs py-1 px-2 rounded-md bg-zinc-400/15 text-zinc-700 dark:bg-zinc-400/40 dark:text-zinc-200">
-                                    {{ $log->log_entry['device_status_stamp']['wifi_status'] ?? 'Unknown' }}
-                                    @if(isset($log->log_entry['device_status_stamp']['wifi_rssi_level']))
-                                        ({{ $log->log_entry['device_status_stamp']['wifi_rssi_level'] }}dBm)
+                                <div class="flex items-center gap-2">
+                                    <div class="inline-flex items-center font-medium whitespace-nowrap -mt-1 -mb-1 text-xs py-1 px-2 rounded-md bg-zinc-400/15 text-zinc-700 dark:bg-zinc-400/40 dark:text-zinc-200">
+                                        {{ $log->log_entry['device_status_stamp']['wifi_status'] ?? 'Unknown' }}
+                                        @if(isset($log->log_entry['device_status_stamp']['wifi_rssi_level']))
+                                            ({{ $log->log_entry['device_status_stamp']['wifi_rssi_level'] }}dBm)
+                                        @endif
+                                    </div>
+                                    @if(isset($log->log_entry['device_status_stamp']))
+                                        <flux:modal.trigger name="device-status-{{ $log->id }}">
+                                            <flux:button icon="information-circle" variant="ghost" size="xs" />
+                                        </flux:modal.trigger>
                                     @endif
                                 </div>
                             </td>
                             <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap text-zinc-500 dark:text-zinc-300">
-                                {{ $log->log_entry['log_message'] }}
+                                <div class="flex items-center gap-2">
+                                    <span>{{ $log->log_entry['log_message'] }}</span>
+                                    <flux:modal.trigger name="log-details-{{ $log->id }}">
+                                        <flux:button icon="information-circle" variant="ghost" size="xs" />
+                                    </flux:modal.trigger>
+                                </div>
                             </td>
                         </tr>
+
+                        @if(isset($log->log_entry['device_status_stamp']))
+                            <flux:modal name="device-status-{{ $log->id }}" class="md:w-96">
+                                <div class="space-y-6">
+                                    <div>
+                                        <flux:heading size="lg">Device Status Details</flux:heading>
+                                    </div>
+
+                                    <dl class="text-sm space-y-1">
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">WiFi Status:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['wifi_status'] ?? 'Unknown' }}</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">WiFi RSSI:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['wifi_rssi_level'] ?? 'Unknown' }} dBm</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">Refresh Rate:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['refresh_rate'] ?? 'Unknown' }}s</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">Time Since Sleep:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['time_since_last_sleep_start'] ?? 'Unknown' }}s</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">Firmware Version:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['current_fw_version'] ?? 'Unknown' }}</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">Special Function:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['special_function'] ?? 'None' }}</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">Battery Voltage:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['battery_voltage'] ?? 'Unknown' }}V</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">Wakeup Reason:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['wakeup_reason'] ?? 'Unknown' }}</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">Free Heap:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['free_heap_size'] ?? 'Unknown' }} bytes</dd>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <dt class="text-zinc-500">Max Alloc Size:</dt>
+                                            <dd>{{ $log->log_entry['device_status_stamp']['max_alloc_size'] ?? 'Unknown' }} bytes</dd>
+                                        </div>
+                                    </dl>
+
+                                    <div class="flex">
+                                        <flux:spacer/>
+                                        <flux:modal.close>
+                                            <flux:button variant="ghost">Close</flux:button>
+                                        </flux:modal.close>
+                                    </div>
+                                </div>
+                            </flux:modal>
+                        @endif
+
+                        <flux:modal name="log-details-{{ $log->id }}" class="md:w-96">
+                            <div class="space-y-6">
+                                <div>
+                                    <flux:heading size="lg">Log Details</flux:heading>
+                                </div>
+
+                                <dl class="text-sm space-y-1">
+                                    <div class="flex justify-between">
+                                        <dt class="text-zinc-500">Source File:</dt>
+                                        <dd>{{ $log->log_entry['log_sourcefile'] ?? 'Unknown' }}</dd>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <dt class="text-zinc-500">Line Number:</dt>
+                                        <dd>{{ $log->log_entry['log_codeline'] ?? 'Unknown' }}</dd>
+                                    </div>
+                                    @if(isset($log->log_entry['additional_info']))
+                                        <div class="mt-2">
+                                            <dt class="text-zinc-500 mb-1">Additional Info:</dt>
+                                            <dd class="space-y-1">
+                                                @foreach($log->log_entry['additional_info'] as $key => $value)
+                                                    <div class="flex justify-between">
+                                                        <span class="text-zinc-500">{{ str_replace('_', ' ', ucfirst($key)) }}:</span>
+                                                        <span>{{ is_null($value) ? 'None' : $value }}</span>
+                                                    </div>
+                                                @endforeach
+                                            </dd>
+                                        </div>
+                                    @endif
+                                </dl>
+
+                                <div class="flex">
+                                    <flux:spacer/>
+                                    <flux:modal.close>
+                                        <flux:button variant="ghost">Close</flux:button>
+                                    </flux:modal.close>
+                                </div>
+                            </div>
+                        </flux:modal>
                     @endforeach
                 </tbody>
             </table>
