@@ -16,7 +16,7 @@
                           :current="request()->routeIs('dashboard')">
             Dashboard
         </flux:navbar.item>
-        <flux:navbar.item icon="square-chart-gantt" href="{{ route('devices') }}" wire:navigate
+        <flux:navbar.item icon="trmnl" href="{{ route('devices') }}" wire:navigate
                           :current="request()->routeIs(['devices', 'devices.configure'])">
             Devices
         </flux:navbar.item>
@@ -96,7 +96,7 @@
                                :current="request()->routeIs('dashboard')" class="m-2">
                 Dashboard
             </flux:navlist.item>
-            <flux:navbar.item icon="square-chart-gantt" href="{{ route('devices') }}" wire:navigate
+            <flux:navbar.item icon="trmnl" href="{{ route('devices') }}" wire:navigate
                               :current="request()->routeIs('devices')" class="m-2">
                 Devices
             </flux:navbar.item>
