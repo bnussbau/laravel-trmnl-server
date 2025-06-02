@@ -12,7 +12,7 @@ new class extends Component {
     {
         abort_unless(auth()->user()->devices->contains($device), 403);
         $this->device = $device;
-        $this->logs = $device->logs()->latest()->get();
+        $this->logs = $device->logs()->latest()->take(50)->get();
     }
 }
 
@@ -47,7 +47,7 @@ new class extends Component {
                     @foreach ($logs as $log)
                         <tr data-flux-row="">
                             <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap text-zinc-500 dark:text-zinc-300">
-                                {{ \Carbon\Carbon::createFromTimestamp($log->log_entry['creation_timestamp'])->format('Y-m-d H:i:s') }}
+                                {{ \Carbon\Carbon::createFromTimestamp($log->log_entry['creation_timestamp'])->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s') }}
                             </td>
                             <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap text-zinc-500 dark:text-zinc-300">
                                 <div class="inline-flex items-center font-medium whitespace-nowrap -mt-1 -mb-1 text-xs py-1 px-2 rounded-md
