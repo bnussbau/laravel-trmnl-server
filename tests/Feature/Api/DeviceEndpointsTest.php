@@ -647,3 +647,53 @@ test('plugins in playlist are rendered in order', function () {
     expect($thirdResponse['filename'])
         ->not->toBe($secondResponse['filename']);
 })->skipOnGitHubActions();
+
+test('display endpoint updates last_refreshed_at timestamp', function () {
+    $device = Device::factory()->create([
+        'mac_address' => '00:11:22:33:44:55',
+        'api_key' => 'test-api-key',
+    ]);
+
+    $response = $this->withHeaders([
+        'id' => $device->mac_address,
+        'access-token' => $device->api_key,
+        'rssi' => -70,
+        'battery_voltage' => 3.8,
+        'fw-version' => '1.0.0',
+    ])->get('/api/display');
+
+    $response->assertOk();
+
+    $device->refresh();
+    expect($device->last_refreshed_at)->not->toBeNull()
+        ->and($device->last_refreshed_at->diffInSeconds(now()))->toBeLessThan(2);
+});
+
+test('display endpoint updates last_refreshed_at timestamp for mirrored devices', function () {
+    // Create source device
+    $sourceDevice = Device::factory()->create([
+        'mac_address' => '00:11:22:33:44:55',
+        'api_key' => 'source-api-key',
+    ]);
+
+    // Create mirroring device
+    $mirrorDevice = Device::factory()->create([
+        'mac_address' => 'AA:BB:CC:DD:EE:FF',
+        'api_key' => 'mirror-api-key',
+        'mirror_device_id' => $sourceDevice->id,
+    ]);
+
+    $response = $this->withHeaders([
+        'id' => $mirrorDevice->mac_address,
+        'access-token' => $mirrorDevice->api_key,
+        'rssi' => -70,
+        'battery_voltage' => 3.8,
+        'fw-version' => '1.0.0',
+    ])->get('/api/display');
+
+    $response->assertOk();
+
+    $mirrorDevice->refresh();
+    expect($mirrorDevice->last_refreshed_at)->not->toBeNull()
+        ->and($mirrorDevice->last_refreshed_at->diffInSeconds(now()))->toBeLessThan(2);
+});

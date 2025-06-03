@@ -42,8 +42,44 @@ new class extends Component {
                                 }
                             @endphp
 
-                            <h1 class="text-xl font-medium dark:text-zinc-200">{{ $device->name }}</h1>
-                            <p class="text-sm dark:text-zinc-400">{{$device->mac_address}}</p>
+                            <div class="flex items-center justify-between gap-4">
+                                <flux:tooltip content="Friendly ID: {{$device->friendly_id}}" position="bottom">
+                                    <h1 class="text-xl font-medium dark:text-zinc-200">{{ $device->name }}</h1>
+                                </flux:tooltip>
+                                <div class="flex gap-2">
+                                    <flux:tooltip content="Last refresh" position="bottom">
+                                        <span class="dark:text-zinc-200">{{$device->last_refreshed_at?->diffForHumans()}}</span>
+                                    </flux:tooltip>
+                                    <flux:separator vertical class="hidden md:block"/>
+                                    <flux:tooltip content="MAC Address" position="bottom" class="hidden md:block">
+                                        <span class="dark:text-zinc-200">{{$device->mac_address}}</span>
+                                    </flux:tooltip>
+                                    @if($device->last_firmware_version)
+                                        <flux:separator vertical class="hidden md:block"/>
+                                        <flux:tooltip content="Firmware Version" position="bottom" class="hidden md:block">
+                                            <span class="dark:text-zinc-200">{{$device->last_firmware_version}}</span>
+                                        </flux:tooltip>
+                                    @endif
+                                    @if($device->wifiStrength)
+                                        <flux:separator vertical class="hidden md:block"/>
+                                        <x-responsive-icons.wifi :strength="$device->wifiStrength" :rssi="$device->last_rssi_level"
+                                                             class="dark:text-zinc-200 hidden md:block"/>
+                                    @endif
+                                    @if($device->batteryPercent)
+                                        <flux:separator vertical class="hidden md:block"/>
+                                        <x-responsive-icons.battery :percent="$device->batteryPercent" class="hidden md:block"/>
+                                    @endif
+                                </div>
+                                <div>
+                                    <flux:dropdown>
+                                        <flux:button icon="ellipsis-horizontal" variant="subtle"></flux:button>
+                                        <flux:menu>
+                                            <flux:menu.item icon="eye" href="{{ route('devices.configure', $device) }}">View</flux:menu.item>
+                                            <flux:menu.item icon="bars-3" href="{{ route('devices.logs', $device) }}" wire:navigate>Show Logs</flux:menu.item>
+                                        </flux:menu>
+                                    </flux:dropdown>
+                                </div>
+                            </div>
                             @if($device->mirror_device_id)
                                 <flux:separator class="mt-2 mb-4"/>
                                 <flux:callout variant="info">

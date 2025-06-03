@@ -21,6 +21,7 @@ class Device extends Model
         'width' => 'integer',
         'height' => 'integer',
         'rotate' => 'integer',
+        'last_refreshed_at' => 'datetime',
     ];
 
     public function getBatteryPercentAttribute()

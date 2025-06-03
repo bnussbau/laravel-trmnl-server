@@ -43,6 +43,7 @@ Route::get('/display', function (Request $request) {
         'last_rssi_level' => $request->header('rssi'),
         'last_battery_voltage' => $request->header('battery_voltage'),
         'last_firmware_version' => $request->header('fw-version'),
+        'last_refreshed_at' => now(),
     ]);
 
     // Get current screen image from mirror device or continue if not available

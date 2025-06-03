@@ -268,8 +268,8 @@ new class extends Component {
                         <h1 class="text-xl font-medium dark:text-zinc-200">{{ $device->name }}</h1>
                     </flux:tooltip>
                     <div class="flex gap-2">
-                        <flux:tooltip content="Last update" position="bottom">
-                            <span class="dark:text-zinc-200">{{$device->updated_at->diffForHumans()}}</span>
+                        <flux:tooltip content="Last refresh" position="bottom">
+                            <span class="dark:text-zinc-200">{{$device->last_refreshed_at?->diffForHumans()}}</span>
                         </flux:tooltip>
                         <flux:separator vertical/>
                         <flux:tooltip content="MAC Address" position="bottom">

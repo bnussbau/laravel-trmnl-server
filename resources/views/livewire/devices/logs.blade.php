@@ -56,7 +56,7 @@ new class extends Component {
                                     @elseif(str_contains(strtolower($log->log_entry['log_message']), 'warning'))
                                         bg-yellow-400/15 text-yellow-700 dark:bg-yellow-400/40 dark:text-yellow-200
                                     @else
-                                        bg-green-400/15 text-green-700 dark:bg-green-400/40 dark:text-green-200
+                                        bg-zinc-400/15 text-zinc-700 dark:bg-zinc-400/40 dark:text-zinc-200
                                     @endif">
                                     {{ str_contains(strtolower($log->log_entry['log_message']), 'error') ? 'Error' :
                                        (str_contains(strtolower($log->log_entry['log_message']), 'warning') ? 'Warning' : 'Info') }}
