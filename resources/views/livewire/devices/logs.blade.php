@@ -12,7 +12,7 @@ new class extends Component {
     {
         abort_unless(auth()->user()->devices->contains($device), 403);
         $this->device = $device;
-        $this->logs = $device->logs()->latest()->take(50)->get();
+        $this->logs = $device->logs()->latest('device_timestamp')->take(50)->get();
     }
 }
 
@@ -58,7 +58,7 @@ new class extends Component {
                                     @else
                                         bg-green-400/15 text-green-700 dark:bg-green-400/40 dark:text-green-200
                                     @endif">
-                                    {{ str_contains(strtolower($log->log_entry['log_message']), 'error') ? 'Error' : 
+                                    {{ str_contains(strtolower($log->log_entry['log_message']), 'error') ? 'Error' :
                                        (str_contains(strtolower($log->log_entry['log_message']), 'warning') ? 'Warning' : 'Info') }}
                                 </div>
                             </td>
@@ -147,7 +147,7 @@ new class extends Component {
                             </flux:modal>
                         @endif
 
-                        <flux:modal name="log-details-{{ $log->id }}" class="md:w-96">
+                        <flux:modal name="log-details-{{ $log->id }}" class="md:w-192">
                             <div class="space-y-6">
                                 <div>
                                     <flux:heading size="lg">Log Details</flux:heading>
@@ -164,7 +164,7 @@ new class extends Component {
                                     </div>
                                     @if(isset($log->log_entry['additional_info']))
                                         <div class="mt-2">
-                                            <dt class="text-zinc-500 mb-1">Additional Info:</dt>
+                                            <dt class="text-zinc-500 mb-1">Additional Info</dt>
                                             <dd class="space-y-1">
                                                 @foreach($log->log_entry['additional_info'] as $key => $value)
                                                     <div class="flex justify-between">
@@ -190,4 +190,4 @@ new class extends Component {
             </table>
         </div>
     </div>
-</div> 
+</div>

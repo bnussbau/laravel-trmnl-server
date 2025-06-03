@@ -21,6 +21,7 @@ class DeviceLog extends Model
     {
         return [
             'log_entry' => 'array',
+            'device_timestamp' => 'datetime',
         ];
     }
 }

@@ -10,7 +10,8 @@ return new class extends Migration {
     {
         Schema::create('device_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Device::class)->constrained('devices');
+            $table->foreignIdFor(Device::class)->constrained('devices')->cascadeOnDelete();
+            $table->timestamp('device_timestamp');
             $table->json('log_entry');
             $table->timestamps();
         });

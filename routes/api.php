@@ -188,6 +188,7 @@ Route::post('/log', function (Request $request) {
         \Log::info('Device Log', $log);
         DeviceLog::create([
             'device_id' => $device->id,
+            'device_timestamp' => $log['creation_timestamp'] ?? now(),
             'log_entry' => $log,
         ]);
     }
