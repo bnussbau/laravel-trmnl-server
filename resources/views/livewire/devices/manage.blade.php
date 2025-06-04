@@ -222,8 +222,7 @@ new class extends Component {
                                 <flux:tooltip
                                     content="Proxies images from the TRMNL Cloud service when no image is set (available in TRMNL DEV Edition only)."
                                     position="bottom">
-                                    <flux:switch wire:model.live="proxy_cloud"
-                                                 wire:click="toggleProxyCloud({{ $device->id }})"
+                                    <flux:switch wire:click="toggleProxyCloud({{ $device->id }})"
                                                  :checked="$device->proxy_cloud" 
                                                  :disabled="$device->mirror_device_id !== null"
                                                  label="☁️ Proxy"/>

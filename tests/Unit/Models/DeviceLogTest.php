@@ -20,8 +20,8 @@ test('device log casts log_entry to array', function () {
         'log_entry' => [
             'message' => 'test message',
             'level' => 'info',
-            'timestamp' => time()
-        ]
+            'timestamp' => time(),
+        ],
     ]);
 
     expect($log->log_entry)->toBeArray()
@@ -33,7 +33,7 @@ test('device log casts device_timestamp to datetime', function () {
     Device::factory()->create();
     $timestamp = now();
     $log = DeviceLog::factory()->create([
-        'device_timestamp' => $timestamp
+        'device_timestamp' => $timestamp,
     ]);
 
     expect($log->device_timestamp)->toBeInstanceOf(\Carbon\Carbon::class)
@@ -56,8 +56,8 @@ test('device log can be created with minimal required fields', function () {
         'device_id' => $device->id,
         'device_timestamp' => now(),
         'log_entry' => [
-            'message' => 'test message'
-        ]
+            'message' => 'test message',
+        ],
     ]);
 
     expect($log->exists)->toBeTrue()

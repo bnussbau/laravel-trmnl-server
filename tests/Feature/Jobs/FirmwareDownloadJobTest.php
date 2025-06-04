@@ -2,7 +2,6 @@
 
 use App\Jobs\FirmwareDownloadJob;
 use App\Models\Firmware;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 

@@ -45,26 +45,24 @@ class FirmwareUpdateCommand extends Command
                 ...Device::all()->mapWithKeys(function ($device) {
                     // without _ returns index
                     return ["_$device->id" => "$device->name (Current version: $device->last_firmware_version)"];
-                })->toArray()
+                })->toArray(),
             ],
             scroll: 10
         );
 
-
-
         if (empty($devices)) {
             $this->error('No devices selected. Aborting.');
+
             return;
         }
 
         if (in_array('all', $devices)) {
             $devices = Device::pluck('id')->toArray();
         } else {
-            $devices = array_map(function($selected) {
+            $devices = array_map(function ($selected) {
                 return (int) str_replace('_', '', $selected);
             }, $devices);
         }
-
 
         foreach ($devices as $deviceId) {
             Device::find($deviceId)->update(['update_firmware_id' => $firmwareVersion]);

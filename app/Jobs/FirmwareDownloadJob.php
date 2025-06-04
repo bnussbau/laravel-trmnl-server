@@ -44,4 +44,4 @@ class FirmwareDownloadJob implements ShouldQueue
             Log::error('An unexpected error occurred: '.$e->getMessage());
         }
     }
-} 
+}

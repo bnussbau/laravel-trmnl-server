@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\FirmwarePollJob;
 use App\Models\Firmware;
 use Illuminate\Console\Command;
+
 use function Laravel\Prompts\spin;
 use function Laravel\Prompts\table;
 

@@ -28,7 +28,7 @@
                     </td>
                     @if($journey['isCancelled'])
                         <td>
-                            <x-trmnl::label variant="inverted">{{ $journey->status }}</x-trmnl::label>
+                            <x-trmnl::label variant="inverted">Cancelled</x-trmnl::label>
                         </td>
                     @else
                         <td>
