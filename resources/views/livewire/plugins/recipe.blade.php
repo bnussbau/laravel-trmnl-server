@@ -59,7 +59,7 @@ new class extends Component {
         $this->polling_url = $this->plugin->polling_url;
         $this->polling_verb = $this->plugin->polling_verb;
         $this->polling_header = $this->plugin->polling_header;
-        $this->data_payload = json_encode($this->plugin->data_payload);
+        $this->data_payload = json_encode($this->plugin->data_payload, JSON_PRETTY_PRINT);
     }
 
     public function saveMarkup(): void
@@ -113,7 +113,7 @@ new class extends Component {
                 ->json();
 
             $this->plugin->update(['data_payload' => $response]);
-            $this->data_payload = json_encode($response);
+            $this->data_payload = json_encode($response, JSON_PRETTY_PRINT);
         }
     }
 
