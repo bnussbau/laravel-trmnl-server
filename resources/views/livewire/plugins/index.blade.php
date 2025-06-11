@@ -28,6 +28,20 @@ new class extends Component {
         'polling_header' => 'nullable|string|max:255',
     ];
 
+    private function refreshPlugins(): void
+    {
+        $userPlugins = auth()->user()?->plugins?->map(function ($plugin) {
+            return $plugin->toArray();
+        })->toArray();
+
+        $this->plugins = array_merge($this->native_plugins, $userPlugins ?? []);
+    }
+
+    public function mount(): void
+    {
+        $this->refreshPlugins();
+    }
+
     public function addPlugin(): void
     {
         abort_unless(auth()->user() !== null, 403);
@@ -45,17 +59,9 @@ new class extends Component {
         ]);
 
         $this->reset(['name', 'data_stale_minutes', 'data_strategy', 'polling_url', 'polling_verb', 'polling_header']);
+        $this->refreshPlugins();
+        
         Flux::modal('add-plugin')->close();
-    }
-
-
-    public function mount(): void
-    {
-        $userPlugins = auth()->user()?->plugins?->map(function ($plugin) {
-            return $plugin->toArray();
-        })->toArray();
-
-        $this->plugins = array_merge($this->native_plugins, $userPlugins ?? []);
     }
 
     public function seedExamplePlugins(): void
