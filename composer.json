@@ -22,7 +22,8 @@
         "livewire/flux": "^2.0",
         "livewire/volt": "^1.7",
         "spatie/browsershot": "^5.0",
-        "wnx/sidecar-browsershot": "^2.6"
+        "wnx/sidecar-browsershot": "^2.6",
+        "ext-zip": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
