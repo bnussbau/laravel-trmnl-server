@@ -26,6 +26,8 @@ class Plugin extends Model
         'data_payload_updated_at' => 'datetime',
         'is_native' => 'boolean',
         'markup_language' => 'string',
+        'configuration' => 'json',
+        'configuration_template' => 'json',
     ];
 
     protected static function boot()

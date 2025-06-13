@@ -22,3 +22,16 @@ yarn-error.log
 /.vscode
 /.zed
 /database/seeders/PersonalDeviceSeeder.php
+/.ruler
+
+# START Ruler Generated Files
+*.bak
+.cursor/rules/ruler_cursor_instructions.mdc
+.cursor/rules/ruler_cursor_instructions.mdc.bak
+.github/copilot-instructions.md
+.github/copilot-instructions.md.bak
+.junie/guidelines.md
+.junie/guidelines.md.bak
+.vscode/mcp.json
+.vscode/mcp.json.bak
+# END Ruler Generated Files

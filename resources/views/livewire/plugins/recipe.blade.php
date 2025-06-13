@@ -28,10 +28,15 @@ new class extends Component {
     public string $selected_playlist = '';
     public string $mashup_layout = 'full';
     public array $mashup_plugins = [];
+    public array $configuration_template = [];
+    public array $configuration = [];
 
     public function mount(): void
     {
         abort_unless(auth()->user()->plugins->contains($this->plugin), 403);
+        $this->blade_code = $this->plugin->render_markup;
+        $this->configuration_template = $this->plugin->configuration_template ?? [];
+        $this->configuration = $this->plugin->configuration ?? [];
 
         if ($this->plugin->render_markup_view) {
             try {
@@ -197,9 +202,33 @@ new class extends Component {
         Flux::modal('add-to-playlist')->close();
     }
 
+    public function saveConfiguration()
+    {
+        abort_unless(auth()->user()->plugins->contains($this->plugin), 403);
+
+        $configurationValues = [];
+        if (isset($this->configuration_template['custom_fields'])) {
+            foreach ($this->configuration_template['custom_fields'] as $field) {
+                $fieldKey = $field['keyname'];
+                if (isset($this->configuration[$fieldKey])) {
+                    $configurationValues[$fieldKey] = $this->configuration[$fieldKey];
+                }
+            }
+        }
+
+        $this->plugin->update([
+            'configuration' => $configurationValues
+        ]);
+    }
+
     public function getDevicePlaylists($deviceId)
     {
         return \App\Models\Playlist::where('device_id', $deviceId)->get();
+    }
+
+    public function getConfigurationValue($key, $default = null)
+    {
+        return $this->configuration[$key] ?? $default;
     }
 
     public function renderExample(string $example)
@@ -461,6 +490,73 @@ HTML;
             </div>
         </flux:modal>
 
+        <flux:modal name="configuration-modal" class="md:w-96">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Configuration</flux:heading>
+                    <flux:subheading>Configure your plugin settings</flux:subheading>
+                </div>
+
+                        <form wire:submit="saveConfiguration">
+                            @if(isset($configuration_template['custom_fields']))
+                                @foreach($configuration_template['custom_fields'] as $field)
+                                    @php
+                                        $fieldKey = $field['keyname'] ?? $field['key'] ?? $field['name'];
+                                        $currentValue = $configuration[$fieldKey] ?? '';
+                                    @endphp
+                                    <div class="mb-8">
+                                        @if($field['field_type'] === 'author_bio')
+                                            @continue
+                                        @endif
+
+                                        @if($field['field_type'] === 'string')
+                                            <flux:input
+                                                label="{{ $field['name'] }}"
+                                                description="{{ $field['description'] ?? $field['name'] }}"
+                                                wire:model="configuration.{{ $fieldKey }}"
+                                                value="{{ $currentValue }}"
+                                            />
+                                        @elseif($field['field_type'] === 'time_zone')
+                                            <flux:select
+                                                label="{{ $field['name'] }}"
+                                                wire:model="configuration.{{ $fieldKey }}"
+                                                description="{{ $field['description'] ?? '' }}"
+                                            >
+                                                <option value="">Select timezone...</option>
+                                                @foreach(timezone_identifiers_list() as $timezone)
+                                                    <option value="{{ $timezone }}" {{ $currentValue === $timezone ? 'selected' : '' }}>{{ $timezone }}</option>
+                                                @endforeach
+                                            </flux:select>
+                                        @elseif($field['field_type'] === 'number')
+                                            <flux:input
+                                                type="number"
+                                                label="{{ $field['name'] }}"
+                                                description="{{ $field['description'] ?? $field['name'] }}"
+                                                wire:model="configuration.{{ $fieldKey }}"
+                                                value="{{ $currentValue }}"
+                                            />
+                                        @elseif($field['field_type'] === 'boolean')
+                                            <flux:checkbox
+                                                label="{{ $field['name'] }}"
+                                                description="{{ $field['description'] ?? $field['name'] }}"
+                                                wire:model="configuration.{{ $fieldKey }}"
+                                                :checked="$currentValue"
+                                            />
+                                        @else
+                                            <p>{{ $field['name'] }}: Field type "{{ $field['field_type'] }}" not yet supported</p>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @endif
+
+                            <div class="flex">
+                                <flux:spacer/>
+                                <flux:button type="submit" variant="primary">Save Configuration</flux:button>
+                            </div>
+                        </form>
+            </div>
+        </flux:modal>
+
         <div class="mt-5 mb-5">
             <h3 class="text-xl font-semibold dark:text-gray-100">Settings</h3>
         </div>
@@ -471,6 +567,83 @@ HTML;
                         <flux:input label="Name" wire:model="name" id="name" class="block mt-1 w-full" type="text"
                                     name="name" autofocus/>
                     </div>
+
+                    @php
+                        $authorField = null;
+                        if (isset($configuration_template['custom_fields'])) {
+                            foreach ($configuration_template['custom_fields'] as $field) {
+                                if ($field['field_type'] === 'author_bio') {
+                                    $authorField = $field;
+                                    break;
+                                }
+                            }
+                        }
+                    @endphp
+
+                    @if($authorField)
+                        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4">
+                            <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                {{ $authorField['description'] }}
+                            </div>
+
+                            @if(isset($authorField['github_url']) || isset($authorField['learn_more_url']) || isset($authorField['email_address']))
+                                <div class="mt-4 flex flex-wrap gap-2">
+                                    @if(isset($authorField['github_url']))
+                                        @php
+                                            $githubUrl = $authorField['github_url'];
+                                            $githubUsername = null;
+
+                                            // Extract username from various GitHub URL formats
+                                            if (preg_match('/github\.com\/([^\/\?]+)/', $githubUrl, $matches)) {
+                                                $githubUsername = $matches[1];
+                                            }
+                                        @endphp
+                                        @if($githubUsername)<flux:label badge="{{ $githubUsername }}"/>@endif
+                                    @endif
+                                    @if(isset($authorField['learn_more_url']))
+                                        <flux:button
+                                            size="sm"
+                                            variant="ghost"
+                                            icon:trailing="arrow-up-right"
+                                            href="{{ $authorField['learn_more_url'] }}"
+                                            target="_blank"
+                                        >
+                                            Learn More
+                                        </flux:button>
+                                    @endif
+
+                                    @if(isset($authorField['github_url']))
+                                        <flux:button
+                                            size="sm"
+                                            icon="github"
+                                            variant="ghost"
+                                            href="{{ $authorField['github_url'] }}"
+                                            target="_blank"
+                                        >
+                                        </flux:button>
+                                    @endif
+
+                                    @if(isset($authorField['email_address']))
+                                        <flux:button
+                                            size="sm"
+                                            variant="ghost"
+                                            icon="envelope"
+                                            href="mailto:{{ $authorField['email_address'] }}"
+                                        >
+                                        </flux:button>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if(isset($configuration_template['custom_fields']) && !empty($configuration_template['custom_fields']))
+                        <div class="mb-4">
+                            <flux:modal.trigger name="configuration-modal">
+                                <flux:button icon="cog" class="block mt-1 w-full">Configuration</flux:button>
+                            </flux:modal.trigger>
+                        </div>
+                    @endif
 
                     <div class="mb-4">
                         <flux:radio.group wire:model.live="data_strategy" label="Data Strategy" variant="segmented">
@@ -626,6 +799,8 @@ HTML;
         @endif
     </div>
 </div>
+
+
 
 @script
 <script>
