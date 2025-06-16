@@ -16,7 +16,7 @@ If you are looking for a Laravel package designed to streamline the development 
 
 * 📡 Device Information – Display battery status, WiFi strength, firmware version, and more.
 * 🔍 Auto-Join – Automatically detects and adds devices from your local network.
-* 🖥️ Screen Generation – Supports Plugins, Recipes, API, Markup, or updates via Code.
+* 🖥️ Screen Generation – Supports Plugins (even Mashups), Recipes, API, Markup, or updates via Code.
   * Supported Devices / Apps: TRMNL, ESP32 with TRMNL firmware, [trmnl-android](https://github.com/usetrmnl/trmnl-android), [trmnl-kindle](https://github.com/usetrmnl/byos_laravel/pull/27), …
 * 🔄 TRMNL API Proxy – Can act as a proxy for the native cloud service (requires TRMNL Developer Edition).
     * This enables a hybrid setup – for example, you can update your custom Train Monitor every 5 minutes in the morning, while displaying native TRMNL plugins throughout the day.
@@ -42,13 +42,35 @@ or
 
 ### Hosting
 
-Run everywhere, where Docker is supported: Raspberry Pi, VPS, NAS, Container Cloud Service (Cloud Run, ...)
+Run everywhere, where Docker is supported: Raspberry Pi, VPS, NAS, Container Cloud Service (Cloud Run, ...).
+For production use, generate a new APP_KEY (`php artisan key:generate --show`) and set the environment variable `APP_KEY=`. For personal use, you can disable registration (see section Environment Variables).
 
+#### Docker Compose
 Docker Compose file located at: [docker/prod/docker-compose.yml](docker/prod/docker-compose.yml).
 
-For production use, generate a new APP_KEY and set the environment variable `APP_KEY=`. For personal use, you can disable registration (see section Environment Variables).
+##### Backup Database
+```sh
+docker ps #find container id of byos_laravel container
+docker cp {{CONTAINER_ID}}:/var/www/html/database/storage/database.sqlite database_backup.sqlite
+```
 
+##### Updating via Docker Compose
+```sh
+docker compose pull
+docker compose down
+docker compose up -d
+```
+
+#### VPS
+If you’re using a VPS (e.g., Hetzner) and prefer an alternative to native Docker, you can install Dokploy and deploy BYOS Laravel using the integrated [Template](https://templates.dokploy.com/?q=trmnl+byos+laravel).
+It’s a quick way to get started without having to manually manage Docker setup.
+
+### PikaPods
+You can vote for TRMNL BYOS Laravel to be included as PikaPods Template here: [feedback.pikapods.com](https://feedback.pikapods.com/posts/842/add-app-trmnl-byos-laravel)
+
+#### Other Hosting Options
 Laravel Forge, or bare metal PHP server with Nginx or Apache is also supported.
+
 #### Requirements
 
 * PHP >= 8.2
