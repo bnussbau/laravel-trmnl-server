@@ -67,63 +67,69 @@ new class extends Component {
     public function renderHelloWorld(): string
     {
         return <<<HTML
-<x-trmnl::view>
-    <x-trmnl::layout>
-        <x-trmnl::markdown gapSize="large">
-            <x-trmnl::title>TRMNL BYOS Laravel</x-trmnl::title>
-            <x-trmnl::content>“This screen was rendered by BYOS Laravel”</x-trmnl::content>
-            <x-trmnl::label variant="underline">Benjamin Nussbaum</x-trmnl::label>
-        </x-trmnl::markdown>
-    </x-trmnl::layout>
-    <x-trmnl::title-bar/>
-</x-trmnl::view>
+<x-trmnl::screen>
+    <x-trmnl::view>
+        <x-trmnl::layout>
+            <x-trmnl::markdown gapSize="large">
+                <x-trmnl::title>TRMNL BYOS Laravel</x-trmnl::title>
+                <x-trmnl::content>“This screen was rendered by BYOS Laravel”</x-trmnl::content>
+                <x-trmnl::label variant="underline">Benjamin Nussbaum</x-trmnl::label>
+            </x-trmnl::markdown>
+        </x-trmnl::layout>
+        <x-trmnl::title-bar/>
+    </x-trmnl::view>
+</x-trmnl::screen>
 HTML;
     }
 
     public function renderQuote(): string
     {
         return <<<HTML
-<x-trmnl::view>
-    <x-trmnl::layout>
-        <x-trmnl::markdown gapSize="large">
-            <x-trmnl::title>Motivational Quote</x-trmnl::title>
-            <x-trmnl::content>“I love inside jokes. I hope to be a part of one someday.”</x-trmnl::content>
-            <x-trmnl::label variant="underline">Michael Scott</x-trmnl::label>
-        </x-trmnl::markdown>
-    </x-trmnl::layout>
-    <x-trmnl::title-bar/>
-</x-trmnl::view>
+<x-trmnl::screen>
+    <x-trmnl::view>
+        <x-trmnl::layout>
+            <x-trmnl::markdown gapSize="large">
+                <x-trmnl::title>Motivational Quote</x-trmnl::title>
+                <x-trmnl::content>“I love inside jokes. I hope to be a part of one someday.”</x-trmnl::content>
+                <x-trmnl::label variant="underline">Michael Scott</x-trmnl::label>
+            </x-trmnl::markdown>
+        </x-trmnl::layout>
+        <x-trmnl::title-bar/>
+    </x-trmnl::view>
+</x-trmnl::screen>
 HTML;
     }
 
     public function renderTrainMonitor()
     {
         return <<<HTML
-<x-trmnl::view>
-    <x-trmnl::layout>
-        <x-trmnl::table>
-            <thead>
-            <tr>
-                <th><x-trmnl::title>Abfahrt</x-trmnl::title></th>
-                <th><x-trmnl::title>Aktuell</x-trmnl::title></th>
-                <th><x-trmnl::title>Zug</x-trmnl::title></th>
-                <th><x-trmnl::title>Ziel</x-trmnl::title></th>
-                <th><x-trmnl::title>Steig</x-trmnl::title></th>
-            </tr>
-            </thead>
-            <tbody>
+<x-trmnl::screen>
+    <x-trmnl::view>
+        <x-trmnl::layout>
+            <x-trmnl::table>
+                <thead>
                 <tr>
-                  <td><x-trmnl::label>08:51</x-trmnl::label></td>
-                  <td><x-trmnl::label>08:52</x-trmnl::label></td>
-                  <td><x-trmnl::label>REX 1</x-trmnl::label></td>
-                  <td><x-trmnl::label>Vienna Main Station</x-trmnl::label></td>
-                  <td><x-trmnl::label>3</x-trmnl::label></td>
+                    <th><x-trmnl::title>Abfahrt</x-trmnl::title></th>
+                    <th><x-trmnl::title>Aktuell</x-trmnl::title></th>
+                    <th><x-trmnl::title>Zug</x-trmnl::title></th>
+                    <th><x-trmnl::title>Ziel</x-trmnl::title></th>
+                    <th><x-trmnl::title>Steig</x-trmnl::title></th>
                 </tr>
-            </tbody>
-        </x-trmnl::table>
-    </x-trmnl::layout>
-    <x-trmnl::title-bar title="Train Monitor"/>
-</x-trmnl::view>
+                </thead>
+                <tbody>
+                    <tr>
+                      <td><x-trmnl::label>08:51</x-trmnl::label></td>
+                      <td><x-trmnl::label>08:52</x-trmnl::label></td>
+                      <td><x-trmnl::label>REX 1</x-trmnl::label></td>
+                      <td><x-trmnl::label>Vienna Main Station</x-trmnl::label></td>
+                      <td><x-trmnl::label>3</x-trmnl::label></td>
+                    </tr>
+                </tbody>
+            </x-trmnl::table>
+        </x-trmnl::layout>
+        <x-trmnl::title-bar title="Train Monitor"/>
+    </x-trmnl::view>
+</x-trmnl::screen>
 HTML;
 
     }
@@ -131,26 +137,28 @@ HTML;
     public function renderHomeAssistant()
     {
         return <<<HTML
-<x-trmnl::view>
-    <x-trmnl::layout class="layout--col gap--space-between">
-        <x-trmnl::grid cols="4">
-            <x-trmnl::col position="center">
-                <x-trmnl::item>
-                    <x-trmnl::meta/>
-                    <x-trmnl::content>
-                        <x-trmnl::value size="large">23.3°</x-trmnl::value>
-                        <x-trmnl::label class="w--full flex">
-                            <flux:icon icon="droplet" style="max-height: 24px;"/>
-                            47.52 %
-                        </x-trmnl::label>
-                        <x-trmnl::label class="w--full flex">Sensor 1</x-trmnl::label>
-                    </x-trmnl::content>
-                </x-trmnl::item>
-            </x-trmnl::col>
-        </x-trmnl::grid>
-    </x-trmnl::layout>
-    <x-trmnl::title-bar title="Home Assistant"/>
-</x-trmnl::view>
+<x-trmnl::screen>
+    <x-trmnl::view>
+        <x-trmnl::layout class="layout--col gap--space-between">
+            <x-trmnl::grid cols="4">
+                <x-trmnl::col position="center">
+                    <x-trmnl::item>
+                        <x-trmnl::meta/>
+                        <x-trmnl::content>
+                            <x-trmnl::value size="large">23.3°</x-trmnl::value>
+                            <x-trmnl::label class="w--full flex">
+                                <flux:icon icon="droplet" style="max-height: 24px;"/>
+                                47.52 %
+                            </x-trmnl::label>
+                            <x-trmnl::label class="w--full flex">Sensor 1</x-trmnl::label>
+                        </x-trmnl::content>
+                    </x-trmnl::item>
+                </x-trmnl::col>
+            </x-trmnl::grid>
+        </x-trmnl::layout>
+        <x-trmnl::title-bar title="Home Assistant"/>
+    </x-trmnl::view>
+</x-trmnl::screen>
 HTML;
 
     }
