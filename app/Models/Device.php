@@ -45,6 +45,31 @@ class Device extends Model
         return round($percent);
     }
 
+    /**
+     * Calculate battery voltage from percentage
+     *
+     * @param  int  $percent  Battery percentage (0-100)
+     * @return float Calculated voltage
+     */
+    public function calculateVoltageFromPercent(int $percent): float
+    {
+        // Define min and max voltage for Li-ion battery (3.0V empty, 4.2V full)
+        $min_volt = 3.0;
+        $max_volt = 4.2;
+
+        // Ensure the percentage is within range
+        if ($percent <= 0) {
+            return $min_volt;
+        } elseif ($percent >= 100) {
+            return $max_volt;
+        }
+
+        // Calculate voltage
+        $voltage = $min_volt + (($percent / 100) * ($max_volt - $min_volt));
+
+        return round($voltage, 2);
+    }
+
     public function getWifiStrengthAttribute()
     {
         $rssi = $this->last_rssi_level;

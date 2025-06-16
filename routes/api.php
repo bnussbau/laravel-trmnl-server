@@ -48,6 +48,14 @@ Route::get('/display', function (Request $request) {
         'last_refreshed_at' => now(),
     ]);
 
+    if ($request->hasHeader('battery-percent')) {
+        $batteryPercent = (int) $request->header('battery-percent');
+        $batteryVoltage = $device->calculateVoltageFromPercent($batteryPercent);
+        $device->update([
+            'last_battery_voltage' => $batteryVoltage,
+        ]);
+    }
+
     // Get current screen image from a mirror device or continue if not available
     if (! $image_uuid = $device->mirrorDevice?->current_screen_image) {
         $refreshTimeOverride = null;
