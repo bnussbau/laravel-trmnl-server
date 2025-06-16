@@ -68,3 +68,11 @@ php artisan storage:link
 Server is ready. Visit tab "Ports" in VSCode and visit the "Forwarded Address" in your browser.
 
 Login with user / password `admin@example.com` / `admin@example.com`
+
+##### After Pull: Install Packages and Build Frontend
+
+```bash
+composer install
+npm i
+npm run build
+```
