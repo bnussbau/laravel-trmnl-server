@@ -142,6 +142,7 @@ class Device extends Model
     public function getNextPlaylistItem(): ?PlaylistItem
     {
         // Get all active playlists
+        /** @var \Illuminate\Support\Collection|Playlist[] $playlists */
         $playlists = $this->playlists()
             ->where('is_active', true)
             ->get();

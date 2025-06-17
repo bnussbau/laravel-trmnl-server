@@ -57,7 +57,7 @@ class ImageGenerationService
             case ImageFormat::PNG_8BIT_GRAYSCALE->value:
             case ImageFormat::PNG_8BIT_256C->value:
                 try {
-                    self::convertToPngImageMagick($pngPath, $device->width, $device->height, $device->rotate, quantize: $device->image_format === ImageFormat::PNG_8BIT_GRAYSCALE);
+                    self::convertToPngImageMagick($pngPath, $device->width, $device->height, $device->rotate, quantize: $device->image_format === ImageFormat::PNG_8BIT_GRAYSCALE->value);
                 } catch (ImagickException $e) {
                     throw new RuntimeException('Failed to convert image to PNG: '.$e->getMessage(), 0, $e);
                 }

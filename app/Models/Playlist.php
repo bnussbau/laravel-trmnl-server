@@ -60,6 +60,7 @@ class Playlist extends Model
         }
 
         // Get active playlist items ordered by display order
+        /** @var \Illuminate\Support\Collection|PlaylistItem[] $playlistItems */
         $playlistItems = $this->items()
             ->where('is_active', true)
             ->orderBy('order')

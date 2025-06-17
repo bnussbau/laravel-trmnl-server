@@ -98,6 +98,7 @@ class MashupCreateCommand extends Command
 
     protected function selectPlaylist(Device $device): ?Playlist
     {
+        /** @var Collection|Playlist[] $playlists */
         $playlists = $device->playlists;
         if ($playlists->isEmpty()) {
             $this->error('No playlists found for this device. Please create a playlist first.');
@@ -107,7 +108,7 @@ class MashupCreateCommand extends Command
 
         $playlistId = select(
             label: 'Select a playlist',
-            options: $playlists->mapWithKeys(fn ($playlist) => [$playlist->id => $playlist->name])->toArray()
+            options: $playlists->mapWithKeys(fn (Playlist $playlist) => [$playlist->id => $playlist->name])->toArray()
         );
 
         return $playlists->firstWhere('id', $playlistId);

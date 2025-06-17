@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -138,7 +139,9 @@ class PlaylistItem extends Model
     {
         if (! $this->isMashup()) {
             return view('trmnl-layouts.single', [
-                'slot' => $this->plugin->render('full', false),
+                'slot' => $this->plugin instanceof Plugin
+                    ? $this->plugin->render('full', false)
+                    : throw new Exception('Invalid plugin instance'),
             ])->render();
         }
 
