@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Firmware;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -40,7 +41,7 @@ class FirmwareDownloadJob implements ShouldQueue
             ]);
         } catch (ConnectionException $e) {
             Log::error('Firmware download failed: '.$e->getMessage());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('An unexpected error occurred: '.$e->getMessage());
         }
     }

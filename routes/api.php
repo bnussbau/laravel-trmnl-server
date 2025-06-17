@@ -71,7 +71,7 @@ Route::get('/display', function (Request $request) {
                 ImageGenerationService::resetIfNotCacheable($plugin);
 
                 // Check and update stale data if needed
-                if ($plugin->isDataStale() || $plugin->current_image == null) {
+                if ($plugin->isDataStale() || $plugin->current_image === null) {
                     $plugin->updateDataPayload();
                     $markup = $plugin->render();
 
@@ -80,7 +80,7 @@ Route::get('/display', function (Request $request) {
 
                 $plugin->refresh();
 
-                if ($plugin->current_image != null) {
+                if ($plugin->current_image !== null) {
                     $playlistItem->update(['last_displayed_at' => now()]);
                     $device->update(['current_screen_image' => $plugin->current_image]);
                 }
@@ -93,7 +93,7 @@ Route::get('/display', function (Request $request) {
                 foreach ($plugins as $plugin) {
                     // Reset cache if Devices with different dimensions exist
                     ImageGenerationService::resetIfNotCacheable($plugin);
-                    if ($plugin->isDataStale() || $plugin->current_image == null) {
+                    if ($plugin->isDataStale() || $plugin->current_image === null) {
                         $plugin->updateDataPayload();
                     }
                 }
@@ -103,7 +103,7 @@ Route::get('/display', function (Request $request) {
 
                 $device->refresh();
 
-                if ($device->current_screen_image != null) {
+                if ($device->current_screen_image !== null) {
                     $playlistItem->update(['last_displayed_at' => now()]);
                 }
             }
@@ -214,7 +214,7 @@ Route::post('/log', function (Request $request) {
 
     $logs = $request->json('log.logs_array', []);
     foreach ($logs as $log) {
-        \Log::info('Device Log', $log);
+        Log::info('Device Log', $log);
         DeviceLog::create([
             'device_id' => $device->id,
             'device_timestamp' => $log['creation_timestamp'] ?? now(),
@@ -342,7 +342,7 @@ Route::get('/current_screen', function (Request $request) {
 });
 
 Route::post('custom_plugins/{plugin_uuid}', function (string $plugin_uuid) {
-    $plugin = \App\Models\Plugin::where('uuid', $plugin_uuid)->firstOrFail();
+    $plugin = Plugin::where('uuid', $plugin_uuid)->firstOrFail();
 
     // Check if plugin uses webhook strategy
     if ($plugin->data_strategy !== 'webhook') {

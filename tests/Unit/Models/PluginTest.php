@@ -2,7 +2,7 @@
 
 use App\Models\Plugin;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 
 test('plugin has required attributes', function () {
     $plugin = Plugin::factory()->create([
@@ -26,7 +26,7 @@ test('plugin automatically generates uuid on creation', function () {
 });
 
 test('plugin can have custom uuid', function () {
-    $uuid = \Illuminate\Support\Str::uuid();
+    $uuid = Illuminate\Support\Str::uuid();
     $plugin = Plugin::factory()->create(['uuid' => $uuid]);
 
     expect($plugin->uuid)->toBe($uuid);

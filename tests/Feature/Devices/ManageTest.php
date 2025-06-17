@@ -4,7 +4,7 @@ use App\Models\Device;
 use App\Models\User;
 use Livewire\Volt\Volt;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 
 test('device management page can be rendered', function () {
     $user = User::factory()->create();

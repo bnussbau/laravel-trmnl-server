@@ -90,12 +90,13 @@ class Plugin extends Model
                         'data' => $this->data_payload,
                     ])->render(),
                 ])->render();
-            } else {
-                return view($this->render_markup_view, [
-                    'size' => $size,
-                    'data' => $this->data_payload,
-                ])->render();
             }
+
+            return view($this->render_markup_view, [
+                'size' => $size,
+                'data' => $this->data_payload,
+            ])->render();
+
         }
 
         return '<p>No render markup yet defined for this plugin.</p>';

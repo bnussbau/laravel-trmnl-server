@@ -5,9 +5,14 @@ namespace App\Services;
 use App\Enums\ImageFormat;
 use App\Models\Device;
 use App\Models\Plugin;
+use Exception;
 use Illuminate\Support\Facades\Storage;
+use Imagick;
+use ImagickException;
 use ImagickPixel;
+use Log;
 use Ramsey\Uuid\Uuid;
+use RuntimeException;
 use Spatie\Browsershot\Browsershot;
 use Wnx\SidecarBrowsershot\BrowsershotLambda;
 
@@ -26,9 +31,9 @@ class ImageGenerationService
                 BrowsershotLambda::html($markup)
                     ->windowSize(800, 480)
                     ->save($pngPath);
-            } catch (\Exception $e) {
-                \Log::error('Failed to generate PNG: '.$e->getMessage());
-                throw new \RuntimeException('Failed to generate PNG: '.$e->getMessage(), 0, $e);
+            } catch (Exception $e) {
+                Log::error('Failed to generate PNG: '.$e->getMessage());
+                throw new RuntimeException('Failed to generate PNG: '.$e->getMessage(), 0, $e);
             }
         } else {
             try {
@@ -36,25 +41,25 @@ class ImageGenerationService
                     ->setOption('args', config('app.puppeteer_docker') ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'] : [])
                     ->windowSize(800, 480)
                     ->save($pngPath);
-            } catch (\Exception $e) {
-                \Log::error('Failed to generate PNG: '.$e->getMessage());
-                throw new \RuntimeException('Failed to generate PNG: '.$e->getMessage(), 0, $e);
+            } catch (Exception $e) {
+                Log::error('Failed to generate PNG: '.$e->getMessage());
+                throw new RuntimeException('Failed to generate PNG: '.$e->getMessage(), 0, $e);
             }
         }
         switch ($device->image_format) {
             case ImageFormat::BMP3_1BIT_SRGB->value:
                 try {
-                    ImageGenerationService::convertToBmpImageMagick($pngPath, $bmpPath);
-                } catch (\ImagickException $e) {
-                    throw new \RuntimeException('Failed to convert image to BMP: '.$e->getMessage(), 0, $e);
+                    self::convertToBmpImageMagick($pngPath, $bmpPath);
+                } catch (ImagickException $e) {
+                    throw new RuntimeException('Failed to convert image to BMP: '.$e->getMessage(), 0, $e);
                 }
                 break;
             case ImageFormat::PNG_8BIT_GRAYSCALE->value:
             case ImageFormat::PNG_8BIT_256C->value:
                 try {
-                    ImageGenerationService::convertToPngImageMagick($pngPath, $device->width, $device->height, $device->rotate, quantize: $device->image_format === ImageFormat::PNG_8BIT_GRAYSCALE);
-                } catch (\ImagickException $e) {
-                    throw new \RuntimeException('Failed to convert image to PNG: '.$e->getMessage(), 0, $e);
+                    self::convertToPngImageMagick($pngPath, $device->width, $device->height, $device->rotate, quantize: $device->image_format === ImageFormat::PNG_8BIT_GRAYSCALE);
+                } catch (ImagickException $e) {
+                    throw new RuntimeException('Failed to convert image to PNG: '.$e->getMessage(), 0, $e);
                 }
                 break;
             case ImageFormat::AUTO->value:
@@ -62,33 +67,33 @@ class ImageGenerationService
                 if (isset($device->last_firmware_version)
                     && version_compare($device->last_firmware_version, '1.5.2', '<')) {
                     try {
-                        ImageGenerationService::convertToBmpImageMagick($pngPath, $bmpPath);
-                    } catch (\ImagickException $e) {
-                        throw new \RuntimeException('Failed to convert image to BMP: '.$e->getMessage(), 0, $e);
+                        self::convertToBmpImageMagick($pngPath, $bmpPath);
+                    } catch (ImagickException $e) {
+                        throw new RuntimeException('Failed to convert image to BMP: '.$e->getMessage(), 0, $e);
                     }
                 } else {
                     try {
-                        ImageGenerationService::convertToPngImageMagick($pngPath, $device->width, $device->height, $device->rotate);
-                    } catch (\ImagickException $e) {
-                        throw new \RuntimeException('Failed to convert image to PNG: '.$e->getMessage(), 0, $e);
+                        self::convertToPngImageMagick($pngPath, $device->width, $device->height, $device->rotate);
+                    } catch (ImagickException $e) {
+                        throw new RuntimeException('Failed to convert image to PNG: '.$e->getMessage(), 0, $e);
                     }
                 }
         }
 
         $device->update(['current_screen_image' => $uuid]);
-        \Log::info("Device $device->id: updated with new image: $uuid");
+        Log::info("Device $device->id: updated with new image: $uuid");
 
         return $uuid;
     }
 
     /**
-     * @throws \ImagickException
+     * @throws ImagickException
      */
     private static function convertToBmpImageMagick(string $pngPath, string $bmpPath): void
     {
-        $imagick = new \Imagick($pngPath);
-        $imagick->setImageType(\Imagick::IMGTYPE_GRAYSCALE);
-        $imagick->quantizeImage(2, \Imagick::COLORSPACE_GRAY, 0, true, false);
+        $imagick = new Imagick($pngPath);
+        $imagick->setImageType(Imagick::IMGTYPE_GRAYSCALE);
+        $imagick->quantizeImage(2, Imagick::COLORSPACE_GRAY, 0, true, false);
         $imagick->setImageDepth(1);
         $imagick->stripImage();
         $imagick->setFormat('BMP3');
@@ -97,20 +102,20 @@ class ImageGenerationService
     }
 
     /**
-     * @throws \ImagickException
+     * @throws ImagickException
      */
     private static function convertToPngImageMagick(string $pngPath, ?int $width, ?int $height, ?int $rotate, $quantize = true): void
     {
-        $imagick = new \Imagick($pngPath);
+        $imagick = new Imagick($pngPath);
         if ($width !== 800 || $height !== 480) {
-            $imagick->resizeImage($width, $height, \Imagick::FILTER_LANCZOS, 1, true);
+            $imagick->resizeImage($width, $height, Imagick::FILTER_LANCZOS, 1, true);
         }
         if ($rotate !== null && $rotate !== 0) {
             $imagick->rotateImage(new ImagickPixel('black'), $rotate);
         }
-        $imagick->setImageType(\Imagick::IMGTYPE_GRAYSCALE);
+        $imagick->setImageType(Imagick::IMGTYPE_GRAYSCALE);
         if ($quantize) {
-            $imagick->quantizeImage(2, \Imagick::COLORSPACE_GRAY, 0, true, false);
+            $imagick->quantizeImage(2, Imagick::COLORSPACE_GRAY, 0, true, false);
         }
         $imagick->setImageDepth(8);
         $imagick->stripImage();
@@ -152,7 +157,7 @@ class ImageGenerationService
             ) {
                 // TODO cache image per device
                 $plugin->update(['current_image' => null]);
-                \Log::debug('Skip cache as devices with other dimensions exist');
+                Log::debug('Skip cache as devices with other dimensions exist');
             }
         }
     }

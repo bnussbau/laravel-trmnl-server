@@ -35,7 +35,8 @@ class Device extends Model
         // Ensure the voltage is within range
         if ($volts <= $min_volt) {
             return 0;
-        } elseif ($volts >= $max_volt) {
+        }
+        if ($volts >= $max_volt) {
             return 100;
         }
 
@@ -60,7 +61,8 @@ class Device extends Model
         // Ensure the percentage is within range
         if ($percent <= 0) {
             return $min_volt;
-        } elseif ($percent >= 100) {
+        }
+        if ($percent >= 100) {
             return $max_volt;
         }
 
@@ -75,13 +77,16 @@ class Device extends Model
         $rssi = $this->last_rssi_level;
         if ($rssi >= 0) {
             return 0; // No signal (0 bars)
-        } elseif ($rssi <= -80) {
-            return 1; // Weak signal (1 bar)
-        } elseif ($rssi <= -60) {
-            return 2; // Moderate signal (2 bars)
-        } else {
-            return 3; // Strong signal (3 bars)
         }
+        if ($rssi <= -80) {
+            return 1; // Weak signal (1 bar)
+        }
+        if ($rssi <= -60) {
+            return 2; // Moderate signal (2 bars)
+        }
+
+        return 3; // Strong signal (3 bars)
+
     }
 
     public function getUpdateFirmwareAttribute(): bool
@@ -161,7 +166,7 @@ class Device extends Model
 
     public function mirrorDevice(): BelongsTo
     {
-        return $this->belongsTo(Device::class, 'mirror_device_id');
+        return $this->belongsTo(self::class, 'mirror_device_id');
     }
 
     public function updateFirmware(): BelongsTo

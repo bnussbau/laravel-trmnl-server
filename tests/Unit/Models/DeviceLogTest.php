@@ -36,7 +36,7 @@ test('device log casts device_timestamp to datetime', function () {
         'device_timestamp' => $timestamp,
     ]);
 
-    expect($log->device_timestamp)->toBeInstanceOf(\Carbon\Carbon::class)
+    expect($log->device_timestamp)->toBeInstanceOf(Carbon\Carbon::class)
         ->and($log->device_timestamp->timestamp)->toBe($timestamp->timestamp);
 });
 
@@ -45,7 +45,7 @@ test('device log factory creates valid data', function () {
     $log = DeviceLog::factory()->create();
 
     expect($log->device_id)->toBeInt()
-        ->and($log->device_timestamp)->toBeInstanceOf(\Carbon\Carbon::class)
+        ->and($log->device_timestamp)->toBeInstanceOf(Carbon\Carbon::class)
         ->and($log->log_entry)->toBeArray()
         ->and($log->log_entry)->toHaveKeys(['creation_timestamp', 'device_status_stamp', 'log_id', 'log_message', 'log_codeline', 'log_sourcefile', 'additional_info']);
 });

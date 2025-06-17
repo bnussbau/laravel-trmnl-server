@@ -13,7 +13,7 @@ test('it keeps only the 50 most recent logs per device', function () {
     $device2 = Device::factory()->create();
 
     // Create 60 logs for each device with different timestamps
-    for ($i = 0; $i < 60; $i++) {
+    for ($i = 0; $i < 60; ++$i) {
         DeviceLog::factory()->create([
             'device_id' => $device1->id,
             'device_timestamp' => now()->subMinutes($i),
@@ -37,7 +37,7 @@ test('it keeps only the 50 most recent logs per device', function () {
     $device2Logs = $device2->logs()->orderByDesc('device_timestamp')->get();
 
     // Check that the timestamps are in descending order
-    for ($i = 0; $i < 49; $i++) {
+    for ($i = 0; $i < 49; ++$i) {
         expect($device1Logs[$i]->device_timestamp->gt($device1Logs[$i + 1]->device_timestamp))->toBeTrue()
             ->and($device2Logs[$i]->device_timestamp->gt($device2Logs[$i + 1]->device_timestamp))->toBeTrue();
     }

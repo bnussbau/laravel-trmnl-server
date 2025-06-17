@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Device;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -67,7 +68,7 @@ class FetchProxyCloudResponses implements ShouldQueue
                             $device->update([
                                 'current_screen_image' => $filename,
                             ]);
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             Log::error("Failed to download and save image for device: {$device->mac_address}", [
                                 'error' => $e->getMessage(),
                             ]);
@@ -95,7 +96,7 @@ class FetchProxyCloudResponses implements ShouldQueue
                         ]);
                     }
 
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     Log::error("Failed to fetch proxy cloud response for device: {$device->mac_address}", [
                         'error' => $e->getMessage(),
                     ]);

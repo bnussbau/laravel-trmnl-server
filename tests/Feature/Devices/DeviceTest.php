@@ -2,7 +2,7 @@
 
 use App\Models\Device;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 
 test('device can be created with basic attributes', function () {
     $device = Device::factory()->create([

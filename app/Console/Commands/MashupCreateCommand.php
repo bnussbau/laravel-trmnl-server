@@ -128,8 +128,8 @@ class MashupCreateCommand extends Command
             required: true,
             default: 'Mashup',
             validate: fn (string $value) => match (true) {
-                strlen($value) < 1 => 'The name must be at least 2 characters.',
-                strlen($value) > 50 => 'The name must not exceed 50 characters.',
+                mb_strlen($value) < 1 => 'The name must be at least 2 characters.',
+                mb_strlen($value) > 50 => 'The name must not exceed 50 characters.',
                 default => null,
             }
         );
@@ -149,7 +149,7 @@ class MashupCreateCommand extends Command
         $selectedPlugins = collect();
         $availablePlugins = $plugins->mapWithKeys(fn ($plugin) => [$plugin->id => $plugin->name])->toArray();
 
-        for ($i = 0; $i < $requiredCount; $i++) {
+        for ($i = 0; $i < $requiredCount; ++$i) {
             $position = match ($i) {
                 0 => 'first',
                 1 => 'second',

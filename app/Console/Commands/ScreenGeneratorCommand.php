@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Jobs\GenerateScreenJob;
 use Illuminate\Console\Command;
+use Throwable;
 
 class ScreenGeneratorCommand extends Command
 {
@@ -31,7 +32,7 @@ class ScreenGeneratorCommand extends Command
 
         try {
             $markup = view($view)->render();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->error('Failed to render view: '.$e->getMessage());
 
             return 1;
