@@ -408,7 +408,7 @@ test('device can fetch current screen data', function () {
 
     $response->assertOk()
         ->assertJson([
-            'status' => '0',
+            'status' => 200,
             'filename' => 'test-image.bmp',
             'refresh_rate' => 900,
             'reset_firmware' => false,
