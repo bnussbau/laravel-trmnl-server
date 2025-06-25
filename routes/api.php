@@ -324,7 +324,7 @@ Route::get('/current_screen', function (Request $request) {
     }
 
     $response = [
-        'status' => 0,
+        'status' => 200,
         'image_url' => url('storage/'.$image_path),
         'filename' => $filename,
         'refresh_rate' => $refreshTimeOverride ?? $device->default_refresh_interval,
