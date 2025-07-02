@@ -43,7 +43,7 @@ class Plugin extends Model
     public function updateDataPayload(): void
     {
         if ($this->data_strategy === 'polling' && $this->polling_url) {
-            // Parse headers from polling_header string
+
             $headers = ['User-Agent' => 'usetrmnl/byos_laravel', 'Accept' => 'application/json'];
 
             if ($this->polling_header) {
@@ -58,7 +58,6 @@ class Plugin extends Model
 
             $httpRequest = Http::withHeaders($headers);
 
-            // Add body for POST requests if polling_body is provided
             if ($this->polling_verb === 'post' && $this->polling_body) {
                 $httpRequest = $httpRequest->withBody($this->polling_body);
             }

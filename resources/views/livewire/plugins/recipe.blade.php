@@ -103,43 +103,18 @@ new class extends Component {
         $this->plugin->update($validated);
     }
 
-    public function updateData()
+    public function updateData(): void
     {
         if ($this->plugin->data_strategy === 'polling') {
-            // Parse headers from polling_header string
-            $headers = ['User-Agent' => 'usetrmnl/byos_laravel', 'Accept' => 'application/json'];
+            try {
+                $this->plugin->updateDataPayload();
 
-            if ($this->plugin->polling_header) {
-                $headerLines = explode("\n", trim($this->plugin->polling_header));
-                foreach ($headerLines as $line) {
-                    $parts = explode(':', $line, 2);
-                    if (count($parts) === 2) {
-                        $headers[trim($parts[0])] = trim($parts[1]);
-                    }
-                }
+                $this->data_payload = json_encode($this->plugin->data_payload, JSON_PRETTY_PRINT);
+                $this->data_payload_updated_at = $this->plugin->data_payload_updated_at;
+
+            } catch (\Exception $e) {
+                $this->dispatch('data-update-error', message: $e->getMessage());
             }
-
-            // Prepare the HTTP request
-            $httpRequest = Http::withHeaders($headers);
-
-            // Add body for POST requests if polling_body is provided
-            if ($this->plugin->polling_verb === 'post' && $this->plugin->polling_body) {
-                $httpRequest = $httpRequest->withBody($this->plugin->polling_body, 'application/json');
-            }
-
-            // Make the request based on the verb
-            if ($this->plugin->polling_verb === 'post') {
-                $response = $httpRequest->post($this->plugin->polling_url)->json();
-            } else {
-                $response = $httpRequest->get($this->plugin->polling_url)->json();
-            }
-
-            $this->plugin->update([
-                'data_payload' => $response,
-                'data_payload_updated_at' => now()
-            ]);
-            $this->data_payload = json_encode($response, JSON_PRETTY_PRINT);
-            $this->data_payload_updated_at = now();
         }
     }
 
@@ -625,6 +600,10 @@ HTML;
 
     $wire.on('preview-error', ({message}) => {
         alert('Preview Error: ' + message);
+    });
+
+    $wire.on('data-update-error', ({message}) => {
+        alert('Data Update Error: ' + message);
     });
 </script>
 @endscript
