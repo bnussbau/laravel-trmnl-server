@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0f435c390d4a591a005663822bd538ae",
+    "content-hash": "29d4db93339349a577b09a89a73769f5",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -159,16 +159,16 @@
         },
         {
             "name": "bnussbau/laravel-trmnl-blade",
-            "version": "dev-feat/support-offline-mode",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bnussbau/laravel-trmnl-blade.git",
-                "reference": "9d22926d1119dd92b6b90adeab63142af0c8cc5b"
+                "reference": "f57a7e2f855d882364e9ce2bb1a239b9387cdd75"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bnussbau/laravel-trmnl-blade/zipball/9d22926d1119dd92b6b90adeab63142af0c8cc5b",
-                "reference": "9d22926d1119dd92b6b90adeab63142af0c8cc5b",
+                "url": "https://api.github.com/repos/bnussbau/laravel-trmnl-blade/zipball/f57a7e2f855d882364e9ce2bb1a239b9387cdd75",
+                "reference": "f57a7e2f855d882364e9ce2bb1a239b9387cdd75",
                 "shasum": ""
             },
             "require": {
@@ -223,7 +223,7 @@
             ],
             "support": {
                 "issues": "https://github.com/bnussbau/laravel-trmnl-blade/issues",
-                "source": "https://github.com/bnussbau/laravel-trmnl-blade/tree/feat/support-offline-mode"
+                "source": "https://github.com/bnussbau/laravel-trmnl-blade/tree/1.1.0"
             },
             "funding": [
                 {
@@ -235,7 +235,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2025-07-04T13:26:22+00:00"
+            "time": "2025-06-10T13:05:01+00:00"
         },
         {
             "name": "brick/math",
@@ -10688,9 +10688,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "bnussbau/laravel-trmnl-blade": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
