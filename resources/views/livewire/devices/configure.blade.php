@@ -20,6 +20,12 @@ new class extends Component {
     public $rotate;
     public $image_format;
 
+    // Sleep mode and special function
+    public $sleep_mode_enabled = false;
+    public $sleep_mode_from;
+    public $sleep_mode_to;
+    public $special_function;
+
     // Playlist properties
     public $playlists;
     public $playlist_name;
@@ -53,6 +59,10 @@ new class extends Component {
         $this->playlists = $device->playlists()->with('items.plugin')->orderBy('created_at')->get();
         $this->firmwares = \App\Models\Firmware::orderBy('latest', 'desc')->orderBy('created_at', 'desc')->get();
         $this->selected_firmware_id = $this->firmwares->where('latest', true)->first()?->id;
+        $this->sleep_mode_enabled = $device->sleep_mode_enabled ?? false;
+        $this->sleep_mode_from = optional($device->sleep_mode_from)->format('H:i');
+        $this->sleep_mode_to = optional($device->sleep_mode_to)->format('H:i');
+        $this->special_function = $device->special_function;
 
         return view('livewire.devices.configure', [
             'image' => ($current_image_uuid) ? url($current_image_path) : null,
@@ -80,6 +90,10 @@ new class extends Component {
             'height' => 'required|integer|min:1',
             'rotate' => 'required|integer|min:0|max:359',
             'image_format' => 'required|string',
+            'sleep_mode_enabled' => 'boolean',
+            'sleep_mode_from' => 'nullable|date_format:H:i',
+            'sleep_mode_to' => 'nullable|date_format:H:i',
+            'special_function' => 'nullable|string',
         ]);
 
         $this->device->update([
@@ -91,6 +105,10 @@ new class extends Component {
             'height' => $this->height,
             'rotate' => $this->rotate,
             'image_format' => $this->image_format,
+            'sleep_mode_enabled' => $this->sleep_mode_enabled,
+            'sleep_mode_from' => $this->sleep_mode_from,
+            'sleep_mode_to' => $this->sleep_mode_to,
+            'special_function' => $this->special_function,
         ]);
 
         Flux::modal('edit-device')->close();
@@ -326,6 +344,7 @@ new class extends Component {
 
                         <flux:input label="Friendly ID" wire:model="friendly_id"/>
                         <flux:input label="MAC Address" wire:model="mac_address"/>
+                        <flux:separator class="my-4" text="Advanced Device Settings" />
                         <div class="flex gap-4">
                             <flux:input label="Width (px)" wire:model="width" type="number" />
                             <flux:input label="Height (px)" wire:model="height" type="number"/>
@@ -338,6 +357,28 @@ new class extends Component {
                         </flux:select>
                         <flux:input label="Default Refresh Interval (seconds)" wire:model="default_refresh_interval"
                                     type="number"/>
+
+                        <flux:separator class="my-4" text="Special Functions" />
+                        <flux:select label="Special Function" wire:model="special_function">
+                            <flux:select.option value="identify">Identify</flux:select.option>
+                            <flux:select.option value="sleep">Sleep</flux:select.option>
+                            <flux:select.option value="add_wifi">Add WiFi</flux:select.option>
+                        </flux:select>
+
+
+                        <div class="flex items-center gap-4 mb-4">
+                            <flux:switch wire:model.live="sleep_mode_enabled"/>
+                            <div>
+                                <div class="font-semibold">Sleep Mode</div>
+                                <div class="text-zinc-500 text-sm">Enabling Sleep Mode extends battery life</div>
+                            </div>
+                        </div>
+                        @if($sleep_mode_enabled)
+                            <div class="flex gap-4 mb-4">
+                                <flux:input type="time" label="From" wire:model="sleep_mode_from"/>
+                                <flux:input type="time" label="To" wire:model="sleep_mode_to" />
+                            </div>
+                        @endif
 
                         <div class="flex">
                             <flux:spacer/>

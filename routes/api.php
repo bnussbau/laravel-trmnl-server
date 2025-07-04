@@ -56,76 +56,82 @@ Route::get('/display', function (Request $request) {
         ]);
     }
 
-    // Get current screen image from a mirror device or continue if not available
-    if (! $image_uuid = $device->mirrorDevice?->current_screen_image) {
-        $refreshTimeOverride = null;
-        // Skip if cloud proxy is enabled for the device
-        if (! $device->proxy_cloud || $device->getNextPlaylistItem()) {
-            $playlistItem = $device->getNextPlaylistItem();
+    if ($device->isSleepModeActive()) {
+        $image_path = 'images/sleep.png';
+        $filename = 'sleep.png';
+        $refreshTimeOverride = $device->getSleepModeEndsInSeconds() ?? $device->default_refresh_interval;
+    } else {
+        // Get current screen image from a mirror device or continue if not available
+        if (! $image_uuid = $device->mirrorDevice?->current_screen_image) {
+            $refreshTimeOverride = null;
+            // Skip if cloud proxy is enabled for the device
+            if (! $device->proxy_cloud || $device->getNextPlaylistItem()) {
+                $playlistItem = $device->getNextPlaylistItem();
 
-            if ($playlistItem && ! $playlistItem->isMashup()) {
-                $refreshTimeOverride = $playlistItem->playlist()->first()->refresh_time;
-                $plugin = $playlistItem->plugin;
+                if ($playlistItem && ! $playlistItem->isMashup()) {
+                    $refreshTimeOverride = $playlistItem->playlist()->first()->refresh_time;
+                    $plugin = $playlistItem->plugin;
 
-                // Reset cache if Devices with different dimensions exist
-                ImageGenerationService::resetIfNotCacheable($plugin);
-
-                // Check and update stale data if needed
-                if ($plugin->isDataStale() || $plugin->current_image === null) {
-                    $plugin->updateDataPayload();
-                    $markup = $plugin->render();
-
-                    GenerateScreenJob::dispatchSync($device->id, $plugin->id, $markup);
-                }
-
-                $plugin->refresh();
-
-                if ($plugin->current_image !== null) {
-                    $playlistItem->update(['last_displayed_at' => now()]);
-                    $device->update(['current_screen_image' => $plugin->current_image]);
-                }
-            } elseif ($playlistItem) {
-                $refreshTimeOverride = $playlistItem->playlist()->first()->refresh_time;
-
-                // Get all plugins for the mashup
-                $plugins = Plugin::whereIn('id', $playlistItem->getMashupPluginIds())->get();
-
-                foreach ($plugins as $plugin) {
                     // Reset cache if Devices with different dimensions exist
                     ImageGenerationService::resetIfNotCacheable($plugin);
+
+                    // Check and update stale data if needed
                     if ($plugin->isDataStale() || $plugin->current_image === null) {
                         $plugin->updateDataPayload();
+                        $markup = $plugin->render();
+
+                        GenerateScreenJob::dispatchSync($device->id, $plugin->id, $markup);
+                    }
+
+                    $plugin->refresh();
+
+                    if ($plugin->current_image !== null) {
+                        $playlistItem->update(['last_displayed_at' => now()]);
+                        $device->update(['current_screen_image' => $plugin->current_image]);
+                    }
+                } elseif ($playlistItem) {
+                    $refreshTimeOverride = $playlistItem->playlist()->first()->refresh_time;
+
+                    // Get all plugins for the mashup
+                    $plugins = Plugin::whereIn('id', $playlistItem->getMashupPluginIds())->get();
+
+                    foreach ($plugins as $plugin) {
+                        // Reset cache if Devices with different dimensions exist
+                        ImageGenerationService::resetIfNotCacheable($plugin);
+                        if ($plugin->isDataStale() || $plugin->current_image === null) {
+                            $plugin->updateDataPayload();
+                        }
+                    }
+
+                    $markup = $playlistItem->render();
+                    GenerateScreenJob::dispatchSync($device->id, null, $markup);
+
+                    $device->refresh();
+
+                    if ($device->current_screen_image !== null) {
+                        $playlistItem->update(['last_displayed_at' => now()]);
                     }
                 }
-
-                $markup = $playlistItem->render();
-                GenerateScreenJob::dispatchSync($device->id, null, $markup);
-
-                $device->refresh();
-
-                if ($device->current_screen_image !== null) {
-                    $playlistItem->update(['last_displayed_at' => now()]);
-                }
             }
-        }
 
-        $device->refresh();
-        $image_uuid = $device->current_screen_image;
-    }
-    if (! $image_uuid) {
-        $image_path = 'images/setup-logo.bmp';
-        $filename = 'setup-logo.bmp';
-    } else {
-        if (isset($device->last_firmware_version)
-            && version_compare($device->last_firmware_version, '1.5.2', '<')
-            && Storage::disk('public')->exists('images/generated/'.$image_uuid.'.bmp')) {
-            $image_path = 'images/generated/'.$image_uuid.'.bmp';
-        } elseif (Storage::disk('public')->exists('images/generated/'.$image_uuid.'.png')) {
-            $image_path = 'images/generated/'.$image_uuid.'.png';
-        } else {
-            $image_path = 'images/generated/'.$image_uuid.'.bmp';
+            $device->refresh();
+            $image_uuid = $device->current_screen_image;
         }
-        $filename = basename($image_path);
+        if (! $image_uuid) {
+            $image_path = 'images/setup-logo.bmp';
+            $filename = 'setup-logo.bmp';
+        } else {
+            if (isset($device->last_firmware_version)
+                && version_compare($device->last_firmware_version, '1.5.2', '<')
+                && Storage::disk('public')->exists('images/generated/'.$image_uuid.'.bmp')) {
+                $image_path = 'images/generated/'.$image_uuid.'.bmp';
+            } elseif (Storage::disk('public')->exists('images/generated/'.$image_uuid.'.png')) {
+                $image_path = 'images/generated/'.$image_uuid.'.png';
+            } else {
+                $image_path = 'images/generated/'.$image_uuid.'.bmp';
+            }
+            $filename = basename($image_path);
+        }
     }
 
     $response = [

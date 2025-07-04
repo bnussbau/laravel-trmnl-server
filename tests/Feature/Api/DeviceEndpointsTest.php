@@ -757,3 +757,62 @@ test('display endpoint handles mashup playlist items correctly', function () {
     $playlistItem->refresh();
     expect($playlistItem->last_displayed_at)->not->toBeNull();
 })->skipOnGitHubActions();
+
+test('device in sleep mode returns sleep image and correct refresh rate', function () {
+    $device = Device::factory()->create([
+        'mac_address' => '00:11:22:33:44:55',
+        'api_key' => 'test-api-key',
+        'sleep_mode_enabled' => true,
+        'sleep_mode_from' => '19:00',
+        'sleep_mode_to' => '23:00',
+        'current_screen_image' => 'test-image',
+    ]);
+
+    // Freeze time to 20:00 (within sleep window)
+    \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2000-01-01 20:00:00'));
+
+    $response = $this->withHeaders([
+        'id' => $device->mac_address,
+        'access-token' => $device->api_key,
+        'rssi' => -70,
+        'battery_voltage' => 3.8,
+        'fw-version' => '1.0.0',
+    ])->get('/api/display');
+
+    $response->assertOk()
+        ->assertJson([
+            'filename' => 'sleep.png',
+        ]);
+    expect($response['refresh_rate'])->toBeGreaterThan(0);
+
+    \Carbon\Carbon::setTestNow(); // Clear test time
+});
+
+test('device not in sleep mode returns normal image', function () {
+    $device = Device::factory()->create([
+        'mac_address' => '00:11:22:33:44:55',
+        'api_key' => 'test-api-key',
+        'sleep_mode_enabled' => true,
+        'sleep_mode_from' => '19:00',
+        'sleep_mode_to' => '23:00',
+        'current_screen_image' => 'test-image',
+    ]);
+
+    // Freeze time to 18:00 (outside sleep window)
+    \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2000-01-01 18:00:00'));
+
+    $response = $this->withHeaders([
+        'id' => $device->mac_address,
+        'access-token' => $device->api_key,
+        'rssi' => -70,
+        'battery_voltage' => 3.8,
+        'fw-version' => '1.0.0',
+    ])->get('/api/display');
+
+    $response->assertOk()
+        ->assertJson([
+            'filename' => 'test-image.bmp',
+        ]);
+
+    \Carbon\Carbon::setTestNow(); // Clear test time
+});
