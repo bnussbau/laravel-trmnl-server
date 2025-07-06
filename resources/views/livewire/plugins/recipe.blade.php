@@ -92,7 +92,7 @@ new class extends Component {
         'polling_body' => 'nullable|string',
         'data_payload' => 'required_if:data_strategy,static|nullable|json',
         'markup_code' => 'nullable|string',
-        'markup_language' => 'required|string|in:blade,liquid',
+        'markup_language' => 'nullable|string|in:blade,liquid',
         'checked_devices' => 'array',
         'playlist_name' => 'required_if:selected_playlist,new|string|max:255',
         'selected_weekdays' => 'nullable|array',
@@ -105,8 +105,7 @@ new class extends Component {
     {
         abort_unless(auth()->user()->plugins->contains($this->plugin), 403);
         $validated = $this->validate();
-        $validated['data_payload'] = json_decode($validated['data_payload'], true);
-
+        $validated['data_payload'] = json_decode(Arr::get($validated,'data_payload'), true);
         $this->plugin->update($validated);
     }
 
