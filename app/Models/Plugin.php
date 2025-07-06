@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Keepsuit\LaravelLiquid\Facades\Liquid;
-use Illuminate\Support\Facades\App;
 use Keepsuit\Liquid\Exceptions\LiquidException;
 
 class Plugin extends Model
@@ -82,6 +81,7 @@ class Plugin extends Model
 
     /**
      * Render the plugin's markup
+     *
      * @throws LiquidException
      */
     public function render(string $size = 'full', bool $standalone = true): string
