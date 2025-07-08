@@ -49,7 +49,6 @@ class ImageGenerationService
                 if (config('app.puppeteer_wait_for_network_idle')) {
                     $browsershot->waitUntilNetworkIdle();
                 }
-                ray($browsershot);
                 $browsershot->save($pngPath);
             } catch (Exception $e) {
                 Log::error('Failed to generate PNG: '.$e->getMessage());
