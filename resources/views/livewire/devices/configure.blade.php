@@ -400,7 +400,7 @@ new class extends Component {
 
                 @if(!$device->mirror_device_id)
                     @if($current_image_path)
-                        <flux:separator class="mt-6 mb-6" text="Next Screen"/>
+                        <flux:separator class="mt-6 mb-6" text="Screen"/>
                         <img src="{{ asset($current_image_path) }}" class="max-h-[480px]" alt="Next Image"/>
                     @endif
 
