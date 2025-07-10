@@ -45,9 +45,14 @@ new class extends Component {
 
                 <tbody class="divide-y divide-zinc-800/10 dark:divide-white/20" data-flux-rows="">
                     @foreach ($logs as $log)
+                        @if (!isset($log->log_entry['log_message']))
+                            @continue
+                        @endif
                         <tr data-flux-row="">
                             <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap text-zinc-500 dark:text-zinc-300">
-                                {{ \Carbon\Carbon::createFromTimestamp($log->log_entry['creation_timestamp'])->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s') }}
+                                @if (isset($log->log_entry['creation_timestamp']))
+                                    {{ \Carbon\Carbon::createFromTimestamp($log->log_entry['creation_timestamp'])->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s') }}
+                                @endif
                             </td>
                             <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap text-zinc-500 dark:text-zinc-300">
                                 <div class="inline-flex items-center font-medium whitespace-nowrap -mt-1 -mb-1 text-xs py-1 px-2 rounded-md

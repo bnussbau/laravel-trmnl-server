@@ -176,7 +176,7 @@ test('device can submit logs', function () {
     $logData = [
         'log' => [
             'logs_array' => [
-                ['message' => 'Test log message', 'level' => 'info'],
+                ['log_message' => 'Test log message', 'level' => 'info'],
             ],
         ],
     ];
