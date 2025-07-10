@@ -77,7 +77,7 @@ new class extends Component {
 
         <div class="mt-6">
             <p>
-                <flux:badge>GET</flux:badge>
+                <flux:badge>GET</flux:badge><flux:badge>POST</flux:badge>
                 <span class="ml-2 font-mono">{{ route('display.status') }}?device_id={{ $selected_device }}</span>
             </p>
             <div class="mt-4">
@@ -86,6 +86,14 @@ new class extends Component {
                     <flux:button variant="subtle" size="xs" class="mt-2" wire:click="regenerateToken()">
                         Regenerate Token
                     </flux:button>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h3 class="text-lg">Body <flux:badge size="sm">POST</flux:badge></h3>
+                <div class="font-mono">
+                    <pre>
+{&#x22;default_refresh_interval&#x22;: 900, &#x22;sleep_mode_enabled&#x22;: true, &#x22;pause_until&#x22;: &#x22;2025-07-10T22:00:00+02:00&#x22;}
+                    </pre>
                 </div>
             </div>
         </div>

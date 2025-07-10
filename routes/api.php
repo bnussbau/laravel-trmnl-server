@@ -297,11 +297,58 @@ Route::get('/display/status', function (Request $request) {
             'wifi_strength',
             'current_screen_image',
             'default_refresh_interval',
+            'sleep_mode_enabled',
+            'sleep_mode_from',
+            'sleep_mode_to',
+            'special_function',
+            'pause_until',
             'updated_at',
         ]),
     );
 })
     ->name('display.status')
+    ->middleware('auth:sanctum');
+
+Route::post('/display/status', function (Request $request) {
+    $request->validate([
+        'device_id' => 'required|exists:devices,id',
+        'name' => 'string|max:255',
+        'default_refresh_interval' => 'integer|min:1',
+        'sleep_mode_enabled' => 'boolean',
+        'sleep_mode_from' => 'nullable|date_format:H:i',
+        'sleep_mode_to' => 'nullable|date_format:H:i',
+        'pause_until' => 'nullable|date|after:now',
+    ]);
+
+    $deviceId = $request['device_id'];
+    abort_unless($request->user()->devices->contains($deviceId), 403);
+
+    $fieldsToUpdate = $request->only(['name', 'default_refresh_interval', 'sleep_mode_enabled', 'sleep_mode_from', 'sleep_mode_to', 'pause_until']);
+    Device::find($deviceId)->update($fieldsToUpdate);
+
+    return response()->json(
+        Device::find($deviceId)->only([
+            'id',
+            'mac_address',
+            'name',
+            'friendly_id',
+            'last_rssi_level',
+            'last_battery_voltage',
+            'last_firmware_version',
+            'battery_percent',
+            'wifi_strength',
+            'current_screen_image',
+            'default_refresh_interval',
+            'sleep_mode_enabled',
+            'sleep_mode_from',
+            'sleep_mode_to',
+            'special_function',
+            'pause_until',
+            'updated_at',
+        ]),
+    );
+})
+    ->name('display.status.post')
     ->middleware('auth:sanctum');
 
 Route::get('/current_screen', function (Request $request) {
