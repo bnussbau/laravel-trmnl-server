@@ -71,3 +71,25 @@ test('updateDataPayload sends POST request with body when polling_verb is post',
                $request->body() === '{"query": "query { user { id name } }"}';
     });
 });
+
+test('webhook plugin is stale if webhook event occurred', function () {
+    $plugin = Plugin::factory()->create([
+        'data_strategy' => 'webhook',
+        'data_payload_updated_at' => now()->subMinutes(10),
+        'data_stale_minutes' => 60, // Should be ignored for webhook
+    ]);
+
+    expect($plugin->isDataStale())->toBeTrue();
+
+});
+
+test('webhook plugin data not stale if no webhook event occurred for 1 hour', function () {
+    $plugin = Plugin::factory()->create([
+        'data_strategy' => 'webhook',
+        'data_payload_updated_at' => now()->subMinutes(60),
+        'data_stale_minutes' => 60, // Should be ignored for webhook
+    ]);
+
+    expect($plugin->isDataStale())->toBeFalse();
+
+});

@@ -36,6 +36,10 @@ class Plugin extends Model
 
     public function isDataStale(): bool
     {
+        if ($this->data_strategy === 'webhook') {
+            // Treat as stale if any webhook event has occurred in the past hour
+            return $this->data_payload_updated_at && $this->data_payload_updated_at->gt(now()->subHour());
+        }
         if (! $this->data_payload_updated_at || ! $this->data_stale_minutes) {
             return true;
         }

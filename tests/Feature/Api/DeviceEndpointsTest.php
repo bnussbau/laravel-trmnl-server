@@ -769,7 +769,7 @@ test('device in sleep mode returns sleep image and correct refresh rate', functi
     ]);
 
     // Freeze time to 20:00 (within sleep window)
-    \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2000-01-01 20:00:00'));
+    Carbon\Carbon::setTestNow(Carbon\Carbon::parse('2000-01-01 20:00:00'));
 
     $response = $this->withHeaders([
         'id' => $device->mac_address,
@@ -785,7 +785,7 @@ test('device in sleep mode returns sleep image and correct refresh rate', functi
         ]);
     expect($response['refresh_rate'])->toBeGreaterThan(0);
 
-    \Carbon\Carbon::setTestNow(); // Clear test time
+    Carbon\Carbon::setTestNow(); // Clear test time
 });
 
 test('device not in sleep mode returns normal image', function () {
@@ -799,7 +799,7 @@ test('device not in sleep mode returns normal image', function () {
     ]);
 
     // Freeze time to 18:00 (outside sleep window)
-    \Carbon\Carbon::setTestNow(\Carbon\Carbon::parse('2000-01-01 18:00:00'));
+    Carbon\Carbon::setTestNow(Carbon\Carbon::parse('2000-01-01 18:00:00'));
 
     $response = $this->withHeaders([
         'id' => $device->mac_address,
@@ -814,7 +814,7 @@ test('device not in sleep mode returns normal image', function () {
             'filename' => 'test-image.bmp',
         ]);
 
-    \Carbon\Carbon::setTestNow(); // Clear test time
+    Carbon\Carbon::setTestNow(); // Clear test time
 });
 
 test('device returns sleep.png and correct refresh time when paused', function () {
