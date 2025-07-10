@@ -43,11 +43,22 @@ class Playlist extends Model
                 return false;
             }
         }
-        // Check time range
+
         if ($this->active_from !== null && $this->active_until !== null) {
-            if (! now()->between($this->active_from, $this->active_until)) {
-                return false;
+            $now = now();
+
+            // Handle time ranges that span across midnight
+            if ($this->active_from > $this->active_until) {
+                // Time range spans midnight (e.g., 09:01 to 03:58)
+                if ($now >= $this->active_from || $now <= $this->active_until) {
+                    return true;
+                }
+            } else {
+                if ($now >= $this->active_from && $now <= $this->active_until) {
+                    return true;
+                }
             }
+            return false;
         }
 
         return true;
