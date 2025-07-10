@@ -360,9 +360,9 @@ new class extends Component {
 
                         <flux:separator class="my-4" text="Special Functions" />
                         <flux:select label="Special Function" wire:model="special_function">
-                            <flux:select.option value="identify">Identify</flux:select.option>
                             <flux:select.option value="sleep">Sleep</flux:select.option>
                             <flux:select.option value="add_wifi">Add WiFi</flux:select.option>
+                            <flux:select.option value="none">None</flux:select.option>
                         </flux:select>
 
 

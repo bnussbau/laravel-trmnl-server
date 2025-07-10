@@ -142,7 +142,7 @@ Route::get('/display', function (Request $request) {
         'reset_firmware' => false,
         'update_firmware' => $device->update_firmware,
         'firmware_url' => $device->firmware_url,
-        'special_function' => 'sleep',
+        'special_function' => $device->special_function ?? 'sleep',
     ];
 
     if (config('services.trmnl.image_url_timeout')) {
@@ -337,7 +337,7 @@ Route::get('/current_screen', function (Request $request) {
         'reset_firmware' => false,
         'update_firmware' => false,
         'firmware_url' => $device->firmware_url,
-        'special_function' => 'sleep',
+        'special_function' => $device->special_function ?? 'sleep',
     ];
 
     if (config('services.trmnl.image_url_timeout')) {
