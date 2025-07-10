@@ -2,7 +2,9 @@
 
 namespace App\Notifications\Messages;
 
-final class WebhookMessage
+use Illuminate\Notifications\Notification;
+
+final class WebhookMessage extends Notification
 {
     /**
      * The GET parameters of the request.

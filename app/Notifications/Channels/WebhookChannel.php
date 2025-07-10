@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Arr;
 
-class WebhookChannel
+class WebhookChannel extends Notification
 {
     /** @var Client */
     protected $client;

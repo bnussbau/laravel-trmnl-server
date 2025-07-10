@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -197,14 +198,13 @@ class Device extends Model
         if (! $this->sleep_mode_enabled || ! $this->sleep_mode_from || ! $this->sleep_mode_to) {
             return false;
         }
-        $now = $now ? \Carbon\Carbon::instance($now) : now();
-        $from = $this->sleep_mode_from instanceof \Carbon\Carbon ? $this->sleep_mode_from : \Carbon\Carbon::createFromFormat('H:i:s', $this->sleep_mode_from);
-        $to = $this->sleep_mode_to instanceof \Carbon\Carbon ? $this->sleep_mode_to : \Carbon\Carbon::createFromFormat('H:i:s', $this->sleep_mode_to);
+
+        $now = $now ? Carbon::instance($now) : now();
 
         // Handle overnight ranges (e.g. 22:00 to 06:00)
-        return $from < $to
-            ? $now->between($from, $to)
-            : ($now->gte($from) || $now->lte($to));
+        return $this->sleep_mode_from < $this->sleep_mode_to
+            ? $now->between($this->sleep_mode_from, $this->sleep_mode_to)
+            : ($now->gte($this->sleep_mode_from) || $now->lte($this->sleep_mode_to));
     }
 
     public function getSleepModeEndsInSeconds(?DateTimeInterface $now = null): ?int
@@ -213,16 +213,16 @@ class Device extends Model
             return null;
         }
 
-        $now = $now ? \Carbon\Carbon::instance($now) : now();
-        $from = $this->sleep_mode_from instanceof \Carbon\Carbon ? $this->sleep_mode_from : \Carbon\Carbon::createFromFormat('H:i:s', $this->sleep_mode_from);
-        $to = $this->sleep_mode_to instanceof \Carbon\Carbon ? $this->sleep_mode_to : \Carbon\Carbon::createFromFormat('H:i:s', $this->sleep_mode_to);
+        $now = $now ? Carbon::instance($now) : now();
+        $from = $this->sleep_mode_from;
+        $to = $this->sleep_mode_to;
 
         // Handle overnight ranges (e.g. 22:00 to 06:00)
-        if ($from < $to) {
-            return $now->between($from, $to) ? $now->diffInSeconds($to, false) : null;
+        if ($this->sleep_mode_from < $to) {
+            return $now->between($from, $to) ? (int) $now->diffInSeconds($to, false) : null;
         }
 
-        return ($now->gte($from) || $now->lt($to)) ? $now->diffInSeconds($to->addDay(), false) : null;
+        return ($now->gte($from) || $now->lt($to)) ? (int) $now->diffInSeconds($to->addDay(), false) : null;
 
     }
 
