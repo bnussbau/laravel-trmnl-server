@@ -23,6 +23,8 @@ new class extends Component {
 
     public $mirror_device_id = null;
 
+    public ?int $pause_duration;
+
     protected $rules = [
         'mac_address' => 'required',
         'api_key' => 'required',
@@ -75,6 +77,20 @@ new class extends Component {
         //     \App\Jobs\FetchProxyCloudResponses::dispatch();
         // }
     }
+
+    public function pauseDevice($deviceId): void
+    {
+        $this->validate([
+            'pause_duration' => 'required|integer',
+        ]);
+        $device = auth()->user()->devices()->findOrFail($deviceId);
+        $pauseUntil = now()->addMinutes($this->pause_duration);
+        $device->update(['pause_until' => $pauseUntil]);
+        $this->reset('pause_duration');
+        \Flux::modal('pause-device-' . $deviceId)->close();
+        $this->devices = auth()->user()->devices;
+        session()->flash('message', 'Device paused until ' . $pauseUntil->format('H:i'));
+    }
 }
 
 ?>
@@ -93,7 +109,8 @@ new class extends Component {
                 <div class="mb-4">
                     <flux:callout variant="success" icon="check-circle" heading=" {{ session('message') }}">
                         <x-slot name="controls">
-                            <flux:button icon="x-mark" variant="ghost" x-on:click="$el.closest('[data-flux-callout]').remove()" />
+                            <flux:button icon="x-mark" variant="ghost"
+                                         x-on:click="$el.closest('[data-flux-callout]').remove()"/>
                         </x-slot>
                     </flux:callout>
                 </div>
@@ -138,7 +155,7 @@ new class extends Component {
                         </div>
 
                         <div class="mb-4">
-                            <flux:checkbox wire:model.live="is_mirror" label="Mirrors Device" />
+                            <flux:checkbox wire:model.live="is_mirror" label="Mirrors Device"/>
                         </div>
 
                         @if($is_mirror)
@@ -216,14 +233,27 @@ new class extends Component {
                         <td class="py-3 px-3 first:pl-0 last:pr-0 text-sm whitespace-nowrap  font-medium text-zinc-800 dark:text-white"
                         >
                             <div class="flex items-center gap-4">
-                                <flux:button href="{{ route('devices.configure', $device) }}" wire:navigate icon="eye">
+                                <flux:button.group>
+
+                                <flux:button href="{{ route('devices.configure', $device) }}" wire:navigate icon="eye" iconVariant="outline">
                                 </flux:button>
+                                @if($device->isPauseActive())
+                                    <flux:tooltip content="Device paused until: {{ $device->pause_until?->format('H:i') }}">
+                                        <flux:button icon="pause-circle"/>
+                                    </flux:tooltip>
+                                @else
+                                    <flux:modal.trigger name="pause-device-{{ $device->id }}">
+                                        <flux:button icon="pause-circle" iconVariant="outline">
+                                        </flux:button>
+                                    </flux:modal.trigger>
+                                @endif
+                                </flux:button.group>
 
                                 <flux:tooltip
                                     content="Proxies images from the TRMNL Cloud service when no image is set (available in TRMNL DEV Edition only)."
                                     position="bottom">
                                     <flux:switch wire:click="toggleProxyCloud({{ $device->id }})"
-                                                 :checked="$device->proxy_cloud" 
+                                                 :checked="$device->proxy_cloud"
                                                  :disabled="$device->mirror_device_id !== null"
                                                  label="☁️ Proxy"/>
                                 </flux:tooltip>
@@ -238,4 +268,34 @@ new class extends Component {
         </div>
     </div>
 
+    @foreach ($devices as $device)
+        <flux:modal name="pause-device-{{ $device->id }}">
+            <div class="space-y-6">
+                <div>
+                    <flux:heading size="lg">Pause</flux:heading>
+                    <div class="text-sm text-zinc-500 mt-2">Select how long to pause screen generation for <span
+                            class="font-semibold">{{ $device->name }}</span>.
+                    </div>
+                </div>
+                <form wire:submit="pauseDevice({{ $device->id }})">
+                    <div class="mb-4">
+                        <flux:radio.group wire:model.live="pause_duration" label="Pause Duration" variant="segmented">
+                            <flux:radio value="30" label="30 min"/>
+                            <flux:radio value="60" label="60 min"/>
+                            <flux:radio value="120" label="120 min"/>
+                            <flux:radio value="240" label="240 min"/>
+                            <flux:radio value="480" label="480 min"/>
+                        </flux:radio.group>
+                    </div>
+                    <div class="flex">
+                        <flux:spacer/>
+                        <flux:modal.close>
+                            <flux:button variant="ghost">Cancel</flux:button>
+                        </flux:modal.close>
+                        <flux:button type="submit" variant="primary">Save</flux:button>
+                    </div>
+                </form>
+            </div>
+        </flux:modal>
+    @endforeach
 </div>

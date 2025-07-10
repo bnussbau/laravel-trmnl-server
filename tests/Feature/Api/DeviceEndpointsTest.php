@@ -816,3 +816,25 @@ test('device not in sleep mode returns normal image', function () {
 
     \Carbon\Carbon::setTestNow(); // Clear test time
 });
+
+test('device returns sleep.png and correct refresh time when paused', function () {
+    $device = Device::factory()->create([
+        'mac_address' => '00:11:22:33:44:55',
+        'api_key' => 'test-api-key',
+        'pause_until' => now()->addMinutes(60),
+    ]);
+
+    $response = $this->withHeaders([
+        'id' => $device->mac_address,
+        'access-token' => $device->api_key,
+        'rssi' => -70,
+        'battery_voltage' => 3.8,
+        'fw-version' => '1.0.0',
+    ])->get('/api/display');
+
+    $response->assertOk();
+    $json = $response->json();
+    expect($json['filename'])->toBe('sleep.png');
+    expect($json['image_url'])->toContain('sleep.png');
+    expect($json['refresh_rate'])->toBeLessThanOrEqual(3600); // ~60 min
+});

@@ -58,6 +58,7 @@ class Playlist extends Model
                     return true;
                 }
             }
+
             return false;
         }
 

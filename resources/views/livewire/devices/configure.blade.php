@@ -308,6 +308,13 @@ new class extends Component {
                             <flux:separator vertical/>
                             <x-responsive-icons.battery :percent="$device->batteryPercent"/>
                         @endif
+                        @if($device->isPauseActive())
+                            <flux:separator vertical/>
+                            <flux:tooltip content="Pause active until {{$device->pause_until?->format('H:i')}}"
+                                          position="bottom">
+                                <flux:icon name="pause-circle" variant="solid"/>
+                            </flux:tooltip>
+                        @endif
                     </div>
                     <div>
                         <flux:modal.trigger name="edit-device">

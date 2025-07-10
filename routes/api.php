@@ -56,7 +56,11 @@ Route::get('/display', function (Request $request) {
         ]);
     }
 
-    if ($device->isSleepModeActive()) {
+    if ($device->isPauseActive()) {
+        $image_path = 'images/sleep.png';
+        $filename = 'sleep.png';
+        $refreshTimeOverride = (int) now()->diffInSeconds($device->pause_until);
+    } elseif ($device->isSleepModeActive()) {
         $image_path = 'images/sleep.png';
         $filename = 'sleep.png';
         $refreshTimeOverride = $device->getSleepModeEndsInSeconds() ?? $device->default_refresh_interval;
