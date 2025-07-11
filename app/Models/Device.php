@@ -218,12 +218,22 @@ class Device extends Model
         $to = $this->sleep_mode_to;
 
         // Handle overnight ranges (e.g. 22:00 to 06:00)
-        if ($this->sleep_mode_from < $to) {
+        if ($from < $to) {
+            // Normal range, same day
             return $now->between($from, $to) ? (int) $now->diffInSeconds($to, false) : null;
+        } else {
+            // Overnight range
+            if ($now->gte($from)) {
+                // After 'from', before midnight
+                return (int) $now->diffInSeconds($to->copy()->addDay(), false);
+            } elseif ($now->lt($to)) {
+                // After midnight, before 'to'
+                return (int) $now->diffInSeconds($to, false);
+            } else {
+                // Not in sleep window
+                return null;
+            }
         }
-
-        return ($now->gte($from) || $now->lt($to)) ? (int) $now->diffInSeconds($to->addDay(), false) : null;
-
     }
 
     public function isPauseActive(): bool

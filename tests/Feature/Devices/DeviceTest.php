@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Device;
+use Illuminate\Support\Carbon;
 
 uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 
@@ -73,4 +74,21 @@ test('last log request is properly cast to json', function () {
         ->toBeArray()
         ->toHaveKey('status')
         ->toHaveKey('timestamp');
+});
+
+test('getSleepModeEndsInSeconds returns correct value for overnight sleep window', function () {
+    // Set the current time to 12:13
+    Carbon::setTestNow(Carbon::create(2024, 1, 1, 12, 13, 0));
+
+    $device = Device::factory()->create([
+        'sleep_mode_enabled' => true,
+        'sleep_mode_from' => Carbon::create(2024, 1, 1, 22, 0, 0), // 22:00
+        'sleep_mode_to' => Carbon::create(2024, 1, 1, 13, 0, 0),   // 13:00
+    ]);
+
+    $seconds = $device->getSleepModeEndsInSeconds();
+    // 47 minutes = 2820 seconds
+    expect($seconds)->toBe(2820);
+
+    Carbon::setTestNow(); // Clear test time
 });
