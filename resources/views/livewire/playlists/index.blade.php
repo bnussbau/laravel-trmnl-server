@@ -96,6 +96,12 @@ new class extends Component {
             'refresh_time' => 'nullable|integer|min:60',
         ]);
 
+        if (empty($this->active_from)) {
+            $this->active_from = null;
+        }
+        if (empty($this->active_until)) {
+            $this->active_until = null;
+        }
         if ($this->refresh_time < 60) {
             $this->refresh_time = null;
         }
