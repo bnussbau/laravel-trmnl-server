@@ -93,3 +93,85 @@ test('webhook plugin data not stale if no webhook event occurred for 1 hour', fu
     expect($plugin->isDataStale())->toBeFalse();
 
 });
+
+test('plugin configuration is cast to array', function () {
+    $config = ['timezone' => 'UTC', 'refresh_interval' => 30];
+    $plugin = Plugin::factory()->create(['configuration' => $config]);
+
+    expect($plugin->configuration)
+        ->toBeArray()
+        ->toBe($config);
+});
+
+test('plugin can get configuration value by key', function () {
+    $config = ['timezone' => 'UTC', 'refresh_interval' => 30];
+    $plugin = Plugin::factory()->create(['configuration' => $config]);
+
+    expect($plugin->getConfiguration('timezone'))->toBe('UTC');
+    expect($plugin->getConfiguration('refresh_interval'))->toBe(30);
+    expect($plugin->getConfiguration('nonexistent', 'default'))->toBe('default');
+});
+
+test('plugin configuration template is cast to array', function () {
+    $template = [
+        'custom_fields' => [
+            [
+                'name' => 'Timezone',
+                'keyname' => 'timezone',
+                'field_type' => 'time_zone',
+                'description' => 'Select your timezone'
+            ]
+        ]
+    ];
+    $plugin = Plugin::factory()->create(['configuration_template' => $template]);
+
+    expect($plugin->configuration_template)
+        ->toBeArray()
+        ->toBe($template);
+});
+
+test('resolveLiquidVariables resolves variables from configuration', function () {
+    $plugin = Plugin::factory()->create([
+        'configuration' => [
+            'api_key' => '12345',
+            'username' => 'testuser',
+            'count' => 42
+        ]
+    ]);
+
+    // Test simple variable replacement
+    $template = 'API Key: {{ config.api_key }}';
+    $result = $plugin->resolveLiquidVariables($template);
+    expect($result)->toBe('API Key: 12345');
+
+    // Test multiple variables
+    $template = 'User: {{ config.username }}, Count: {{ config.count }}';
+    $result = $plugin->resolveLiquidVariables($template);
+    expect($result)->toBe('User: testuser, Count: 42');
+
+    // Test with missing variable (should keep original)
+    $template = 'Missing: {{ config.missing }}';
+    $result = $plugin->resolveLiquidVariables($template);
+    expect($result)->toBe('Missing: ');
+
+    // Test with Liquid control structures
+    $template = '{% if config.count > 40 %}High{% else %}Low{% endif %}';
+    $result = $plugin->resolveLiquidVariables($template);
+    expect($result)->toBe('High');
+});
+
+test('resolveLiquidVariables handles invalid Liquid syntax gracefully', function () {
+    $plugin = Plugin::factory()->create([
+        'configuration' => [
+            'api_key' => '12345'
+        ]
+    ]);
+
+    // Test with unclosed Liquid tag (should not throw exception)
+    $template = 'Unclosed tag: {{ config.api_key';
+    $result = $plugin->resolveLiquidVariables($template);
+
+    // The result might vary depending on how the Liquid engine handles errors,
+    // but the important thing is that it doesn't throw an unhandled exception
+    expect($result)->toBeString();
+});

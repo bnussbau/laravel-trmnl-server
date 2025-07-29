@@ -76,17 +76,50 @@ class Plugin extends Model
                 $httpRequest = $httpRequest->withBody($this->polling_body);
             }
 
+            // Resolve Liquid variables in the polling URL
+            $resolvedUrl = $this->resolveLiquidVariables($this->polling_url);
+
             // Make the request based on the verb
             if ($this->polling_verb === 'post') {
-                $response = $httpRequest->post($this->polling_url)->json();
+                $response = $httpRequest->post($resolvedUrl)->json();
             } else {
-                $response = $httpRequest->get($this->polling_url)->json();
+                $response = $httpRequest->get($resolvedUrl)->json();
             }
 
             $this->update([
                 'data_payload' => $response,
                 'data_payload_updated_at' => now(),
             ]);
+        }
+    }
+
+    /**
+     * Resolve Liquid variables in a template string using the Liquid template engine
+     *
+     * @param string $template The template string containing Liquid variables
+     * @return string The resolved template with variables replaced with their values
+     * @throws LiquidException
+     */
+    public function resolveLiquidVariables(string $template): string
+    {
+        // Get configuration variables
+        $variables = $this->configuration ?? [];
+
+        // Use the Liquid template engine to resolve variables
+        $environment = App::make('liquid.environment');
+        $liquidTemplate = $environment->parseString($template);
+        $context = $environment->newRenderContext(data: [
+            'config' => $variables
+        ]);
+
+        try {
+            return $liquidTemplate->render($context);
+        } catch (LiquidException $e) {
+            // Fallback to simple regex replacement if Liquid parsing fails
+            return preg_replace_callback('/\{\{\s*([^}]+)\s*\}\}/', function($matches) use ($variables) {
+                $variableName = trim($matches[1]);
+                return $variables[$variableName] ?? $matches[0]; // Keep original if not found
+            }, $template);
         }
     }
 
@@ -111,10 +144,18 @@ class Plugin extends Model
                 $environment->filterRegistry->register(Localization::class);
 
                 $template = $environment->parseString($this->render_markup);
-                $context = $environment->newRenderContext(data: ['size' => $size, 'data' => $this->data_payload]);
+                $context = $environment->newRenderContext(data: [
+                    'size' => $size,
+                    'data' => $this->data_payload,
+                    'config' => $this->configuration ?? []
+                ]);
                 $renderedContent = $template->render($context);
             } else {
-                $renderedContent = Blade::render($this->render_markup, ['size' => $size, 'data' => $this->data_payload]);
+                $renderedContent = Blade::render($this->render_markup, [
+                    'size' => $size,
+                    'data' => $this->data_payload,
+                    'config' => $this->configuration ?? []
+                ]);
             }
 
             if ($standalone) {
@@ -132,6 +173,7 @@ class Plugin extends Model
                     'slot' => view($this->render_markup_view, [
                         'size' => $size,
                         'data' => $this->data_payload,
+                        'config' => $this->configuration ?? []
                     ])->render(),
                 ])->render();
             }
@@ -139,10 +181,19 @@ class Plugin extends Model
             return view($this->render_markup_view, [
                 'size' => $size,
                 'data' => $this->data_payload,
+                'config' => $this->configuration ?? []
             ])->render();
 
         }
 
         return '<p>No render markup yet defined for this plugin.</p>';
+    }
+
+    /**
+     * Get a configuration value by key
+     */
+    public function getConfiguration(string $key, $default = null)
+    {
+        return $this->configuration[$key] ?? $default;
     }
 }

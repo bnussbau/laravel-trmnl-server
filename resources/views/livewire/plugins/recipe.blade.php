@@ -4,6 +4,7 @@ use App\Models\Plugin;
 use Illuminate\Support\Carbon;
 use Livewire\Volt\Component;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Arr;
 
 new class extends Component {
     public Plugin $plugin;
@@ -91,7 +92,7 @@ new class extends Component {
         'name' => 'required|string|max:255',
         'data_stale_minutes' => 'required|integer|min:1',
         'data_strategy' => 'required|string|in:polling,webhook,static',
-        'polling_url' => 'required_if:data_strategy,polling|nullable|url',
+        'polling_url' => 'required_if:data_strategy,polling|nullable',
         'polling_verb' => 'required|string|in:get,post',
         'polling_header' => 'nullable|string|max:255',
         'polling_body' => 'nullable|string',
@@ -109,9 +110,28 @@ new class extends Component {
     public function editSettings()
     {
         abort_unless(auth()->user()->plugins->contains($this->plugin), 403);
+
+        // Custom validation for polling_url with Liquid variable resolution
+        $this->validatePollingUrl();
+
         $validated = $this->validate();
         $validated['data_payload'] = json_decode(Arr::get($validated,'data_payload'), true);
         $this->plugin->update($validated);
+    }
+
+    protected function validatePollingUrl(): void
+    {
+        if ($this->data_strategy === 'polling' && !empty($this->polling_url)) {
+            try {
+                $resolvedUrl = $this->plugin->resolveLiquidVariables($this->polling_url);
+
+                if (!filter_var($resolvedUrl, FILTER_VALIDATE_URL)) {
+                    $this->addError('polling_url', 'The polling URL must be a valid URL after resolving configuration variables.');
+                }
+            } catch (\Exception $e) {
+                $this->addError('polling_url', 'Error resolving Liquid variables: ' . $e->getMessage());
+            }
+        }
     }
 
     public function updateData(): void
@@ -664,6 +684,9 @@ HTML;
                                                  tooltip="Fetch data now" class="-mr-1"/>
                                 </x-slot>
                             </flux:input>
+                            <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                You can use configuration variables with Liquid syntax: <code class="text-xs">{ { variable_name } }</code>
+                            </div>
                         </div>
 
                         <div class="mb-4">
