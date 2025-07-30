@@ -239,6 +239,8 @@ new class extends Component {
         $this->plugin->update([
             'configuration' => $configurationValues
         ]);
+
+        Flux::modal('configuration-modal')->close();
     }
 
     public function getDevicePlaylists($deviceId)
@@ -532,7 +534,7 @@ HTML;
                                         @if($field['field_type'] === 'string')
                                             <flux:input
                                                 label="{{ $field['name'] }}"
-                                                description="{{ $field['description'] ?? $field['name'] }}"
+                                                description="{{ $field['description'] }}"
                                                 wire:model="configuration.{{ $fieldKey }}"
                                                 value="{{ $currentValue }}"
                                             />
@@ -668,7 +670,7 @@ HTML;
                     @if(isset($configuration_template['custom_fields']) && !empty($configuration_template['custom_fields']))
                         <div class="mb-4">
                             <flux:modal.trigger name="configuration-modal">
-                                <flux:button icon="cog" class="block mt-1 w-full">Configuration</flux:button>
+                                <flux:button variant="primary" icon="cog" class="block mt-1 w-full">Configuration</flux:button>
                             </flux:modal.trigger>
                         </div>
                     @endif
@@ -692,9 +694,7 @@ HTML;
                                                  tooltip="Fetch data now" class="-mr-1"/>
                                 </x-slot>
                             </flux:input>
-                            <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                You can use configuration variables with Liquid syntax: <code class="text-xs">{ { variable_name } }</code>
-                            </div>
+                            <flux:description class="mt-1">You can use configuration variables with Liquid syntax.</flux:description>
                         </div>
 
                         <div class="mb-4">

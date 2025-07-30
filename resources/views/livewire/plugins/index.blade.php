@@ -5,6 +5,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\Yaml\Yaml;
 
 new class extends Component {
@@ -57,7 +58,7 @@ new class extends Component {
         $this->validate();
 
         \App\Models\Plugin::create([
-            'uuid' => \Illuminate\Support\Str::uuid(),
+            'uuid' => Str::uuid(),
             'user_id' => auth()->id(),
             'name' => $this->name,
             'data_stale_minutes' => $this->data_stale_minutes,
@@ -80,165 +81,6 @@ new class extends Component {
         \Artisan::call(\App\Console\Commands\ExampleRecipesSeederCommand::class, ['user_id' => auth()->id()]);
     }
 
-    /**
-     * Extract a ZIP file using PharData as an alternative to ZipArchive
-     *
-     * @param string $zipFile Path to the ZIP file
-     * @param string $extractTo Path to extract the ZIP file to
-     * @throws \Exception If extraction fails
-     */
-    private function extractZipWithPurePhp(string $zipFile, string $extractTo): void
-    {
-        // Check if the phar extension is available
-        if (!extension_loaded('phar')) {
-            throw new \Exception('The phar extension is required for this extraction method.');
-        }
-
-        // Check if PharData class exists
-        if (!class_exists('PharData')) {
-            throw new \Exception('The PharData class is not available.');
-        }
-
-        // Read the ZIP file
-        $zipData = file_get_contents($zipFile);
-        if ($zipData === false) {
-            throw new \Exception('Could not read the ZIP file.');
-        }
-
-        // Create a temporary file for processing
-        $tempFile = tempnam(sys_get_temp_dir(), 'zip');
-        if ($tempFile === false) {
-            throw new \Exception('Could not create temporary file.');
-        }
-
-        if (file_put_contents($tempFile, $zipData) === false) {
-            @unlink($tempFile);
-            throw new \Exception('Could not write to temporary file.');
-        }
-
-        // Use PharData as an alternative to ZipArchive
-        try {
-            // Convert ZIP to TAR format (which PharData can handle without extensions)
-            $tarFile = $tempFile . '.tar';
-            $phar = new \PharData($tempFile);
-            $phar->convertToData(\Phar::TAR);
-
-            // Extract the TAR file
-            $tarPhar = new \PharData($tarFile);
-            $tarPhar->extractTo($extractTo, null, true);
-
-            // Clean up temporary files
-            @unlink($tempFile);
-            @unlink($tarFile);
-        } catch (\Exception $e) {
-            // Clean up temporary files
-            @unlink($tempFile);
-            @unlink($tarFile ?? '');
-
-            throw new \Exception('Could not extract the ZIP file: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Extract a ZIP file manually as a last resort
-     * This is a very basic implementation that can handle simple ZIP files
-     *
-     * @param string $zipFile Path to the ZIP file
-     * @param string $extractTo Path to extract the ZIP file to
-     * @throws \Exception If extraction fails
-     */
-    private function extractZipManually(string $zipFile, string $extractTo): void
-    {
-        // Read the ZIP file
-        $zipData = file_get_contents($zipFile);
-        if ($zipData === false) {
-            throw new \Exception('Could not read the ZIP file.');
-        }
-
-        // Create the src directory structure
-        if (!file_exists($extractTo . '/src')) {
-            if (!mkdir($extractTo . '/src', 0755, true)) {
-                throw new \Exception('Could not create directory structure.');
-            }
-        }
-
-        // Look for the required files in the ZIP data
-        $fullLiquidContent = null;
-        $settingsYamlContent = null;
-
-        // This is a very simplified approach that looks for specific file signatures
-        // It's not a complete ZIP parser, but it might work for simple ZIP files
-
-        // Look for src/full.liquid
-        $fullLiquidPos = strpos($zipData, 'src/full.liquid');
-        if ($fullLiquidPos !== false) {
-            // Try to extract the file content
-            $startPos = strpos($zipData, "\x50\x4B\x03\x04", $fullLiquidPos - 30); // PK header
-            if ($startPos !== false) {
-                $fileNameLength = unpack('v', substr($zipData, $startPos + 26, 2))[1];
-                $extraFieldLength = unpack('v', substr($zipData, $startPos + 28, 2))[1];
-                $fileDataStart = $startPos + 30 + $fileNameLength + $extraFieldLength;
-                $compressedSize = unpack('V', substr($zipData, $startPos + 18, 4))[1];
-                $uncompressedSize = unpack('V', substr($zipData, $startPos + 22, 4))[1];
-                $compressionMethod = unpack('v', substr($zipData, $startPos + 8, 2))[1];
-
-                $fileData = substr($zipData, $fileDataStart, $compressedSize);
-
-                // If the file is compressed, try to decompress it
-                if ($compressionMethod === 8) { // DEFLATE
-                    if (function_exists('gzinflate')) {
-                        $fileData = gzinflate($fileData);
-                    } else {
-                        throw new \Exception('gzinflate function is not available.');
-                    }
-                }
-
-                $fullLiquidContent = $fileData;
-            }
-        }
-
-        // Look for src/settings.yml
-        $settingsYamlPos = strpos($zipData, 'src/settings.yml');
-        if ($settingsYamlPos !== false) {
-            // Try to extract the file content
-            $startPos = strpos($zipData, "\x50\x4B\x03\x04", $settingsYamlPos - 30); // PK header
-            if ($startPos !== false) {
-                $fileNameLength = unpack('v', substr($zipData, $startPos + 26, 2))[1];
-                $extraFieldLength = unpack('v', substr($zipData, $startPos + 28, 2))[1];
-                $fileDataStart = $startPos + 30 + $fileNameLength + $extraFieldLength;
-                $compressedSize = unpack('V', substr($zipData, $startPos + 18, 4))[1];
-                $uncompressedSize = unpack('V', substr($zipData, $startPos + 22, 4))[1];
-                $compressionMethod = unpack('v', substr($zipData, $startPos + 8, 2))[1];
-
-                $fileData = substr($zipData, $fileDataStart, $compressedSize);
-
-                // If the file is compressed, try to decompress it
-                if ($compressionMethod === 8) { // DEFLATE
-                    if (function_exists('gzinflate')) {
-                        $fileData = gzinflate($fileData);
-                    } else {
-                        throw new \Exception('gzinflate function is not available.');
-                    }
-                }
-
-                $settingsYamlContent = $fileData;
-            }
-        }
-
-        // Check if we found the required files
-        if ($fullLiquidContent === null || $settingsYamlContent === null) {
-            throw new \Exception('Could not find required files in the ZIP archive.');
-        }
-
-        // Write the extracted files
-        if (file_put_contents($extractTo . '/src/full.liquid', $fullLiquidContent) === false) {
-            throw new \Exception('Could not write full.liquid file.');
-        }
-
-        if (file_put_contents($extractTo . '/src/settings.yml', $settingsYamlContent) === false) {
-            throw new \Exception('Could not write settings.yml file.');
-        }
-    }
 
     public function importZip(): void
     {
@@ -249,120 +91,90 @@ new class extends Component {
         ]);
 
         try {
-            // Create a temporary directory
-            $tempDir = storage_path('app/temp/' . uniqid('zip_', true));
-            File::makeDirectory($tempDir, 0755, true);
+            // Create a temporary directory using Laravel's temporary directory helper
+            $tempDirName = 'temp/' . Str::uuid()->toString();
+            Storage::makeDirectory($tempDirName);
+            $tempDir = Storage::path($tempDirName);
 
             // Get the real path of the temporary file
             $zipFullPath = $this->zipFile->getRealPath();
 
-            // Verify the file exists and is readable
-            if (!file_exists($zipFullPath)) {
-                throw new \Exception('Could not access the uploaded file. Temporary file does not exist at path: ' . $zipFullPath);
+            // Extract the ZIP file using ZipArchive
+            $zip = new \ZipArchive();
+            if ($zip->open($zipFullPath) !== true) {
+                throw new \Exception('Could not open the ZIP file.');
             }
 
-            if (!is_readable($zipFullPath)) {
-                throw new \Exception('Could not access the uploaded file. Temporary file exists but is not readable at path: ' . $zipFullPath);
-            }
+            $zip->extractTo($tempDir);
+            $zip->close();
 
-            // Log the file path for debugging
-            \Illuminate\Support\Facades\Log::info('Processing ZIP file', [
-                'path' => $zipFullPath,
-                'size' => filesize($zipFullPath),
-                'is_file' => is_file($zipFullPath),
-                'permissions' => substr(sprintf('%o', fileperms($zipFullPath)), -4)
-            ]);
+            // Find the required files (settings.yml and full.liquid)
+            // They could be in different locations depending on the ZIP structure
+            $settingsYamlPath = null;
+            $fullLiquidPath = null;
 
-            // Extract the ZIP file
-            $extractionMethods = [];
-            $extractionErrors = [];
+            // First, check if files are directly in the src folder
+            if (File::exists($tempDir . '/src/settings.yml') && File::exists($tempDir . '/src/full.liquid')) {
+                $settingsYamlPath = $tempDir . '/src/settings.yml';
+                $fullLiquidPath = $tempDir . '/src/full.liquid';
+            } else {
+                // Search for the files in the extracted directory structure
+                $directories = new \RecursiveDirectoryIterator($tempDir, \RecursiveDirectoryIterator::SKIP_DOTS);
+                $files = new \RecursiveIteratorIterator($directories);
 
-            // Method 1: Try using ZipArchive if the extension is available
-            if (class_exists('ZipArchive')) {
-                try {
-                    $extractionMethods[] = 'ZipArchive';
-                    $zip = new ZipArchive();
-                    if ($zip->open($zipFullPath) !== true) {
-                        throw new \Exception('Could not open the ZIP file.');
+                foreach ($files as $file) {
+                    $filename = $file->getFilename();
+                    $filepath = $file->getPathname();
+
+                    if ($filename === 'settings.yml') {
+                        $settingsYamlPath = $filepath;
+                    } elseif ($filename === 'full.liquid') {
+                        $fullLiquidPath = $filepath;
                     }
 
-                    $zip->extractTo($tempDir);
-                    $zip->close();
-
-                    // If we get here, extraction was successful
-                    $extractionSuccess = true;
-                } catch (\Exception $e) {
-                    $extractionErrors['ZipArchive'] = $e->getMessage();
-                    $extractionSuccess = false;
+                    // If we found both files, break the loop
+                    if ($settingsYamlPath && $fullLiquidPath) {
+                        break;
+                    }
                 }
-            } else {
-                $extractionErrors['ZipArchive'] = 'ZipArchive class not available.';
-                $extractionSuccess = false;
-            }
 
-            // Method 2: If ZipArchive failed, try using the unzip command-line tool
-            if (!isset($extractionSuccess) || !$extractionSuccess) {
-                $extractionMethods[] = 'unzip command';
-                $command = "unzip -q " . escapeshellarg($zipFullPath) . " -d " . escapeshellarg($tempDir);
-                $returnVar = null;
-                $output = null;
+                // If we found the files but they're not in the src folder,
+                // check if they're in the root of the ZIP or in a subfolder
+                if ($settingsYamlPath && $fullLiquidPath) {
+                    // If the files are in the root of the ZIP, create a src folder and move them there
+                    $srcDir = dirname($settingsYamlPath);
 
-                exec($command, $output, $returnVar);
+                    // If the parent directory is not named 'src', create a src directory
+                    if (basename($srcDir) !== 'src') {
+                        $newSrcDir = $tempDir . '/src';
+                        File::makeDirectory($newSrcDir, 0755, true);
 
-                if ($returnVar === 0) {
-                    $extractionSuccess = true;
-                } else {
-                    $extractionErrors['unzip'] = 'Command returned error code: ' . $returnVar;
-                    $extractionSuccess = false;
+                        // Copy the files to the src directory
+                        File::copy($settingsYamlPath, $newSrcDir . '/settings.yml');
+                        File::copy($fullLiquidPath, $newSrcDir . '/full.liquid');
+
+                        // Update the paths
+                        $settingsYamlPath = $newSrcDir . '/settings.yml';
+                        $fullLiquidPath = $newSrcDir . '/full.liquid';
+                    }
                 }
             }
 
-            // Method 3: If both ZipArchive and unzip failed, try a pure PHP solution with PharData
-            if (!isset($extractionSuccess) || !$extractionSuccess) {
-                $extractionMethods[] = 'PharData';
-                try {
-                    $this->extractZipWithPurePhp($zipFullPath, $tempDir);
-                    $extractionSuccess = true;
-                } catch (\Exception $e) {
-                    $extractionErrors['PharData'] = $e->getMessage();
-                    $extractionSuccess = false;
-                }
-            }
-
-            // Method 4: Last resort - try a manual extraction approach
-            if (!isset($extractionSuccess) || !$extractionSuccess) {
-                $extractionMethods[] = 'Manual extraction';
-                try {
-                    $this->extractZipManually($zipFullPath, $tempDir);
-                    $extractionSuccess = true;
-                } catch (\Exception $e) {
-                    $extractionErrors['Manual'] = $e->getMessage();
-                    $extractionSuccess = false;
-                }
-            }
-
-            // If all extraction methods failed, throw an exception with details
-            if (!isset($extractionSuccess) || !$extractionSuccess) {
-                $errorMsg = "Could not extract the ZIP file. Tried: " . implode(', ', $extractionMethods) . ". ";
-                $errorMsg .= "Errors: " . json_encode($extractionErrors);
-                throw new \Exception($errorMsg);
-            }
-
-            // Validate the structure
-            if (!file_exists($tempDir . '/src/full.liquid') || !file_exists($tempDir . '/src/settings.yml')) {
-                throw new \Exception('Invalid ZIP structure. Required files src/full.liquid and src/settings.yml are missing.');
+            // Validate that we found the required files
+            if (!$settingsYamlPath || !$fullLiquidPath) {
+                throw new \Exception('Invalid ZIP structure. Required files settings.yml and full.liquid are missing.');
             }
 
             // Parse settings.yml
-            $settingsYaml = file_get_contents($tempDir . '/src/settings.yml');
+            $settingsYaml = File::get($settingsYamlPath);
             $settings = Yaml::parse($settingsYaml);
 
             // Read full.liquid content
-            $fullLiquid = file_get_contents($tempDir . '/src/full.liquid');
+            $fullLiquid = File::get($fullLiquidPath);
 
             // Check if the file ends with .liquid to set markup language
             $markupLanguage = 'blade';
-            if (pathinfo($tempDir . '/src/full.liquid', PATHINFO_EXTENSION) === 'liquid') {
+            if (pathinfo($fullLiquidPath, PATHINFO_EXTENSION) === 'liquid') {
                 $markupLanguage = 'liquid';
             }
 
@@ -378,7 +190,7 @@ new class extends Component {
 
             // Create a new plugin
             $plugin = \App\Models\Plugin::create([
-                'uuid' => \Illuminate\Support\Str::uuid(),
+                'uuid' => Str::uuid(),
                 'user_id' => auth()->id(),
                 'name' => $settings['name'] ?? 'Imported Plugin',
                 'data_stale_minutes' => $settings['refresh_interval'] ?? 15,
@@ -392,7 +204,7 @@ new class extends Component {
             ]);
 
             // Clean up
-            File::deleteDirectory($tempDir);
+            Storage::deleteDirectory($tempDirName);
 
             $this->refreshPlugins();
             $this->reset(['zipFile']);
@@ -402,8 +214,8 @@ new class extends Component {
 
         } catch (\Exception $e) {
             // Clean up on error
-            if (isset($tempDir) && file_exists($tempDir)) {
-                File::deleteDirectory($tempDir);
+            if (isset($tempDirName)) {
+                Storage::deleteDirectory($tempDirName);
             }
 
             $this->dispatch('notify', ['type' => 'error', 'message' => 'Error importing plugin: ' . $e->getMessage()]);
