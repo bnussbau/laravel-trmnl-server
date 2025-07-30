@@ -562,6 +562,14 @@ HTML;
                                                 wire:model="configuration.{{ $fieldKey }}"
                                                 :checked="$currentValue"
                                             />
+                                        @elseif($field['field_type'] === 'date')
+                                            <flux:input
+                                                type="date"
+                                                label="{{ $field['name'] }}"
+                                                description="{{ $field['description'] ?? $field['name'] }}"
+                                                wire:model="configuration.{{ $fieldKey }}"
+                                                value="{{ $currentValue }}"
+                                            />
                                         @else
                                             <p>{{ $field['name'] }}: Field type "{{ $field['field_type'] }}" not yet supported</p>
                                         @endif
