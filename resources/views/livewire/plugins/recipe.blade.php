@@ -572,6 +572,21 @@ HTML;
                                                 wire:model="configuration.{{ $fieldKey }}"
                                                 value="{{ $currentValue }}"
                                             />
+                                        @elseif($field['field_type'] === 'select')
+                                            <flux:select
+                                                label="{{ $field['name'] }}"
+                                                wire:model="configuration.{{ $fieldKey }}"
+                                                description="{{ $field['description'] ?? '' }}"
+                                            >
+                                                <option value="">Select {{ strtolower($field['name']) }}...</option>
+                                                @if(isset($field['options']) && is_array($field['options']))
+                                                    @foreach($field['options'] as $option)
+                                                        @foreach($option as $label => $value)
+                                                            <option value="{{ $value }}" {{ $currentValue === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                                        @endforeach
+                                                    @endforeach
+                                                @endif
+                                            </flux:select>
                                         @else
                                             <p>{{ $field['name'] }}: Field type "{{ $field['field_type'] }}" not yet supported</p>
                                         @endif
