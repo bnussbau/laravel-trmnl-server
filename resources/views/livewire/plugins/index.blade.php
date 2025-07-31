@@ -112,11 +112,16 @@ new class extends Component {
             // They could be in different locations depending on the ZIP structure
             $settingsYamlPath = null;
             $fullLiquidPath = null;
+            $sharedLiquidPath = null;
 
             // First, check if files are directly in the src folder
             if (File::exists($tempDir . '/src/settings.yml') && File::exists($tempDir . '/src/full.liquid')) {
                 $settingsYamlPath = $tempDir . '/src/settings.yml';
                 $fullLiquidPath = $tempDir . '/src/full.liquid';
+                // Check for shared.liquid in the same directory
+                if (File::exists($tempDir . '/src/shared.liquid')) {
+                    $sharedLiquidPath = $tempDir . '/src/shared.liquid';
+                }
             } else {
                 // Search for the files in the extracted directory structure
                 $directories = new \RecursiveDirectoryIterator($tempDir, \RecursiveDirectoryIterator::SKIP_DOTS);
@@ -130,9 +135,11 @@ new class extends Component {
                         $settingsYamlPath = $filepath;
                     } elseif ($filename === 'full.liquid') {
                         $fullLiquidPath = $filepath;
+                    } elseif ($filename === 'shared.liquid') {
+                        $sharedLiquidPath = $filepath;
                     }
 
-                    // If we found both files, break the loop
+                    // If we found both required files, break the loop
                     if ($settingsYamlPath && $fullLiquidPath) {
                         break;
                     }
@@ -153,6 +160,12 @@ new class extends Component {
                         File::copy($settingsYamlPath, $newSrcDir . '/settings.yml');
                         File::copy($fullLiquidPath, $newSrcDir . '/full.liquid');
 
+                        // Copy shared.liquid if it exists
+                        if ($sharedLiquidPath) {
+                            File::copy($sharedLiquidPath, $newSrcDir . '/shared.liquid');
+                            $sharedLiquidPath = $newSrcDir . '/shared.liquid';
+                        }
+
                         // Update the paths
                         $settingsYamlPath = $newSrcDir . '/settings.yml';
                         $fullLiquidPath = $newSrcDir . '/full.liquid';
@@ -171,6 +184,14 @@ new class extends Component {
 
             // Read full.liquid content
             $fullLiquid = File::get($fullLiquidPath);
+            $fullLiquid = '<div class="view view--{{ size }}">' . "\n" . $fullLiquid . "\n" . '</div>';
+
+            // Prepend shared.liquid content if available
+            if ($sharedLiquidPath && File::exists($sharedLiquidPath)) {
+                $sharedLiquid = File::get($sharedLiquidPath);
+                $fullLiquid = $sharedLiquid . "\n" . $fullLiquid;
+            }
+            
 
             // Check if the file ends with .liquid to set markup language
             $markupLanguage = 'blade';

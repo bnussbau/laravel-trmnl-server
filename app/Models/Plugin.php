@@ -138,7 +138,7 @@ class Plugin extends Model
                     'size' => $size,
                     'data' => $this->data_payload,
                     'config' => $this->configuration ?? [],
-                    ...$this->data_payload
+                    ...(is_array($this->data_payload) ? $this->data_payload : [])
                 ]);
                 $renderedContent = $template->render($context);
             } else {
