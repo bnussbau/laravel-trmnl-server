@@ -239,7 +239,7 @@ new class extends Component {
                     <flux:button icon="chevron-down" variant="primary"></flux:button>
                     <flux:menu>
                         <flux:modal.trigger name="import-zip">
-                            <flux:menu.item icon="archive-box">Import ZIP File (trmnlp)</flux:menu.item>
+                            <flux:menu.item icon="archive-box">Import Recipe</flux:menu.item>
                         </flux:modal.trigger>
                         <flux:menu.item icon="beaker" wire:click="seedExamplePlugins">Seed Example Recipes</flux:menu.item>
                     </flux:menu>
@@ -252,25 +252,41 @@ new class extends Component {
         <flux:modal name="import-zip" class="md:w-96">
             <div class="space-y-6">
                 <div>
-                    <flux:heading size="lg">Import ZIP File (trmnlp)</flux:heading>
-                    <flux:subheading>Upload a ZIP file containing a TRMNL plugin</flux:subheading>
+                    <flux:heading size="lg">Import Recipe
+                        <flux:badge color="yellow" class="ml-2">Alpha</flux:badge>
+                    </flux:heading>
+                    <flux:subheading>Upload a ZIP archive containing a TRMNL recipe — either exported from the cloud service or structured using the <a href="https://github.com/usetrmnl/trmnlp" target="_blank" class="underline">trmnlp</a> project structure.</flux:subheading>
                 </div>
 
-                <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-                    <p>The ZIP file should contain the following structure:</p>
-                    <pre class="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs overflow-auto">
-.
-├── src
-│   ├── full.liquid (required)
-│   ├── settings.yml (required)
-│   └── ...
-└── ...
-                    </pre>
+                <div class="mb-4">
+                    <flux:text>The archive must at least contain <code>settings.yml</code> and <code>full.liquid</code> files.</flux:text>
+{{--                    <p>The ZIP file should contain the following structure:</p>--}}
+{{--                    <pre class="mt-2 p-2 bg-gray-100 dark:bg-gray-800 rounded text-xs overflow-auto">--}}
+{{--.--}}
+{{--├── src--}}
+{{--│   ├── full.liquid (required)--}}
+{{--│   ├── settings.yml (required)--}}
+{{--│   └── ...--}}
+{{--└── ...--}}
+{{--                    </pre>--}}
+                </div>
+
+                <div class="mb-4">
+                    <flux:heading size="sm">Limitations</flux:heading>
+                    <ul class="list-disc pl-5 mt-2">
+                        <li><flux:text>Only one polling endpoint is supported</flux:text></li>
+                        <li><flux:text>Some Liquid filters may be not supported or behave differently</flux:text></li>
+                        <li><flux:text>Only full view will be imported; shared markup will be prepended</flux:text></li>
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <flux:text>Please report issues on GitHub <a href="https://github.com/usetrmnl/byos_laravel/issues/new">https://github.com/usetrmnl/byos_laravel/issues/new</a></flux:text>
                 </div>
 
                 <form wire:submit="importZip">
                     <div class="mb-4">
-                        <label for="zipFile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ZIP File</label>
+                        <label for="zipFile" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">.zip Archive</label>
                         <input
                             type="file"
                             wire:model="zipFile"
@@ -283,7 +299,7 @@ new class extends Component {
 
                     <div class="flex">
                         <flux:spacer/>
-                        <flux:button type="submit" variant="primary">Import Plugin</flux:button>
+                        <flux:button type="submit" variant="primary">Import</flux:button>
                     </div>
                 </form>
             </div>
