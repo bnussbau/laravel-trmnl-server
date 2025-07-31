@@ -108,19 +108,9 @@ class Plugin extends Model
         // Use the Liquid template engine to resolve variables
         $environment = App::make('liquid.environment');
         $liquidTemplate = $environment->parseString($template);
-        $context = $environment->newRenderContext(data: [
-            'config' => $variables
-        ]);
+        $context = $environment->newRenderContext(data: $variables);
 
-        try {
-            return $liquidTemplate->render($context);
-        } catch (LiquidException $e) {
-            // Fallback to simple regex replacement if Liquid parsing fails
-            return preg_replace_callback('/\{\{\s*([^}]+)\s*\}\}/', function($matches) use ($variables) {
-                $variableName = trim($matches[1]);
-                return $variables[$variableName] ?? $matches[0]; // Keep original if not found
-            }, $template);
-        }
+        return $liquidTemplate->render($context);
     }
 
     /**
@@ -147,7 +137,8 @@ class Plugin extends Model
                 $context = $environment->newRenderContext(data: [
                     'size' => $size,
                     'data' => $this->data_payload,
-                    'config' => $this->configuration ?? []
+                    'config' => $this->configuration ?? [],
+                    ...$this->data_payload
                 ]);
                 $renderedContent = $template->render($context);
             } else {
