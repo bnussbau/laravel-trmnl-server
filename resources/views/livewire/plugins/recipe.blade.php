@@ -2,6 +2,7 @@
 
 use App\Models\Plugin;
 use Illuminate\Support\Carbon;
+use Keepsuit\Liquid\Exceptions\LiquidException;
 use Livewire\Volt\Component;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Arr;
@@ -324,6 +325,8 @@ HTML;
         try {
             $previewMarkup = $this->plugin->render($size);
             $this->dispatch('preview-updated', preview: $previewMarkup);
+        } catch (LiquidException $e) {
+            $this->dispatch('preview-error', message: $e->toLiquidErrorMessage());
         } catch (\Exception $e) {
             $this->dispatch('preview-error', message: $e->getMessage());
         }

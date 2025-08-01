@@ -96,8 +96,9 @@ class Plugin extends Model
     /**
      * Resolve Liquid variables in a template string using the Liquid template engine
      *
-     * @param string $template The template string containing Liquid variables
+     * @param  string  $template  The template string containing Liquid variables
      * @return string The resolved template with variables replaced with their values
+     *
      * @throws LiquidException
      */
     public function resolveLiquidVariables(string $template): string
@@ -138,14 +139,26 @@ class Plugin extends Model
                     'size' => $size,
                     'data' => $this->data_payload,
                     'config' => $this->configuration ?? [],
-                    ...(is_array($this->data_payload) ? $this->data_payload : [])
+                    ...(is_array($this->data_payload) ? $this->data_payload : []),
+                    'trmnl' => [
+                        'user' => [
+                            'utc_offset' => '0',
+                        ],
+                        'plugin_settings' => [
+                            'instance_name' => null,
+                            'polling_url' => 'https://opds-demo.benjaminnussbaum.at/opds/shelf/1',
+                            'custom_fields_values' => [
+                                'display_layout' => 'cover_description',
+                            ],
+                        ],
+                    ],
                 ]);
                 $renderedContent = $template->render($context);
             } else {
                 $renderedContent = Blade::render($this->render_markup, [
                     'size' => $size,
                     'data' => $this->data_payload,
-                    'config' => $this->configuration ?? []
+                    'config' => $this->configuration ?? [],
                 ]);
             }
 
@@ -164,7 +177,7 @@ class Plugin extends Model
                     'slot' => view($this->render_markup_view, [
                         'size' => $size,
                         'data' => $this->data_payload,
-                        'config' => $this->configuration ?? []
+                        'config' => $this->configuration ?? [],
                     ])->render(),
                 ])->render();
             }
@@ -172,7 +185,7 @@ class Plugin extends Model
             return view($this->render_markup_view, [
                 'size' => $size,
                 'data' => $this->data_payload,
-                'config' => $this->configuration ?? []
+                'config' => $this->configuration ?? [],
             ])->render();
 
         }

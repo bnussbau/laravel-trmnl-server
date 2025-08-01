@@ -191,7 +191,7 @@ new class extends Component {
                 $sharedLiquid = File::get($sharedLiquidPath);
                 $fullLiquid = $sharedLiquid . "\n" . $fullLiquid;
             }
-            
+
 
             // Check if the file ends with .liquid to set markup language
             $markupLanguage = 'blade';
@@ -296,13 +296,13 @@ new class extends Component {
                     <flux:heading size="sm">Limitations</flux:heading>
                     <ul class="list-disc pl-5 mt-2">
                         <li><flux:text>Only one polling endpoint is supported</flux:text></li>
-                        <li><flux:text>Some Liquid filters may be not supported or behave differently</flux:text></li>
                         <li><flux:text>Only full view will be imported; shared markup will be prepended</flux:text></li>
+                        <li><flux:text>Some Liquid filters may be not supported or behave differently</flux:text></li>
+                        <ul class="list-disc pl-5 mt-2">
+                            <li><flux:text><code>{% template %}</code> is unsupported</flux:text></li>
+                            <li><flux:text><code>date: "%N"</code> is unsupported. Use <code>date: "u"</code> instead </flux:text></li>
+                        </ul>
                     </ul>
-                </div>
-
-                <div class="mb-4">
-                    <flux:text>Please report issues on GitHub <a href="https://github.com/usetrmnl/byos_laravel/issues/new">https://github.com/usetrmnl/byos_laravel/issues/new</a></flux:text>
                 </div>
 
                 <form wire:submit="importZip">
