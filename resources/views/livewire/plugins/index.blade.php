@@ -47,6 +47,14 @@ new class extends Component {
         $this->plugins = array_merge($this->native_plugins, $userPlugins ?? []);
     }
 
+    private function applyLiquidReplacements(string $fullLiquid): string
+    {
+        $replacements = [
+            'date: "%N"' => 'date: "u"',
+        ];
+        return str_replace(array_keys($replacements), array_values($replacements), $fullLiquid);
+    }
+
     public function mount(): void
     {
         $this->refreshPlugins();
@@ -192,6 +200,8 @@ new class extends Component {
                 $fullLiquid = $sharedLiquid . "\n" . $fullLiquid;
             }
 
+            // Apply string replacements to $fullLiquid
+            $fullLiquid = $this->applyLiquidReplacements($fullLiquid);
 
             // Check if the file ends with .liquid to set markup language
             $markupLanguage = 'blade';
