@@ -7,6 +7,10 @@ use App\Liquid\Filters\Localization;
 use App\Liquid\Filters\Numbers;
 use App\Liquid\Filters\StringMarkup;
 use App\Liquid\Filters\Uniqueness;
+use App\Liquid\Tags\TemplateTag;
+use App\Liquid\FileSystems\InlineTemplatesFileSystem;
+use Keepsuit\Liquid\Tags\RenderTag;
+use Keepsuit\Liquid\Extensions\StandardExtension;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
@@ -104,7 +108,9 @@ class Plugin extends Model
     public function resolveLiquidVariables(string $template): string
     {
         // Get configuration variables
-        $variables = $this->configuration ?? [];
+        $variables = [
+            'config' => $this->configuration ?? [],
+        ];
 
         // Use the Liquid template engine to resolve variables
         $environment = App::make('liquid.environment');
@@ -125,7 +131,12 @@ class Plugin extends Model
             $renderedContent = '';
 
             if ($this->markup_language === 'liquid') {
-                $environment = App::make('liquid.environment');
+                // Create a custom environment with inline templates support
+                $inlineFileSystem = new InlineTemplatesFileSystem();
+                $environment = new \Keepsuit\Liquid\Environment(
+                    fileSystem: $inlineFileSystem,
+                    extensions: [new StandardExtension()]
+                );
 
                 // Register all custom filters
                 $environment->filterRegistry->register(Numbers::class);
@@ -134,25 +145,30 @@ class Plugin extends Model
                 $environment->filterRegistry->register(Uniqueness::class);
                 $environment->filterRegistry->register(Localization::class);
 
+                // Register the template tag for inline templates
+                $environment->tagRegistry->register(TemplateTag::class);
+
                 $template = $environment->parseString($this->render_markup);
-                $context = $environment->newRenderContext(data: [
-                    'size' => $size,
-                    'data' => $this->data_payload,
-                    'config' => $this->configuration ?? [],
-                    ...(is_array($this->data_payload) ? $this->data_payload : []),
-                    'trmnl' => [
-                        'user' => [
-                            'utc_offset' => '0',
-                        ],
-                        'plugin_settings' => [
-                            'instance_name' => null,
-                            'polling_url' => 'https://opds-demo.benjaminnussbaum.at/opds/shelf/1',
-                            'custom_fields_values' => [
-                                'display_layout' => 'cover_description',
+                $context = $environment->newRenderContext(
+                    data: [
+                        'size' => $size,
+                        'data' => $this->data_payload,
+                        'config' => $this->configuration ?? [],
+                        ...(is_array($this->data_payload) ? $this->data_payload : []),
+                        'trmnl' => [
+                            'user' => [
+                                'utc_offset' => '0',
+                            ],
+                            'plugin_settings' => [
+                                'instance_name' => null,
+                                'polling_url' => 'https://opds-demo.benjaminnussbaum.at/opds/shelf/1',
+                                'custom_fields_values' => [
+                                    'display_layout' => 'cover_description',
+                                ],
                             ],
                         ],
-                    ],
-                ]);
+                    ]
+                );
                 $renderedContent = $template->render($context);
             } else {
                 $renderedContent = Blade::render($this->render_markup, [

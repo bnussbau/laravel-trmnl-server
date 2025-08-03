@@ -308,10 +308,9 @@ new class extends Component {
                         <li><flux:text>Only one polling endpoint is supported</flux:text></li>
                         <li><flux:text>Only full view will be imported; shared markup will be prepended</flux:text></li>
                         <li><flux:text>Some Liquid filters may be not supported or behave differently</flux:text></li>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li><flux:text><code>{% template %}</code> is unsupported</flux:text></li>
-                            <li><flux:text><code>date: "%N"</code> is unsupported. Use <code>date: "u"</code> instead </flux:text></li>
-                        </ul>
+{{--                        <ul class="list-disc pl-5 mt-2">--}}
+{{--                            <li><flux:text><code>date: "%N"</code> is unsupported. Use <code>date: "u"</code> instead </flux:text></li>--}}
+{{--                        </ul>--}}
                     </ul>
                 </div>
 

@@ -167,11 +167,9 @@ test('resolveLiquidVariables handles invalid Liquid syntax gracefully', function
         ]
     ]);
 
-    // Test with unclosed Liquid tag (should not throw exception)
+    // Test with unclosed Liquid tag (should throw exception)
     $template = 'Unclosed tag: {{ config.api_key';
-    $result = $plugin->resolveLiquidVariables($template);
-
-    // The result might vary depending on how the Liquid engine handles errors,
-    // but the important thing is that it doesn't throw an unhandled exception
-    expect($result)->toBeString();
+    
+    expect(fn() => $plugin->resolveLiquidVariables($template))
+        ->toThrow(\Keepsuit\Liquid\Exceptions\SyntaxException::class);
 });
