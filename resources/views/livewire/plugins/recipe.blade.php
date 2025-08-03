@@ -537,7 +537,7 @@ HTML;
                                         @if($field['field_type'] === 'string')
                                             <flux:input
                                                 label="{{ $field['name'] }}"
-                                                description="{{ $field['description'] }}"
+                                                description="{{ $field['description'] ?? '' }}"
                                                 wire:model="configuration.{{ $fieldKey }}"
                                                 value="{{ $currentValue }}"
                                             />
