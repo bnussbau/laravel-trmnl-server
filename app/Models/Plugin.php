@@ -160,10 +160,11 @@ class Plugin extends Model
                                 'utc_offset' => '0',
                             ],
                             'plugin_settings' => [
-                                'instance_name' => null,
-                                'polling_url' => 'https://opds-demo.benjaminnussbaum.at/opds/shelf/1',
+                                'instance_name' => $this->name,
+                                'polling_url' =>  $this->polling_url,
                                 'custom_fields_values' => [
                                     'display_layout' => 'cover_description',
+                                    ...(is_array($this->configuration) ? $this->configuration: []),
                                 ],
                             ],
                         ],
