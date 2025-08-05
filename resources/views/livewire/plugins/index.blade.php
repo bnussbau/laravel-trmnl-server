@@ -219,6 +219,16 @@ new class extends Component {
                 'custom_fields' => $settings['custom_fields']
             ];
 
+            // Extract default values from custom_fields and populate configuration
+            $configuration = [];
+            if (isset($settings['custom_fields']) && is_array($settings['custom_fields'])) {
+                foreach ($settings['custom_fields'] as $field) {
+                    if (isset($field['keyname']) && isset($field['default'])) {
+                        $configuration[$field['keyname']] = $field['default'];
+                    }
+                }
+            }
+
             // Create a new plugin
             $plugin = \App\Models\Plugin::create([
                 'uuid' => Str::uuid(),
@@ -231,6 +241,7 @@ new class extends Component {
                 'markup_language' => $markupLanguage,
                 'render_markup' => $fullLiquid,
                 'configuration_template' => $configurationTemplate,
+                'configuration' => $configuration,
                 'data_payload' => json_decode($settings['static_data'] ?? '{}', true),
             ]);
 

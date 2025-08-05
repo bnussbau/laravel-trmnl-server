@@ -173,3 +173,49 @@ test('resolveLiquidVariables handles invalid Liquid syntax gracefully', function
     expect(fn() => $plugin->resolveLiquidVariables($template))
         ->toThrow(\Keepsuit\Liquid\Exceptions\SyntaxException::class);
 });
+
+test('plugin can extract default values from custom fields configuration template', function () {
+    $configurationTemplate = [
+        'custom_fields' => [
+            [
+                'keyname' => 'reading_days',
+                'field_type' => 'string',
+                'name' => 'Reading Days',
+                'description' => 'Select days of the week to read',
+                'default' => 'Monday,Friday,Saturday,Sunday'
+            ],
+            [
+                'keyname' => 'refresh_interval',
+                'field_type' => 'number',
+                'name' => 'Refresh Interval',
+                'description' => 'How often to refresh data',
+                'default' => 30
+            ],
+            [
+                'keyname' => 'timezone',
+                'field_type' => 'time_zone',
+                'name' => 'Timezone',
+                'description' => 'Select your timezone'
+                // No default value
+            ]
+        ]
+    ];
+
+    $plugin = Plugin::factory()->create([
+        'configuration_template' => $configurationTemplate,
+        'configuration' => [
+            'reading_days' => 'Monday,Friday,Saturday,Sunday',
+            'refresh_interval' => 30
+        ]
+    ]);
+
+    expect($plugin->configuration)
+        ->toBeArray()
+        ->toHaveKey('reading_days')
+        ->toHaveKey('refresh_interval')
+        ->not->toHaveKey('timezone');
+
+    expect($plugin->getConfiguration('reading_days'))->toBe('Monday,Friday,Saturday,Sunday');
+    expect($plugin->getConfiguration('refresh_interval'))->toBe(30);
+    expect($plugin->getConfiguration('timezone'))->toBeNull();
+});
