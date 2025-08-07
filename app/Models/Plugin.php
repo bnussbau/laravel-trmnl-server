@@ -74,24 +74,78 @@ class Plugin extends Model
                 }
             }
 
-            $httpRequest = Http::withHeaders($headers);
+            // Split URLs by newline and filter out empty lines
+            $urls = array_filter(
+                array_map('trim', explode("\n", $this->polling_url)),
+                fn($url) => !empty($url)
+            );
 
-            if ($this->polling_verb === 'post' && $this->polling_body) {
-                $httpRequest = $httpRequest->withBody($this->polling_body);
+            // If only one URL, use the original logic without nesting
+            if (count($urls) === 1) {
+                $url = reset($urls);
+                $httpRequest = Http::withHeaders($headers);
+
+                if ($this->polling_verb === 'post' && $this->polling_body) {
+                    $httpRequest = $httpRequest->withBody($this->polling_body);
+                }
+
+                // Resolve Liquid variables in the polling URL
+                $resolvedUrl = $this->resolveLiquidVariables($url);
+
+                try {
+                    // Make the request based on the verb
+                    if ($this->polling_verb === 'post') {
+                        $response = $httpRequest->post($resolvedUrl)->json();
+                    } else {
+                        $response = $httpRequest->get($resolvedUrl)->json();
+                    }
+
+                    $this->update([
+                        'data_payload' => $response,
+                        'data_payload_updated_at' => now(),
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::warning("Failed to fetch data from URL {$resolvedUrl}: " . $e->getMessage());
+                    $this->update([
+                        'data_payload' => ['error' => 'Failed to fetch data'],
+                        'data_payload_updated_at' => now(),
+                    ]);
+                }
+                return;
             }
 
-            // Resolve Liquid variables in the polling URL
-            $resolvedUrl = $this->resolveLiquidVariables($this->polling_url);
+            // Multiple URLs - use nested response logic
+            $combinedResponse = [];
 
-            // Make the request based on the verb
-            if ($this->polling_verb === 'post') {
-                $response = $httpRequest->post($resolvedUrl)->json();
-            } else {
-                $response = $httpRequest->get($resolvedUrl)->json();
+            foreach ($urls as $index => $url) {
+                $httpRequest = Http::withHeaders($headers);
+
+                if ($this->polling_verb === 'post' && $this->polling_body) {
+                    $httpRequest = $httpRequest->withBody($this->polling_body);
+                }
+
+                // Resolve Liquid variables in the polling URL
+                $resolvedUrl = $this->resolveLiquidVariables($url);
+
+                try {
+                    // Make the request based on the verb
+                    if ($this->polling_verb === 'post') {
+                        $response = $httpRequest->post($resolvedUrl)->json();
+                    } else {
+                        $response = $httpRequest->get($resolvedUrl)->json();
+                    }
+
+                    // Add response with IDX_ prefix
+                    $combinedResponse["IDX_{$index}"] = $response;
+                } catch (\Exception $e) {
+                    // Log error and continue with other URLs
+                    \Log::warning("Failed to fetch data from URL {$resolvedUrl}: " . $e->getMessage());
+                    $combinedResponse["IDX_{$index}"] = ['error' => 'Failed to fetch data'];
+                }
             }
 
             $this->update([
-                'data_payload' => $response,
+                'data_payload' => $combinedResponse,
                 'data_payload_updated_at' => now(),
             ]);
         }
@@ -107,10 +161,8 @@ class Plugin extends Model
      */
     public function resolveLiquidVariables(string $template): string
     {
-        // Get configuration variables
-        $variables = [
-            'config' => $this->configuration ?? [],
-        ];
+        // Get configuration variables - make them available at root level
+        $variables = $this->configuration ?? [];
 
         // Use the Liquid template engine to resolve variables
         $environment = App::make('liquid.environment');

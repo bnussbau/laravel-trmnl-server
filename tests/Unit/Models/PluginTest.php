@@ -72,6 +72,54 @@ test('updateDataPayload sends POST request with body when polling_verb is post',
     });
 });
 
+test('updateDataPayload handles multiple URLs with IDX_ prefixes', function () {
+    $plugin = Plugin::factory()->create([
+        'data_strategy' => 'polling',
+        'polling_url' => "https://api1.example.com/data\nhttps://api2.example.com/weather\nhttps://api3.example.com/news",
+        'polling_verb' => 'get',
+        'configuration' => [
+            'api_key' => 'test123'
+        ]
+    ]);
+
+    // Mock HTTP responses
+    Http::fake([
+        'https://api1.example.com/data' => Http::response(['data' => 'test1'], 200),
+        'https://api2.example.com/weather' => Http::response(['temp' => 25], 200),
+        'https://api3.example.com/news' => Http::response(['headline' => 'test'], 200),
+    ]);
+
+    $plugin->updateDataPayload();
+
+    expect($plugin->data_payload)->toHaveKey('IDX_0');
+    expect($plugin->data_payload)->toHaveKey('IDX_1');
+    expect($plugin->data_payload)->toHaveKey('IDX_2');
+    expect($plugin->data_payload['IDX_0'])->toBe(['data' => 'test1']);
+    expect($plugin->data_payload['IDX_1'])->toBe(['temp' => 25]);
+    expect($plugin->data_payload['IDX_2'])->toBe(['headline' => 'test']);
+});
+
+test('updateDataPayload handles single URL without nesting', function () {
+    $plugin = Plugin::factory()->create([
+        'data_strategy' => 'polling',
+        'polling_url' => 'https://api.example.com/data',
+        'polling_verb' => 'get',
+        'configuration' => [
+            'api_key' => 'test123'
+        ]
+    ]);
+
+    // Mock HTTP response
+    Http::fake([
+        'https://api.example.com/data' => Http::response(['data' => 'test'], 200),
+    ]);
+
+    $plugin->updateDataPayload();
+
+    expect($plugin->data_payload)->toBe(['data' => 'test']);
+    expect($plugin->data_payload)->not->toHaveKey('IDX_0');
+});
+
 test('webhook plugin is stale if webhook event occurred', function () {
     $plugin = Plugin::factory()->create([
         'data_strategy' => 'webhook',
@@ -140,22 +188,22 @@ test('resolveLiquidVariables resolves variables from configuration', function ()
     ]);
 
     // Test simple variable replacement
-    $template = 'API Key: {{ config.api_key }}';
+    $template = 'API Key: {{ api_key }}';
     $result = $plugin->resolveLiquidVariables($template);
     expect($result)->toBe('API Key: 12345');
 
     // Test multiple variables
-    $template = 'User: {{ config.username }}, Count: {{ config.count }}';
+    $template = 'User: {{ username }}, Count: {{ count }}';
     $result = $plugin->resolveLiquidVariables($template);
     expect($result)->toBe('User: testuser, Count: 42');
 
     // Test with missing variable (should keep original)
-    $template = 'Missing: {{ config.missing }}';
+    $template = 'Missing: {{ missing }}';
     $result = $plugin->resolveLiquidVariables($template);
     expect($result)->toBe('Missing: ');
 
     // Test with Liquid control structures
-    $template = '{% if config.count > 40 %}High{% else %}Low{% endif %}';
+    $template = '{% if count > 40 %}High{% else %}Low{% endif %}';
     $result = $plugin->resolveLiquidVariables($template);
     expect($result)->toBe('High');
 });
@@ -218,4 +266,43 @@ test('plugin can extract default values from custom fields configuration templat
     expect($plugin->getConfiguration('reading_days'))->toBe('Monday,Friday,Saturday,Sunday');
     expect($plugin->getConfiguration('refresh_interval'))->toBe(30);
     expect($plugin->getConfiguration('timezone'))->toBeNull();
+});
+
+test('resolveLiquidVariables resolves configuration variables correctly', function () {
+    $plugin = Plugin::factory()->create([
+        'configuration' => [
+            'Latitude' => '48.2083',
+            'Longitude' => '16.3731',
+            'api_key' => 'test123'
+        ]
+    ]);
+
+    $template = 'https://suntracker.me/?lat={{ Latitude }}&lon={{ Longitude }}';
+    $expected = 'https://suntracker.me/?lat=48.2083&lon=16.3731';
+    
+    expect($plugin->resolveLiquidVariables($template))->toBe($expected);
+});
+
+test('resolveLiquidVariables handles missing variables gracefully', function () {
+    $plugin = Plugin::factory()->create([
+        'configuration' => [
+            'Latitude' => '48.2083'
+        ]
+    ]);
+
+    $template = 'https://suntracker.me/?lat={{ Latitude }}&lon={{ Longitude }}&key={{ api_key }}';
+    $expected = 'https://suntracker.me/?lat=48.2083&lon=&key=';
+    
+    expect($plugin->resolveLiquidVariables($template))->toBe($expected);
+});
+
+test('resolveLiquidVariables handles empty configuration', function () {
+    $plugin = Plugin::factory()->create([
+        'configuration' => []
+    ]);
+
+    $template = 'https://suntracker.me/?lat={{ Latitude }}&lon={{ Longitude }}';
+    $expected = 'https://suntracker.me/?lat=&lon=';
+    
+    expect($plugin->resolveLiquidVariables($template))->toBe($expected);
 });

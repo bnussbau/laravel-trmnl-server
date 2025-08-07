@@ -719,7 +719,7 @@ HTML;
 
                     @if($data_strategy === 'polling')
                         <div class="mb-4">
-                            <flux:input label="Polling URL" wire:model="polling_url" id="polling_url"
+                            <flux:textarea label="Polling URL" wire:model="polling_url" id="polling_url"
                                         placeholder="https://example.com/api"
                                         class="block mt-1 w-full" type="text" name="polling_url" autofocus>
                                 <x-slot name="iconTrailing">
@@ -728,6 +728,9 @@ HTML;
                                                  tooltip="Fetch data now" class="-mr-1"/>
                                 </x-slot>
                             </flux:input>
+                            <flux:button size="sm" variant="subtle" icon="cloud-arrow-down"
+                                                 wire:click="updateData"
+                                                 tooltip="Fetch data now" class="-mr-1"/>
                             <flux:description class="mt-1">You can use configuration variables with Liquid syntax.</flux:description>
                         </div>
 
