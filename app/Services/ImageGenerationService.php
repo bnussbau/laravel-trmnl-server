@@ -46,11 +46,14 @@ class ImageGenerationService
         } else {
             try {
                 $browsershot = Browsershot::html($markup)
-                    ->setOption('args', config('app.puppeteer_docker') ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'] : [])
-                    ->windowSize(800, 480);
-
+                    ->setOption('args', config('app.puppeteer_docker') ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'] : []);
                 if (config('app.puppeteer_wait_for_network_idle')) {
                     $browsershot->waitUntilNetworkIdle();
+                }
+                if (config('app.puppeteer_window_size_strategy') == 'v2') {
+                    $browsershot->windowSize($imageSettings['width'], $imageSettings['height']);
+                } else {
+                    $browsershot->windowSize(800, 480);
                 }
                 $browsershot->save($pngPath);
             } catch (Exception $e) {
