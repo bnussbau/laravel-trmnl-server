@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Mockery;
@@ -17,12 +18,24 @@ class OidcAuthenticationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Enable OIDC for testing
         Config::set('services.oidc.enabled', true);
         Config::set('services.oidc.endpoint', 'https://example.com/oidc');
         Config::set('services.oidc.client_id', 'test-client-id');
         Config::set('services.oidc.client_secret', 'test-client-secret');
+
+        // Mock Socialite OIDC driver to avoid any external HTTP calls
+        $provider = Mockery::mock();
+        $provider->shouldReceive('redirect')->andReturn(redirect('/fake-oidc-redirect'));
+
+        // Default Socialite user returned by callback
+        $socialiteUser = $this->mockSocialiteUser();
+        $provider->shouldReceive('user')->andReturn($socialiteUser);
+
+        Socialite::shouldReceive('driver')
+            ->with('oidc')
+            ->andReturn($provider);
     }
 
     public function test_oidc_redirect_works_when_enabled()
@@ -123,7 +136,7 @@ class OidcAuthenticationTest extends TestCase
     public function test_user_model_has_oidc_sub_fillable()
     {
         $user = new User();
-        
+
         $this->assertContains('oidc_sub', $user->getFillable());
     }
 
