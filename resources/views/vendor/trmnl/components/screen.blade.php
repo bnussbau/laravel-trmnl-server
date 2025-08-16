@@ -1,21 +1,21 @@
 {{--amazon_kindle_paperwhite_7th_gen screen--4bit screen--scale-xxlarge--}}
-@props([
-    'noBleed' => false,
-    'darkMode' => false,
-    'deviceVariant' => 'og',
-    'deviceOrientation' => null,
-    'colorDepth' => '1bit',
-    'scaleLevel' => null,
-    ])
-
 {{--@props([--}}
 {{--    'noBleed' => false,--}}
 {{--    'darkMode' => false,--}}
 {{--    'deviceVariant' => 'og',--}}
 {{--    'deviceOrientation' => null,--}}
-{{--    'colorDepth' => '2bit',--}}
+{{--    'colorDepth' => '1bit',--}}
 {{--    'scaleLevel' => null,--}}
-{{--])--}}
+{{--    ])--}}
+
+@props([
+    'noBleed' => false,
+    'darkMode' => false,
+    'deviceVariant' => 'og',
+    'deviceOrientation' => null,
+    'colorDepth' => '2bit',
+    'scaleLevel' => null,
+])
 
 {{--@props([--}}
 {{--    'noBleed' => false,--}}
