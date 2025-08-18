@@ -1,13 +1,3 @@
-{{--amazon_kindle_paperwhite_7th_gen screen--4bit screen--scale-xxlarge--}}
-{{--@props([--}}
-{{--    'noBleed' => false,--}}
-{{--    'darkMode' => false,--}}
-{{--    'deviceVariant' => 'og',--}}
-{{--    'deviceOrientation' => null,--}}
-{{--    'colorDepth' => '1bit',--}}
-{{--    'scaleLevel' => null,--}}
-{{--    ])--}}
-
 @props([
     'noBleed' => false,
     'darkMode' => false,
@@ -17,15 +7,7 @@
     'scaleLevel' => null,
 ])
 
-{{--@props([--}}
-{{--    'noBleed' => false,--}}
-{{--    'darkMode' => false,--}}
-{{--    'deviceVariant' => 'amazon_kindle_paperwhite_7th_gen',--}}
-{{--    'deviceOrientation' => null,--}}
-{{--    'colorDepth' => '4bit',--}}
-{{--    'scaleLevel' => 'xxlarge',--}}
-{{--    ])--}}
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">

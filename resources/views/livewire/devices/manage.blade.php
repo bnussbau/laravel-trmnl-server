@@ -47,21 +47,11 @@ new class extends Component {
         return view('livewire.devices.manage');
     }
 
-    public function updatedDeviceModelId()
+    public function updatedDeviceModelId(): void
     {
         // Convert empty string to null for custom selection
         if (empty($this->device_model_id)) {
             $this->device_model_id = null;
-            return;
-        }
-
-        if ($this->device_model_id) {
-            $deviceModel = DeviceModel::find($this->device_model_id);
-            if ($deviceModel) {
-                // Note: For device creation, we don't set width/height/rotate here
-                // as they're not part of the creation form, but the device model
-                // will be used when the device is configured later
-            }
         }
     }
 
