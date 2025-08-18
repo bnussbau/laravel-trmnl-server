@@ -23,8 +23,7 @@ test('dashboard shows device image with correct rotation', function () {
         ->get(route('dashboard'));
 
     $response->assertSuccessful();
-    $response->assertSee('transform: rotate(-90deg)');
-    $response->assertSee('transform-origin: center');
+    $response->assertSee('-rotate-[90deg]');
 });
 
 test('device configure page shows device image with correct rotation', function () {
@@ -43,8 +42,7 @@ test('device configure page shows device image with correct rotation', function 
         ->get(route('devices.configure', $device));
 
     $response->assertSuccessful();
-    $response->assertSee('transform: rotate(-90deg)');
-    $response->assertSee('transform-origin: center');
+    $response->assertSee('-rotate-[90deg]');
 });
 
 test('device with no rotation shows no transform style', function () {
@@ -63,7 +61,7 @@ test('device with no rotation shows no transform style', function () {
         ->get(route('dashboard'));
 
     $response->assertSuccessful();
-    $response->assertSee('transform: rotate(-0deg)');
+    $response->assertSee('-rotate-[0deg]');
 });
 
 test('device with null rotation defaults to 0', function () {
@@ -82,5 +80,5 @@ test('device with null rotation defaults to 0', function () {
         ->get(route('dashboard'));
 
     $response->assertSuccessful();
-    $response->assertSee('transform: rotate(-0deg)');
+    $response->assertSee('-rotate-[0deg]');
 });
