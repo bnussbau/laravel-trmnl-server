@@ -12,6 +12,7 @@
     "require": {
         "php": "^8.2",
         "ext-imagick": "*",
+        "ext-zip": "*",
         "bnussbau/laravel-trmnl-blade": "1.2.*",
         "intervention/image": "^3.11",
         "keepsuit/laravel-liquid": "^0.5.2",
@@ -22,8 +23,8 @@
         "livewire/flux": "^2.0",
         "livewire/volt": "^1.7",
         "spatie/browsershot": "^5.0",
-        "wnx/sidecar-browsershot": "^2.6",
-        "ext-zip": "*"
+        "symfony/yaml": "^7.3",
+        "wnx/sidecar-browsershot": "^2.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
