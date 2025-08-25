@@ -172,4 +172,84 @@ LIQUID
         $this->assertStringContainsString('This is a test', $result);
         $this->assertStringContainsString('class="simple"', $result);
     }
+
+    public function test_plugin_with_find_by_filter(): void
+    {
+        $plugin = Plugin::factory()->create([
+            'markup_language' => 'liquid',
+            'render_markup' => <<<'LIQUID'
+{% template user_info %}
+<div class="user">
+  <h2>{{ user.name }}</h2>
+  <p>Age: {{ user.age }}</p>
+</div>
+{% endtemplate %}
+
+{% assign found_user = collection | find_by: 'name', 'Ryan' %}
+{% render "user_info", user: found_user %}
+LIQUID
+            ,
+            'data_payload' => [
+                'collection' => [
+                    ['name' => 'Ryan', 'age' => 35],
+                    ['name' => 'Sara', 'age' => 29],
+                    ['name' => 'Jimbob', 'age' => 29],
+                ],
+            ],
+        ]);
+
+        $result = $plugin->render('full');
+
+        // Should render the user info for Ryan
+        $this->assertStringContainsString('Ryan', $result);
+        $this->assertStringContainsString('Age: 35', $result);
+        $this->assertStringContainsString('class="user"', $result);
+    }
+
+    public function test_plugin_with_find_by_filter_and_fallback(): void
+    {
+        $plugin = Plugin::factory()->create([
+            'markup_language' => 'liquid',
+            'render_markup' => <<<'LIQUID'
+{{ collection | find_by: 'name', 'ronak', 'Not Found' }}
+LIQUID
+            ,
+            'data_payload' => [
+                'collection' => [
+                    ['name' => 'Ryan', 'age' => 35],
+                    ['name' => 'Sara', 'age' => 29],
+                    ['name' => 'Jimbob', 'age' => 29],
+                ],
+            ],
+        ]);
+
+        $result = $plugin->render('full');
+
+        // Should return the fallback value
+        $this->assertStringContainsString('Not Found', $result);
+    }
+
+    public function test_plugin_with_group_by_filter(): void
+    {
+        $plugin = Plugin::factory()->create([
+            'markup_language' => 'liquid',
+            'render_markup' => <<<'LIQUID'
+{{ collection | group_by: 'age' | json }}
+LIQUID
+            ,
+            'data_payload' => [
+                'collection' => [
+                    ['name' => 'Ryan', 'age' => 35],
+                    ['name' => 'Sara', 'age' => 29],
+                    ['name' => 'Jimbob', 'age' => 29],
+                ],
+            ],
+        ]);
+
+        $result = $plugin->render('full');
+
+        // Should output JSON representation of grouped data
+        $this->assertStringContainsString('"35":[{"name":"Ryan","age":35}]', $result);
+        $this->assertStringContainsString('"29":[{"name":"Sara","age":29},{"name":"Jimbob","age":29}]', $result);
+    }
 }
